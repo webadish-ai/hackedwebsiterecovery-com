@@ -1,0 +1,301 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import ScannerCTA from '@/components/ScannerCTA.astro';
+import '@/styles/global.css';
+
+const faqs = [
+  {
+    q: 'I am locked out of wp-admin after a hack — can you get me back in?',
+    a: 'Yes. If your WordPress login no longer works because an attacker changed or deleted your admin account, we regain access through hosting-level access (cPanel/database/FTP) instead. We can create a fresh admin user or reset your existing one directly in the database, then secure the account so the attacker cannot lock you out again.',
+  },
+  {
+    q: 'The attacker deleted my admin user or changed the email — what now?',
+    a: 'This is a common move to keep you out while they use the site. Because we work at the database and hosting level, we do not depend on the WordPress login screen. We restore a legitimate administrator, remove the attacker’s rogue admin accounts, and reset the credentials and email back to you.',
+  },
+  {
+    q: 'Password reset emails are not arriving — is that part of the hack?',
+    a: 'Often yes. Attackers change the admin email or break the site’s mail function so reset links never reach you. We bypass the broken reset flow entirely by working through hosting access, then fix the admin email and verify mail is working again before handover.',
+  },
+  {
+    q: 'Is regaining access enough, or do I still need a cleanup?',
+    a: 'Getting back in is only step one. If the malware and the entry point that let the attacker in are still there, they can lock you out again. We recommend pairing access recovery with a full cleanup and hardening so the root cause is closed. We will tell you exactly what we find after the diagnosis.',
+  },
+  {
+    q: 'How fast can you restore my admin access?',
+    a: 'Access recovery itself is usually quick — often within a couple of hours of receiving hosting access. A full cleanup and hardening on top typically completes within 4–12 hours. Same-day emergency handling is available. You get a time estimate after the free diagnosis.',
+  },
+  {
+    q: 'What does this cost in India?',
+    a: 'Admin access recovery is included in our malware cleanup, which starts at ₹14,999 for standard WordPress sites and covers regaining access, removing rogue admins, cleaning malware, and hardening. WooCommerce and complex sites are quoted individually. Diagnosis is free with a fixed quote before any work begins.',
+  },
+];
+
+const symptoms = [
+  { label: 'Login credentials rejected', desc: 'Your correct username and password suddenly no longer work at /wp-admin.' },
+  { label: 'Admin account deleted', desc: 'Your administrator user is gone, or demoted, and an unfamiliar admin exists instead.' },
+  { label: 'Reset emails never arrive', desc: 'The "lost password" link is never delivered because the admin email was changed or mail is broken.' },
+  { label: 'Locked at hosting level too', desc: 'cPanel or hosting passwords were changed, compounding the lockout.' },
+];
+---
+
+<Base
+  title="Locked Out of WordPress Admin After Hack? Recovery India"
+  description="Attacker locked you out of wp-admin, deleted your admin user, or changed the email? We regain access through hosting-level recovery, remove rogue admins, clean the site, and secure your login. Free diagnosis, fixed price from ₹14,999."
+  canonical="https://www.wordpressrecovery.in/wp-admin-locked-after-hack-india/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "WordPress Admin Access Recovery India",
+    "description": "Recovery of WordPress administrator access after a hack — regains entry via hosting-level access, removes rogue admin accounts, resets credentials and email, and hardens the login.",
+    "provider": {
+      "@type": "ProfessionalService",
+      "name": "WordPressRecovery.in",
+      "url": "https://www.wordpressrecovery.in",
+      "telephone": "+919998757045"
+    },
+    "areaServed": { "@type": "Country", "name": "India" },
+    "offers": {
+      "@type": "Offer",
+      "price": "14999",
+      "priceCurrency": "INR",
+      "description": "Starting price for admin access recovery and cleanup"
+    },
+    "serviceType": "WordPress Admin Access Recovery"
+  })} />
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a }
+    }))
+  })} />
+
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-semibold px-4 py-2 rounded-full mb-8">
+        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
+        WordPress Admin Recovery — India
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
+        Locked Out of<br>
+        <span class="text-blue-400">Your Own WordPress?</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+        Attacker changed your password, deleted your admin user, or hijacked the email? We get you back in through hosting-level recovery — no dependence on the broken login screen — then remove rogue admins and secure the account. Fixed price. Free diagnosis.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
+          Get Free Diagnosis
+        </a>
+        <a href="https://wa.me/919998757045?text=I%20am%20locked%20out%20of%20my%20WordPress%20admin%20after%20a%20hack.%20I%20need%20help." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp Now
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
+        {['Access via hosting recovery', 'Rogue admin accounts removed', 'Login email & passwords reset', 'Same-day service available'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Symptoms -->
+  <section class="py-20 px-4 bg-slate-900">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Locked-Out Symptoms We Fix</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">If you recognise any of these, an attacker has taken control of your admin — and we can take it back.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {symptoms.map(w => (
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex gap-4">
+            <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-white mb-1">{w.label}</div>
+              <p class="text-slate-400 text-sm leading-relaxed">{w.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Real result proof -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10">
+        <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Real client recovery</div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Admin compromise reversed and access secured</h2>
+        <p class="text-gray-600 leading-relaxed mb-8">
+          A WebAdish client (Verofax) came to us with a partial admin compromise alongside malware and a Google warning. We restored legitimate access, removed the attacker’s foothold, hardened the login and entry point, then monitored to confirm no reinfection — so the attacker could not return or lock them out again.
+        </p>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          {[
+            { value: '<48h', label: 'Full recovery' },
+            { value: '0', label: 'Reinfections in 30 days' },
+            { value: '48h', label: 'Google warning cleared' },
+          ].map(m => (
+            <div class="bg-green-50 border border-green-100 rounded-2xl py-5 text-center">
+              <div class="text-2xl font-extrabold text-green-700 leading-none">{m.value}</div>
+              <div class="text-[11px] font-medium uppercase tracking-wide text-green-600 mt-1.5">{m.label}</div>
+            </div>
+          ))}
+        </div>
+        <a href="https://webadish.com/case-studies/verofax" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:gap-2.5 transition-all">
+          Read the full case study
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="py-20 px-4 bg-slate-950">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Get You Back In</h2>
+        <p class="text-slate-400">Regain control, remove the attacker, and close the door behind them.</p>
+      </div>
+      <div class="space-y-4">
+        {[
+          { step: '1', title: 'Free Diagnosis', desc: 'We confirm the lockout and how the attacker got in, using hosting access rather than the broken login. You get a fixed quote first.' },
+          { step: '2', title: 'Regain Access', desc: 'We restore a legitimate administrator via the database/hosting level and reset your password and admin email back to you.' },
+          { step: '3', title: 'Remove Rogue Admins', desc: 'Every unauthorised admin account, hidden user, and backdoor that allowed the takeover is removed.' },
+          { step: '4', title: 'Clean & Harden', desc: 'Malware is removed and the entry point closed — credentials, keys, and permissions reset so you cannot be locked out again.' },
+          { step: '5', title: 'Handover & Report', desc: 'You get secure access plus a report of what was found and removed, and recommendations to stay protected.' },
+        ].map(s => (
+          <div class="flex gap-5 items-start bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
+            <div>
+              <div class="font-semibold text-white mb-1">{s.title}</div>
+              <p class="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ScannerCTA />
+
+  <!-- Pricing -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Admin Recovery Pricing (India)</h2>
+      <p class="text-gray-600 mb-12">Fixed-fee pricing. You receive a quote after the free diagnosis — no surprises.</p>
+
+      <div class="grid sm:grid-cols-2 gap-5 mb-8">
+        <div class="border-2 border-blue-600 rounded-2xl p-7 text-left shadow-xl shadow-blue-100 relative">
+          <div class="absolute -top-3.5 left-6 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">MOST COMMON</div>
+          <div class="text-sm font-semibold text-blue-600 mb-2">Access Recovery + Cleanup</div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹14,999<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-xs text-gray-400 mb-5">Standard WordPress sites</div>
+          <ul class="space-y-2 text-sm text-gray-700">
+            {['Hosting-level access recovery', 'Rogue admin account removal', 'Password & admin email reset', 'Malware & backdoor removal', 'Login & entry point hardening', 'Cleanup report'].map(f => (
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="border border-gray-200 rounded-2xl p-7 text-left">
+          <div class="text-sm font-semibold text-gray-500 mb-2">WooCommerce / Complex</div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹75,000<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-xs text-gray-400 mb-5">Stores, lead-heavy & multi-site</div>
+          <ul class="space-y-2 text-sm text-gray-700">
+            {['Everything in standard recovery', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
+              <li class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. UPI and bank transfer accepted.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-20 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Admin Lockout Recovery — FAQ</h2>
+        <p class="text-gray-600">Common questions about being locked out of WordPress after a hack.</p>
+      </div>
+      <div class="space-y-2" id="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button class="faq-btn w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-expanded="false">
+              <span class="font-semibold text-slate-900 text-[15px]">{faq.q}</span>
+              <svg class="faq-icon w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-280" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="faq-body border-t border-gray-100">
+              <div>
+                <p class="px-6 py-4 text-gray-600 text-sm leading-relaxed">{faq.a}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>
+
+<script>
+  import { initReveal } from '@/lib/reveal';
+  initReveal();
+
+  document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item')!;
+      const body = item.querySelector<HTMLElement>('.faq-body')!;
+      const icon = btn.querySelector<SVGElement>('.faq-icon')!;
+      const isOpen = body.classList.contains('open');
+      document.querySelectorAll<HTMLElement>('.faq-body').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll<SVGElement>('.faq-icon').forEach(ic => ic.style.transform = '');
+      document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) {
+        body.classList.add('open');
+        icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+</script>

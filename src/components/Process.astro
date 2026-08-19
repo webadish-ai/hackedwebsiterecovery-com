@@ -1,0 +1,71 @@
+---
+const steps = [
+  {
+    num: '01',
+    title: 'Check',
+    desc: 'Full scan of files, database, and server logs to identify infection type and entry point.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>`,
+  },
+  {
+    num: '02',
+    title: 'Backup',
+    desc: 'Full site backup taken before any changes. Your data is protected regardless of outcome.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>`,
+  },
+  {
+    num: '03',
+    title: 'Clean',
+    desc: 'Manual removal of all malware, backdoors, injected code, and rogue users and files.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>`,
+  },
+  {
+    num: '04',
+    title: 'Restore',
+    desc: 'Verify site is fully functional and all content, products, and settings are intact.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>`,
+  },
+  {
+    num: '05',
+    title: 'Harden',
+    desc: 'Close the entry point, update all software, strengthen passwords, configure security.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>`,
+  },
+  {
+    num: '06',
+    title: 'Monitor',
+    desc: 'Post-recovery monitoring with follow-up check. Optional ongoing protection plan.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`,
+  },
+];
+---
+<section class="py-20 px-4 bg-slate-50" id="process">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="text-center mb-14" data-reveal>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">How We Recover Your Website</h2>
+      <p class="text-gray-600">A structured process — no guesswork, no shortcuts, no surprises.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {steps.map((step, i) => (
+        <div
+          class="relative bg-white border border-slate-200 rounded-2xl p-6 hover:border-blue-200 hover:shadow-md transition-all duration-200 group"
+          data-reveal
+          data-delay={String(Math.min((i % 3) * 100, 200))}
+        >
+          <!-- Step number -->
+          <div class="absolute top-5 right-5 text-4xl font-extrabold text-slate-100 group-hover:text-blue-50 transition-colors duration-200 select-none" aria-hidden="true">
+            {step.num}
+          </div>
+          <div class="bg-blue-700 rounded-xl w-11 h-11 flex items-center justify-center mb-4 relative z-10">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <Fragment set:html={step.icon} />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2 relative z-10">{step.title}</h3>
+          <p class="text-sm text-gray-600 leading-relaxed relative z-10">{step.desc}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

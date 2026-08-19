@@ -1,0 +1,60 @@
+---
+const points = [
+  {
+    title: 'Backup before we touch anything',
+    desc: 'A full backup is taken before any change, so your data is protected regardless of what we find.',
+  },
+  {
+    title: 'Fixed quote before work begins',
+    desc: 'You approve a written scope and price first. No surprise invoices, no vague “it depends” billing.',
+  },
+  {
+    title: 'Root cause closed, not just symptoms',
+    desc: 'Every recovery includes hardening that closes the entry point the attacker used — so it does not simply return.',
+  },
+];
+---
+<section class="py-20 px-4 bg-slate-900 text-white" id="guarantee">
+  <div class="max-w-5xl mx-auto">
+    <div class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl p-8 sm:p-12 relative overflow-hidden" data-reveal>
+
+      <!-- glow -->
+      <div class="absolute -top-16 -right-16 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+      <div class="relative grid md:grid-cols-[auto,1fr] gap-8 items-start">
+
+        <!-- Badge -->
+        <div class="flex md:flex-col items-center gap-4 md:gap-2 text-center">
+          <div class="flex-shrink-0 w-24 h-24 rounded-2xl bg-white/10 border border-white/20 flex flex-col items-center justify-center">
+            <span class="text-3xl font-extrabold leading-none">30</span>
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-blue-200 mt-1">Day<br>Guarantee</span>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-widest text-blue-200 mb-3">Our promise to you</p>
+          <h2 class="text-2xl sm:text-3xl font-bold mb-4 leading-tight">
+            30-Day Reinfection Guarantee
+          </h2>
+          <p class="text-blue-100 leading-relaxed mb-6 max-w-2xl">
+            If your site is reinfected within 30 days of our recovery, we clean it again at no extra charge.
+            Most repeat hacks happen because the original vulnerability was never closed — we fix the root cause, so it stays fixed.
+          </p>
+
+          <div class="grid sm:grid-cols-3 gap-4">
+            {points.map((p) => (
+              <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                  <h3 class="font-bold text-white text-sm leading-snug">{p.title}</h3>
+                </div>
+                <p class="text-blue-100/80 text-xs leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

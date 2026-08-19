@@ -1,0 +1,31 @@
+
+
+Resume this session with:
+claude --resume 0b92f78a-e084-4263-b34b-571de10fe6ce
+dilipparmar@dilip-mac webadish-websites % pwd
+/Users/dilipparmar/projects2/webadish-websites
+  ---
+  One-time M365 setup (5 min):
+
+  Step 1 — Enable SMTP AUTH for the account
+  admin.microsoft.com → Users → Active users → sales@webadish.co.uk → Mail tab → Manage email apps → tick Authenticated SMTP → Save
+
+  Step 2 — App password (only if MFA is on)
+  account.microsoft.com → Security → Advanced security options → App passwords → Create → name it "outreach" → copy the password
+
+  Step 3 — Set env vars
+  export M365_SMTP_USER=sales@webadish.co.uk
+  export M365_SMTP_PASS=your_password_or_app_password
+
+  Then your daily workflow:
+  # 1. Paste domains from Google dorks into domains.txt
+  # 2. Scan:
+  python3 scanner.py domains.txt --infected-only --out scan_results.csv
+  # 3. Find contacts:
+  python3 find_contacts.py scan_results.csv --out leads.csv
+  # 4. Preview:
+  python3 sender.py leads.csv --dry-run
+  # 5. Send:
+  python3 sender.py leads.csv --limit 25
+
+  All scripts are in outreach/. Let me know when SMTP AUTH is enabled and we can do a test send.

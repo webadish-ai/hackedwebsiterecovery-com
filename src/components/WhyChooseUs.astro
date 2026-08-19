@@ -1,0 +1,44 @@
+---
+const features = [
+  {
+    title: 'Local Indian Support',
+    desc: 'Based in India, we understand the local hosting ecosystem and offer support during your business hours.',
+    icon: '🇮🇳'
+  },
+  {
+    title: 'UPI & Bank Transfer',
+    desc: 'Easy payment options including UPI, GPay, PhonePe, and IMPS for Indian businesses.',
+    icon: '💳'
+  },
+  {
+    title: 'Same-Day Recovery',
+    desc: 'We prioritize emergency cases to get your business back online within hours, not days.',
+    icon: '⚡'
+  },
+  {
+    title: 'Expert Infrastructure Team',
+    desc: 'Led by specialists with 20+ years of experience in cybersecurity and server infrastructure.',
+    icon: '🛠️'
+  }
+];
+---
+<section class="py-20 px-4 bg-white">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12" data-reveal>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Why Indian Businesses Trust Us</h2>
+      <p class="text-gray-600">Specialized WordPress recovery service tailored for the Indian market.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-8">
+      {features.map((f, i) => (
+        <div class="flex gap-4 p-6 rounded-2xl border border-gray-100 bg-gray-50/50" data-reveal data-delay={String(i * 100)}>
+          <div class="text-3xl flex-shrink-0">{f.icon}</div>
+          <div>
+            <h3 class="font-bold text-slate-900 mb-2">{f.title}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">{f.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

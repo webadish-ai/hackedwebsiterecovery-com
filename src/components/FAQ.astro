@@ -1,0 +1,98 @@
+---
+const faqs = [
+  {
+    q: 'How fast can you recover my site?',
+    a: 'Most malware cleanups are completed within 4–12 hours of receiving access. Complex hacks or full site recoveries may take 24–48 hours. Same-day emergency service is available at the priority rate. We provide a time estimate after initial diagnosis.',
+  },
+  {
+    q: 'Do you need hosting and admin access?',
+    a: 'Yes — to clean malware properly we need cPanel/FTP access and ideally WordPress admin access. If your admin is locked, we can recover via hosting access alone. All credentials are kept confidential and you should change passwords after recovery. We can walk you through sharing access securely.',
+  },
+  {
+    q: 'Can you remove the Google "This site may be hacked" warning?',
+    a: 'Yes. Once the malware is removed and your site is clean, we submit a reconsideration request to Google Search Console. Google typically reviews and removes the warning within 1–3 days. We handle the submission as part of the service.',
+  },
+  {
+    q: 'Will my data and content be safe?',
+    a: 'Data safety is our first priority. We always take a full backup before making any changes. We clean malware surgically — removing infected code without touching your content, products, or media. If there is any risk to data, we tell you upfront before starting.',
+  },
+  {
+    q: 'Can you prevent my site from being hacked again?',
+    a: 'No one can guarantee a site will never be attacked — but we can dramatically reduce the risk. Post-recovery hardening closes the specific entry point used. Our monthly protection plan includes ongoing security monitoring, timely updates, and daily backups. Most repeat hacks happen because the original vulnerability was not addressed — we fix that.',
+  },
+  {
+    q: 'Do you support WooCommerce sites?',
+    a: 'Yes — WooCommerce recovery is a core part of what we do. We understand the added complexity of order data, customer records, payment integrations, and product catalogues. We take extra care to preserve all WooCommerce data and verify the store is fully functional before handover.',
+  },
+];
+---
+<section class="py-20 px-4 bg-gray-50" id="faq">
+  <div class="max-w-3xl mx-auto">
+
+    <div class="text-center mb-12" data-reveal>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h2>
+      <p class="text-gray-600">Still have questions? WhatsApp us — we respond fast.</p>
+    </div>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(f => ({
+        "@type": "Question",
+        "name": f.q,
+        "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      })),
+    })} />
+
+    <div class="space-y-2" id="faq-list">
+      {faqs.map((faq, i) => (
+        <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-reveal data-delay={String(Math.min(i * 50, 300))}>
+          <button
+            class="faq-btn w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500"
+            aria-expanded="false"
+          >
+            <span class="font-semibold text-slate-900 text-[15px]">{faq.q}</span>
+            <svg
+              class="faq-icon w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-280"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+          <div class="faq-body border-t border-gray-100">
+            <div>
+              <p class="px-6 py-4 text-gray-600 text-sm leading-relaxed">{faq.a}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item')!;
+      const body = item.querySelector<HTMLElement>('.faq-body')!;
+      const icon = btn.querySelector<SVGElement>('.faq-icon')!;
+      const isOpen = body.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll<HTMLElement>('.faq-body').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll<SVGElement>('.faq-icon').forEach(ic => ic.style.transform = '');
+      document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+
+      if (!isOpen) {
+        body.classList.add('open');
+        icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+</script>

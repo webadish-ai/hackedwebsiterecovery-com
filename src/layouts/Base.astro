@@ -1,0 +1,97 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  noindex?: boolean;
+}
+const { title, description, canonical = new URL(Astro.url.pathname, 'https://www.hackedwebsiterecovery.in').href, noindex = false } = Astro.props;
+import GoogleAnalytics from '@/components/GoogleAnalytics.astro';
+const gaId = import.meta.env.PUBLIC_GA_ID;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  {gaId && <GoogleAnalytics id={gaId} />}
+
+  <!-- Primary SEO -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:site_name" content="HackedWebsiteRecovery.in" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- Open Graph Image -->
+  <meta property="og:image" content="https://www.hackedwebsiterecovery.in/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content="https://www.hackedwebsiterecovery.in/og-image.png" />
+
+  <!-- Fonts are self-hosted via @fontsource-variable (imported in global.css) —
+       no third-party font request on the critical path. -->
+
+  <!-- JSON-LD LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "HackedWebsiteRecovery.in",
+    "description": "Emergency WordPress recovery, malware removal, and security hardening for Indian businesses by WebAdish LLP.",
+    "url": "https://www.hackedwebsiterecovery.in",
+    "telephone": "+919998757045",
+    "email": "help@hackedwebsiterecovery.in",
+    "areaServed": [
+      { "@type": "Country", "name": "India" }
+    ],
+    "priceRange": "₹14,999 – ₹75,000+",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "94",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "parentOrganization": {
+      "@type": "Organization",
+      "name": "WebAdish LLP",
+      "url": "https://webadish.com"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "WordPress Recovery Services",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "WordPress Malware Removal" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Hacked WordPress Recovery" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Google Blacklist Removal" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "WordPress Security Hardening" } }
+      ]
+    }
+  }
+  </script>
+
+  <slot name="head" />
+</head>
+<body>
+  <slot />
+</body>
+</html>

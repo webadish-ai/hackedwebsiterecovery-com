@@ -1,0 +1,146 @@
+---
+// Retainer upsell — frames clean-up-only as the riskier choice and makes
+// "Recovery + Protection" the default. Turns a one-off recovery into recurring
+// revenue. NOTE: monthly prices below are sensible defaults anchored to the
+// existing ₹9,999/mo figure — adjust to your real margins.
+const tiers = [
+  {
+    name: 'Protection Lite',
+    price: '₹9,999',
+    per: '/mo',
+    tagline: 'For small business sites',
+    features: [
+      'Weekly malware & blacklist scans',
+      'Uptime monitoring + alerts',
+      'Monthly security report',
+      'WordPress core & plugin updates',
+    ],
+    featured: false,
+  },
+  {
+    name: 'Protection Pro',
+    price: '₹19,999',
+    per: '/mo',
+    tagline: 'For revenue-generating sites',
+    features: [
+      'Everything in Lite',
+      'Daily off-site backups',
+      'Firewall (WAF) + login hardening',
+      'Priority response if something breaks',
+      'Free clean-up if hacked while covered',
+    ],
+    featured: true,
+  },
+  {
+    name: 'Protection Critical',
+    price: '₹29,999',
+    per: '/mo',
+    tagline: 'WooCommerce & lead-critical',
+    features: [
+      'Everything in Pro',
+      'Response-time SLA',
+      'Staging for safe updates',
+      'Checkout / payment monitoring',
+      'Quarterly hardening review',
+    ],
+    featured: false,
+  },
+];
+---
+<section class="py-20 px-4 bg-gray-50" id="protection">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="text-center mb-14" data-reveal>
+      <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-3">Recovery + Protection</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Clean-Up Is Step One. Staying Clean Is the Goal.</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto">Most hacked sites are re-infected within weeks when the entry point is left unguarded. Here's the difference between a one-time fix and keeping your site safe.</p>
+    </div>
+
+    <!-- Comparison -->
+    <div class="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto mb-16">
+      <!-- Clean-up only (de-emphasised) -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-7" data-reveal>
+        <h3 class="font-bold text-slate-900 text-lg mb-1">Clean-Up Only</h3>
+        <p class="text-sm text-gray-500 mb-5">A one-time fix — the risk stays with you</p>
+        <ul class="space-y-3 text-sm">
+          {[
+            'We remove the malware and hand it back',
+            'You are on your own after the 30-day guarantee',
+            'If it is hacked again, it is a new paid job',
+            'No monitoring, backups, or updates',
+          ].map((t) => (
+            <li class="flex items-start gap-2.5 text-gray-600">
+              <svg class="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              {t}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Recovery + Protection (recommended) -->
+      <div class="bg-white border-2 border-blue-600 rounded-2xl p-7 shadow-xl shadow-blue-100 relative" data-reveal data-delay="100">
+        <div class="absolute -top-3.5 left-7 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">RECOMMENDED</div>
+        <h3 class="font-bold text-slate-900 text-lg mb-1">Recovery + Protection</h3>
+        <p class="text-sm text-blue-600 font-medium mb-5">Fix it once — and keep it from happening again</p>
+        <ul class="space-y-3 text-sm">
+          {[
+            'Everything in the full clean-up & hardening',
+            'Ongoing monitoring, daily backups & updates',
+            '30-day reinfection guarantee, then continuous cover',
+            'Free clean-up if hacked while you are protected',
+          ].map((t) => (
+            <li class="flex items-start gap-2.5 text-slate-700">
+              <svg class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              {t}
+            </li>
+          ))}
+        </ul>
+        <p class="mt-5 text-xs text-gray-500">Add protection to any recovery — your first month can be bundled into the recovery quote.</p>
+      </div>
+    </div>
+
+    <!-- Plans -->
+    <div class="text-center mb-10" data-reveal>
+      <h3 class="text-2xl font-bold text-slate-900 mb-2">Ongoing Protection Plans</h3>
+      <p class="text-gray-600 text-sm max-w-xl mx-auto">Cancel anytime. UPI &amp; bank transfer accepted. Plans scale with how critical your site is.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-5 max-w-5xl mx-auto">
+      {tiers.map((tier, i) => (
+        <div
+          class={`rounded-2xl p-7 flex flex-col ${tier.featured ? 'border-2 border-blue-600 shadow-xl shadow-blue-100 bg-white relative' : 'border border-gray-200 bg-white'}`}
+          data-reveal
+          data-delay={String(Math.min(i * 100, 200))}
+        >
+          {tier.featured && (
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">MOST POPULAR</div>
+          )}
+          <div class="text-sm font-semibold text-slate-900 mb-1">{tier.name}</div>
+          <div class="text-xs text-gray-500 mb-4">{tier.tagline}</div>
+          <div class="mb-5">
+            <span class="text-3xl font-extrabold text-slate-900">{tier.price}</span>
+            <span class="text-gray-400 text-sm">{tier.per}</span>
+          </div>
+          <ul class="space-y-2.5 text-sm mb-6 flex-grow">
+            {tier.features.map((f) => (
+              <li class="flex items-start gap-2 text-gray-600">
+                <svg class="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <a
+            href="https://wa.me/919998757045?text=I%20want%20to%20add%20WordPress%20protection%20for%20my%20site."
+            target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()"
+            class={`text-center font-bold py-3 px-5 rounded-xl text-sm transition-colors ${tier.featured ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-900'}`}
+          >
+            Add Protection
+          </a>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-center text-xs text-gray-400 mt-8">Already hacked? Start with a free diagnosis — we'll quote recovery and protection together.</p>
+
+  </div>
+</section>

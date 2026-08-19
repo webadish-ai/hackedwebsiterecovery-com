@@ -1,0 +1,288 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import ScannerCTA from '@/components/ScannerCTA.astro';
+import '@/styles/global.css';
+
+const faqs = [
+  {
+    q: 'My WooCommerce store is hacked — will I lose orders or customer data?',
+    a: 'Protecting your order, customer, and product data is our first priority. We take a full backup before any change, then clean malware surgically without touching WooCommerce tables. Orders, customers, products, coupons, and payment settings are preserved. If we ever see a risk to data, we tell you before starting — never after.',
+  },
+  {
+    q: 'Is a hacked store leaking customer card details?',
+    a: 'It can be. A common WooCommerce attack is "card skimming" — malicious JavaScript injected into the checkout that copies customers’ card details as they type. This is serious: it exposes your customers and your liability. We specifically check checkout and payment flows for skimmer code, remove it, and harden the store so it cannot be re-injected.',
+  },
+  {
+    q: 'Can you recover my store without taking it offline for days?',
+    a: 'In most cases yes. We work on a backup/staging copy where possible so your storefront stays up while we clean, then cut over once verified. For active card-skimming or data-leak situations we may recommend brief maintenance mode to protect customers — we will explain the trade-off and let you decide.',
+  },
+  {
+    q: 'Will my payment gateway and integrations still work after recovery?',
+    a: 'Yes. We verify Razorpay, Stripe, PayU, CCAvenue, or whichever gateway you use is connected and processing correctly before handover, along with shipping, tax, and email integrations. A store that is "clean" but cannot take payments is not recovered — we test the full purchase path.',
+  },
+  {
+    q: 'How long does WooCommerce recovery take?',
+    a: 'A typical store recovery takes 12–48 hours depending on size, number of plugins, and infection depth. Stores with many products, custom checkout flows, or active skimmers need extra verification. Same-day priority handling is available. You get a time estimate after the free diagnosis.',
+  },
+  {
+    q: 'What does WooCommerce hacked recovery cost in India?',
+    a: 'WooCommerce and other business-critical stores are quoted from ₹75,000, reflecting the added care for order data, payment integrity, and customer records. The exact price depends on store size and infection complexity, and is fixed in writing after the free diagnosis — no hidden charges. UPI and bank transfer accepted.',
+  },
+];
+
+const risks = [
+  { label: 'Checkout card skimmers', desc: 'Injected JavaScript that steals customers’ card details at checkout — a direct liability and trust risk.' },
+  { label: 'Fake orders & coupon abuse', desc: 'Attackers create fraudulent orders, abuse coupons, or alter prices through a compromised admin.' },
+  { label: 'Customer data exposure', desc: 'Names, addresses, and order history exfiltrated from the database via a backdoor.' },
+  { label: 'Payment gateway tampering', desc: 'Redirected payouts or altered gateway settings siphoning revenue away from you.' },
+];
+---
+
+<Base
+  title="WooCommerce Hacked Recovery India | Secure Store Cleanup"
+  description="Hacked WooCommerce store? We recover it while protecting orders, customer data, and payments — removing card skimmers and backdoors, then hardening checkout. Free diagnosis, fixed quote from ₹75,000."
+  canonical="https://www.wordpressrecovery.in/woocommerce-hacked-recovery-india/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "WooCommerce Hacked Recovery India",
+    "description": "Recovery of hacked WooCommerce stores with care for order data, customer records, and payment integrity. Removes card skimmers and backdoors, verifies the checkout and gateway, and hardens the store.",
+    "provider": {
+      "@type": "ProfessionalService",
+      "name": "WordPressRecovery.in",
+      "url": "https://www.wordpressrecovery.in",
+      "telephone": "+919998757045"
+    },
+    "areaServed": { "@type": "Country", "name": "India" },
+    "offers": {
+      "@type": "Offer",
+      "price": "75000",
+      "priceCurrency": "INR",
+      "description": "Starting price for WooCommerce / business-critical store recovery"
+    },
+    "serviceType": "WooCommerce Hacked Recovery"
+  })} />
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a }
+    }))
+  })} />
+
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-semibold px-4 py-2 rounded-full mb-8">
+        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
+        WooCommerce Hacked Recovery — India
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
+        Hacked WooCommerce Store?<br>
+        <span class="text-blue-400">Recovered Without Data Loss.</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+        Every hour offline is lost revenue — and a hacked checkout can leak customer card data. We clean and recover your store while protecting orders, customers, and payments, then harden checkout so it stays secure. Free diagnosis. Fixed quote.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
+          Get Free Diagnosis
+        </a>
+        <a href="https://wa.me/919998757045?text=My%20WooCommerce%20store%20is%20hacked.%20I%20need%20emergency%20recovery." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp Now
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
+        {['Orders & customer data protected', 'Card skimmer removal', 'Payment gateway verified', 'Priority same-day handling'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why stores are different -->
+  <section class="py-20 px-4 bg-slate-900">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Why a Hacked Store Is Higher Stakes</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">A WooCommerce hack is not just a website problem — it touches money, customer data, and your legal liability. These are the risks we look for first.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {risks.map(w => (
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex gap-4">
+            <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-white mb-1">{w.label}</div>
+              <p class="text-slate-400 text-sm leading-relaxed">{w.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Real result proof -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10">
+        <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Real client recovery</div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Compromised eCommerce site recovered — no reinfection</h2>
+        <p class="text-gray-600 leading-relaxed mb-8">
+          A WebAdish client (Verofax) — an eCommerce / technology business — was hit with malware, an admin compromise, and a Google warning, with revenue disrupted. Previous low-cost cleanups had failed and the infection kept returning. We handled it as a full security incident: forensic analysis, complete backdoor removal, checkout and access hardening, then monitoring to confirm no reinfection.
+        </p>
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          {[
+            { value: '<48h', label: 'Full recovery' },
+            { value: '0', label: 'Reinfections in 30 days' },
+            { value: '48h', label: 'Google warning cleared' },
+          ].map(m => (
+            <div class="bg-green-50 border border-green-100 rounded-2xl py-5 text-center">
+              <div class="text-2xl font-extrabold text-green-700 leading-none">{m.value}</div>
+              <div class="text-[11px] font-medium uppercase tracking-wide text-green-600 mt-1.5">{m.label}</div>
+            </div>
+          ))}
+        </div>
+        <a href="https://webadish.com/case-studies/verofax" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:gap-2.5 transition-all">
+          Read the full case study
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's included -->
+  <section class="py-20 px-4 bg-slate-50">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">What Store Recovery Includes</h2>
+        <p class="text-gray-600 max-w-xl mx-auto">Everything in a standard recovery, plus the extra checks a live store needs.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {[
+          { title: 'Full Backup First', desc: 'A complete backup of files and the database — including all orders and customers — before any change.' },
+          { title: 'Malware & Backdoor Removal', desc: 'Server-level cleanup of infected core, themes, plugins, and the database; every backdoor removed.' },
+          { title: 'Checkout Skimmer Check', desc: 'Checkout and payment scripts inspected for card-skimming code and cleaned if present.' },
+          { title: 'Order & Customer Integrity', desc: 'WooCommerce tables verified — orders, customers, products, and coupons preserved intact.' },
+          { title: 'Payment Gateway Verification', desc: 'Razorpay, Stripe, PayU, or CCAvenue tested end-to-end so the store can take payments on handover.' },
+          { title: 'Checkout Hardening', desc: 'Entry point closed, credentials and keys reset, admin and checkout secured against re-injection.' },
+        ].map(item => (
+          <div class="flex gap-4 p-5 border border-gray-200 rounded-xl bg-white">
+            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mt-0.5">
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <div>
+              <div class="font-semibold text-slate-900 mb-1">{item.title}</div>
+              <p class="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <ScannerCTA />
+
+  <!-- Pricing -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">WooCommerce Recovery Pricing (India)</h2>
+      <p class="text-gray-600 mb-12">Business-critical stores are quoted individually after a free diagnosis — fixed in writing, no surprises.</p>
+
+      <div class="max-w-md mx-auto border-2 border-blue-600 rounded-2xl p-8 text-left shadow-xl shadow-blue-100 relative">
+        <div class="absolute -top-3.5 left-6 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">STORE RECOVERY</div>
+        <div class="text-sm font-semibold text-blue-600 mb-2">WooCommerce / Business-Critical</div>
+        <div class="text-4xl font-extrabold text-slate-900 mb-1">₹75,000<span class="text-xl font-normal text-gray-400">+</span></div>
+        <div class="text-xs text-gray-400 mb-5">Quoted by store size & infection complexity</div>
+        <ul class="space-y-2 text-sm text-gray-700">
+          {['Full backup, malware & backdoor removal', 'Checkout card-skimmer inspection', 'Order, customer & product integrity check', 'Payment gateway verification', 'Checkout & admin hardening', 'Priority same-day handling', 'Recovery report'].map(f => (
+            <li class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              {f}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p class="text-sm text-gray-400 mt-8">Smaller, non-store WordPress sites start at ₹14,999. Exact quote provided after free diagnosis. UPI and bank transfer accepted.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-20 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">WooCommerce Recovery — FAQ</h2>
+        <p class="text-gray-600">Common questions about recovering a hacked online store.</p>
+      </div>
+      <div class="space-y-2" id="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button class="faq-btn w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-expanded="false">
+              <span class="font-semibold text-slate-900 text-[15px]">{faq.q}</span>
+              <svg class="faq-icon w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-280" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div class="faq-body border-t border-gray-100">
+              <div>
+                <p class="px-6 py-4 text-gray-600 text-sm leading-relaxed">{faq.a}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>
+
+<script>
+  import { initReveal } from '@/lib/reveal';
+  initReveal();
+
+  document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item')!;
+      const body = item.querySelector<HTMLElement>('.faq-body')!;
+      const icon = btn.querySelector<SVGElement>('.faq-icon')!;
+      const isOpen = body.classList.contains('open');
+      document.querySelectorAll<HTMLElement>('.faq-body').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll<SVGElement>('.faq-icon').forEach(ic => ic.style.transform = '');
+      document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) {
+        body.classList.add('open');
+        icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,378 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import '@/styles/global.css';
+
+const checks = [
+  { title: 'Google Blacklist', desc: 'Checks Google Safe Browsing for "this site may be hacked" / "deceptive site" flags.' },
+  { title: 'Malware & Injections', desc: 'Scans the homepage for injected spam, obfuscated scripts, redirects, and known malware signatures.' },
+  { title: 'WordPress Hardening', desc: 'Looks for exposed version, directory listings, and exposed config backups attackers exploit.' },
+  { title: 'SSL & Headers', desc: 'Verifies HTTPS and key security headers that protect your visitors and login.' },
+];
+---
+
+<Base
+  title="Free WordPress Security Scanner | Is My Site Hacked?"
+  description="Free instant check for a hacked WordPress site. Scan for malware, Google blacklist warnings, spam injections, redirects, and security gaps. Get a full report with fix steps — no signup to see your result."
+  canonical="https://www.wordpressrecovery.in/wordpress-security-scanner/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "WordPress Security Scanner",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Web",
+    "url": "https://www.wordpressrecovery.in/wordpress-security-scanner/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+    "provider": {
+      "@type": "ProfessionalService",
+      "name": "WordPressRecovery.in",
+      "url": "https://www.wordpressrecovery.in"
+    }
+  })} />
+
+  <Nav />
+
+  <!-- Hero + scanner -->
+  <section class="gradient-hero text-white pt-20 pb-20 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-3xl mx-auto text-center relative">
+      <div class="inline-flex items-center gap-2 bg-blue-500/15 border border-blue-400/30 text-blue-300 text-sm font-semibold px-4 py-2 rounded-full mb-7">
+        <span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse-slow inline-block"></span>
+        Free Instant Scan
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight mb-5 tracking-tight">
+        Is Your WordPress Site<br>
+        <span class="text-blue-400">Hacked?</span>
+      </h1>
+      <p class="text-lg text-slate-300 mb-9 max-w-xl mx-auto leading-relaxed">
+        Run a free instant check for malware, Google blacklist warnings, spam injections, and security gaps. See your result in seconds.
+      </p>
+
+      <!-- Scanner form -->
+      <form id="scan-form" class="max-w-xl mx-auto" novalidate>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div class="flex-1 relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
+            </span>
+            <input
+              type="text" id="scan-url" name="url" inputmode="url" autocomplete="url" required
+              placeholder="yourwebsite.com"
+              class="w-full bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl pl-11 pr-4 py-4 text-base outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+            />
+          </div>
+          <button
+            type="submit" id="scan-btn"
+            class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 px-7 rounded-xl text-base transition-all duration-200 shadow-lg shadow-blue-700/30 whitespace-nowrap"
+          >
+            <span id="scan-btn-label">Scan My Site</span>
+          </button>
+        </div>
+        <p id="scan-error" class="hidden text-left sm:text-center text-red-300 text-sm mt-3"></p>
+        <div class="flex flex-wrap justify-center gap-x-5 gap-y-1.5 text-xs text-slate-400 mt-4">
+          <span>Free · no signup to see your result</span>
+          <span>·</span>
+          <span>Checks the public homepage only</span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="hidden px-4 -mt-10 relative z-10 pb-4">
+    <div class="max-w-3xl mx-auto">
+
+      <!-- Verdict card -->
+      <div id="verdict-card" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+        <div id="verdict-bar" class="px-6 py-5 flex items-center gap-4">
+          <div id="verdict-icon" class="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"></div>
+          <div class="flex-1 min-w-0">
+            <div id="verdict-title" class="font-bold text-lg leading-tight"></div>
+            <div id="verdict-sub" class="text-sm opacity-90 truncate"></div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <div id="verdict-score" class="text-3xl font-extrabold leading-none"></div>
+            <div class="text-[11px] uppercase tracking-wide opacity-80">Health score</div>
+          </div>
+        </div>
+
+        <!-- Category tiles (instant) -->
+        <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-200 border-t border-gray-200"></div>
+      </div>
+
+      <!-- Email gate -->
+      <div id="gate-card" class="hidden bg-slate-900 text-white rounded-2xl p-7 mt-5 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative">
+          <h2 class="text-xl font-bold mb-1">See the full report + fix steps</h2>
+          <p id="gate-sub" class="text-slate-300 text-sm mb-5"></p>
+          <form id="lead-form" class="grid sm:grid-cols-[1fr,1fr,auto] gap-3" novalidate>
+            <input type="email" id="lead-email" name="email" required autocomplete="email" placeholder="you@yourbusiness.com"
+              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-400" />
+            <input type="tel" id="lead-phone" name="phone" autocomplete="tel" placeholder="WhatsApp (optional)"
+              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-400" />
+            <button type="submit" id="lead-btn"
+              class="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white font-bold rounded-xl px-5 py-3 text-sm whitespace-nowrap transition-colors">
+              <span id="lead-btn-label">Unlock Report</span>
+            </button>
+          </form>
+          <p id="lead-error" class="hidden text-red-300 text-sm mt-3"></p>
+          <p class="text-slate-500 text-xs mt-3">We email your report and may follow up to help. No spam.</p>
+        </div>
+      </div>
+
+      <!-- Unlocked detailed findings -->
+      <div id="findings" class="hidden mt-5 space-y-3"></div>
+
+      <!-- Recovery CTA (shown after unlock when issues found) -->
+      <div id="recover-cta" class="hidden bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-2xl p-7 mt-5 text-center">
+        <h2 class="text-xl font-bold mb-2">Want us to fix this for you?</h2>
+        <p class="text-blue-100 text-sm mb-5 max-w-md mx-auto">Expert malware removal and full recovery with a 30-day reinfection guarantee. Free diagnosis, fixed quote before any work begins.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a id="cta-whatsapp" href="#" target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()"
+            class="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition-colors">WhatsApp Our Team</a>
+          <a href="/#contact" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition-colors">Get a Free Diagnosis</a>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-5 max-w-xl mx-auto">
+        This automated scan checks public, homepage-level signals only. A clean result does not guarantee a clean server; a flagged result is a strong indicator worth investigating with a full audit.
+      </p>
+    </div>
+  </section>
+
+  <!-- What it checks -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">What the Scanner Checks</h2>
+        <p class="text-gray-600 max-w-xl mx-auto">A fast first look at the signals that most often reveal a hacked WordPress site.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {checks.map(c => (
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+            <div class="rounded-xl w-11 h-11 bg-blue-100 flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3 class="font-bold text-slate-900 text-[15px] mb-2 leading-snug">{c.title}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">{c.desc}</p>
+          </div>
+        ))}
+      </div>
+      <p class="text-center text-sm text-gray-500 mt-10 max-w-2xl mx-auto">
+        The scanner is a quick triage, not a replacement for a full audit. If it flags anything — or you suspect a hack it cannot see from the homepage — our team can run a complete file and database investigation.
+      </p>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>
+
+<script>
+  import { initReveal } from '@/lib/reveal';
+  import type { ScanResult, Finding } from '@/lib/scanner';
+  initReveal();
+
+  const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
+  const gtagEvent = (name: string, params: Record<string, unknown> = {}) => {
+    const g = (window as any).gtag;
+    if (typeof g === 'function') g('event', name, params);
+  };
+
+  const form = $('scan-form') as HTMLFormElement;
+  const urlInput = $('scan-url') as HTMLInputElement;
+  const scanBtn = $('scan-btn') as HTMLButtonElement;
+  const scanBtnLabel = $('scan-btn-label');
+  const scanError = $('scan-error');
+  const results = $('results');
+
+  let current: ScanResult | null = null;
+
+  const SEV = {
+    critical: { color: '#dc2626', bg: '#fef2f2', ring: '#fecaca', label: 'Critical' },
+    warning: { color: '#d97706', bg: '#fffbeb', ring: '#fde68a', label: 'Warning' },
+    ok: { color: '#16a34a', bg: '#f0fdf4', ring: '#bbf7d0', label: 'OK' },
+    unknown: { color: '#64748b', bg: '#f8fafc', ring: '#e2e8f0', label: 'N/A' },
+  } as const;
+
+  function setScanning(on: boolean) {
+    scanBtn.disabled = on;
+    scanBtnLabel.textContent = on ? 'Scanning…' : 'Scan My Site';
+  }
+
+  function showScanError(msg: string) {
+    scanError.textContent = msg;
+    scanError.classList.remove('hidden');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    scanError.classList.add('hidden');
+    const value = urlInput.value.trim();
+    if (!value) { showScanError('Please enter your website address.'); return; }
+
+    setScanning(true);
+    gtagEvent('scan_started');
+    try {
+      const res = await fetch('/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: value }),
+      });
+      const data = await res.json();
+      if (!res.ok) { showScanError(data?.error || 'The scan failed. Please try again.'); setScanning(false); return; }
+
+      if (data.verdict === 'error') {
+        showScanError(data.error || 'We could not reach that site.');
+        setScanning(false);
+        return;
+      }
+
+      current = data as ScanResult;
+      renderResult(current);
+      gtagEvent('scan_complete', { verdict: current.verdict, score: current.score });
+    } catch {
+      showScanError('Something went wrong. Please try again.');
+    } finally {
+      setScanning(false);
+    }
+  });
+
+  function renderResult(r: ScanResult) {
+    results.classList.remove('hidden');
+
+    const isClean = r.verdict === 'clean';
+    const isInfected = r.verdict === 'infected';
+    const tone = isInfected ? SEV.critical : isClean ? SEV.ok : SEV.warning;
+
+    const bar = $('verdict-bar');
+    bar.style.background = tone.bg;
+    bar.style.color = tone.color;
+
+    const icon = $('verdict-icon');
+    icon.style.background = tone.color;
+    icon.style.color = '#fff';
+    icon.innerHTML = isClean
+      ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>'
+      : '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+
+    $('verdict-title').textContent = isInfected
+      ? 'Critical issues found'
+      : isClean ? 'No critical issues found' : 'Some warnings found';
+    $('verdict-sub').textContent = `${hostOf(r.finalUrl)} · ${r.counts.critical} critical, ${r.counts.warning} warnings`;
+    const score = $('verdict-score');
+    score.textContent = String(r.score);
+    score.style.color = tone.color;
+
+    // Category tiles
+    const grid = $('category-grid');
+    grid.innerHTML = r.categories.map((c) => {
+      const s = SEV[c.status as keyof typeof SEV] || SEV.unknown;
+      const dot = `<span style="background:${s.color}" class="inline-block w-2 h-2 rounded-full"></span>`;
+      return `<div class="bg-white p-4">
+        <div class="flex items-center gap-1.5 mb-1">${dot}<span class="text-[11px] font-semibold uppercase tracking-wide" style="color:${s.color}">${s.label}</span></div>
+        <div class="font-semibold text-slate-900 text-sm leading-tight">${esc(c.label)}</div>
+        <div class="text-gray-500 text-xs mt-0.5 leading-snug">${esc(c.summary)}</div>
+      </div>`;
+    }).join('');
+
+    // Gate vs. clean handling
+    const gate = $('gate-card');
+    const findingsEl = $('findings');
+    const cta = $('recover-cta');
+    findingsEl.classList.add('hidden');
+    findingsEl.innerHTML = '';
+    cta.classList.add('hidden');
+
+    const issueCount = r.counts.critical + r.counts.warning;
+    if (issueCount > 0) {
+      gate.classList.remove('hidden');
+      $('gate-sub').textContent = `We found ${r.counts.critical} critical issue${r.counts.critical === 1 ? '' : 's'} and ${r.counts.warning} warning${r.counts.warning === 1 ? '' : 's'}. Enter your email to see exactly what they are and how to fix each one.`;
+    } else {
+      // Clean: no gate, just show the positive checks.
+      gate.classList.add('hidden');
+      renderFindings(r, true);
+    }
+
+    results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderFindings(r: ScanResult, includeOk: boolean) {
+    const findingsEl = $('findings');
+    const list = includeOk ? r.findings : r.findings.filter((f) => f.severity !== 'ok');
+    findingsEl.innerHTML = list.map((f: Finding) => {
+      const s = SEV[f.severity];
+      return `<div class="bg-white border rounded-2xl p-5" style="border-color:${s.ring}">
+        <div class="flex items-start gap-3">
+          <span class="flex-shrink-0 mt-0.5 text-[10px] font-bold text-white px-2 py-1 rounded" style="background:${s.color}">${s.label.toUpperCase()}</span>
+          <div class="min-w-0">
+            <h3 class="font-bold text-slate-900 text-[15px] leading-snug mb-1">${esc(f.title)}</h3>
+            <p class="text-gray-600 text-sm leading-relaxed mb-2">${esc(f.detail)}</p>
+            <p class="text-sm leading-relaxed" style="color:#1d4ed8"><span class="font-semibold">Fix:</span> ${esc(f.recommendation)}</p>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    findingsEl.classList.remove('hidden');
+
+    if (r.counts.critical + r.counts.warning > 0) {
+      const cta = $('recover-cta');
+      const wa = $('cta-whatsapp') as HTMLAnchorElement;
+      wa.href = `https://wa.me/919998757045?text=${encodeURIComponent(`I ran the scanner on ${hostOf(r.finalUrl)} and need help fixing it.`)}`;
+      cta.classList.remove('hidden');
+    }
+  }
+
+  // ---- Lead form (unlock) ----
+  const leadForm = $('lead-form') as HTMLFormElement;
+  const leadBtn = $('lead-btn') as HTMLButtonElement;
+  const leadBtnLabel = $('lead-btn-label');
+  const leadError = $('lead-error');
+
+  leadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    leadError.classList.add('hidden');
+    if (!current) return;
+    const email = ($('lead-email') as HTMLInputElement).value.trim();
+    const phone = ($('lead-phone') as HTMLInputElement).value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { leadError.textContent = 'Please enter a valid email address.'; leadError.classList.remove('hidden'); return; }
+
+    leadBtn.disabled = true;
+    leadBtnLabel.textContent = 'Unlocking…';
+    try {
+      const res = await fetch('/api/scan-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: current.url, email, phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) { leadError.textContent = data?.error || 'Could not unlock. Please try again.'; leadError.classList.remove('hidden'); return; }
+
+      gtagEvent('scan_lead', { verdict: current.verdict });
+      gtagEvent('generate_lead', { value: current.verdict === 'infected' ? 1 : 0 });
+      $('gate-card').classList.add('hidden');
+      renderFindings(current, false);
+      $('findings').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
+      leadError.textContent = 'Something went wrong. Please try again.';
+      leadError.classList.remove('hidden');
+    } finally {
+      leadBtn.disabled = false;
+      leadBtnLabel.textContent = 'Unlock Report';
+    }
+  });
+
+  function hostOf(u: string) { try { return new URL(u).host; } catch { return u; } }
+  function esc(s: string) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string)); }
+</script>

@@ -1,0 +1,35 @@
+# WordPress & Hacked Website Recovery India (by WebAdish LLP)
+
+> Emergency WordPress malware removal, hacked-site recovery, blacklist cleanup, and post-incident hardening for Indian businesses. Operated by WebAdish LLP via `wordpressrecovery.in` and `hackedwebsiterecovery.in`.
+
+## Primary services
+
+- [Emergency WordPress recovery](https://www.wordpressrecovery.in/): Triage and recovery for hacked WordPress websites in India.
+- [WordPress malware removal India](https://www.wordpressrecovery.in/wordpress-malware-removal-india/): Malware cleanup, backdoor removal, and hardening.
+- [Google blacklist removal](https://www.wordpressrecovery.in/google-blacklist-removal-india/): Cleanup and reconsideration support for blacklisted websites.
+- [WooCommerce hacked-store recovery](https://www.wordpressrecovery.in/woocommerce-hacked-recovery-india/): Incident response for compromised online stores.
+- [Hosting suspension recovery](https://www.wordpressrecovery.in/wordpress-hosting-suspended-malware-india/): Cleanup for malware-related hosting suspensions.
+
+## Alternate Domain Aliases
+- Primary Emergency Hub: https://www.wordpressrecovery.in/
+- Trademark-Compliant Desk: https://www.hackedwebsiterecovery.in/
+- Global Brand: https://www.hackedwebsiterecovery.com/
+
+## Common incident guides
+
+- [Redirect-virus removal](https://www.wordpressrecovery.in/wordpress-redirect-virus-removal-india/)
+- [Japanese keyword hack removal](https://www.wordpressrecovery.in/japanese-keyword-hack-removal-india/)
+- [Pharma hack removal](https://www.wordpressrecovery.in/pharma-hack-removal-india/)
+- [Locked WordPress admin recovery](https://www.wordpressrecovery.in/wp-admin-locked-after-hack-india/)
+
+## Free tool and partner support
+
+- [WordPress security scanner](https://www.wordpressrecovery.in/wordpress-security-scanner/): Free external checks for visible WordPress security risks.
+- [Agency and hosting partners](https://www.wordpressrecovery.in/partners/): White-label recovery support for agencies and hosting providers.
+
+## Contact
+
+- WhatsApp or call: [+91 99987 57045](https://wa.me/919998757045)
+- Email: [help@wordpressrecovery.in](mailto:help@wordpressrecovery.in) or [help@hackedwebsiterecovery.in](mailto:help@hackedwebsiterecovery.in)
+
+For an active incident, include the website URL, visible symptoms, hosting provider, and whether the site is affecting sales or leads.

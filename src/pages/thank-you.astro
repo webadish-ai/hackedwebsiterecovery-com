@@ -1,0 +1,68 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import '@/styles/global.css';
+---
+
+<Base
+  title="Request Received – WordPressRecovery.in"
+  description="Thank you for your emergency recovery request. We have received your details and will be in touch shortly."
+  noindex={true}
+>
+  <Nav />
+  
+  <section class="py-32 px-4 bg-slate-950 text-white text-center">
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-green-500/20 border border-green-500/40 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-8">
+        <svg class="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      
+      <h1 class="text-4xl sm:text-5xl font-extrabold mb-6">Request Received</h1>
+      <p class="text-xl text-slate-300 mb-10 leading-relaxed">
+        Thank you for reaching out. We have received your emergency recovery request and our team is already reviewing the details.
+      </p>
+      
+      <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
+        <h2 class="text-lg font-bold mb-3">What happens next?</h2>
+        <ul class="text-left space-y-4 text-slate-400">
+          <li class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">1</span>
+            <span>We will perform a quick initial assessment of the reported problem.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">2</span>
+            <span>We will contact you via email or WhatsApp with a fixed-fee quote.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-xs mt-0.5">3</span>
+            <span>Once approved, we begin the cleanup and recovery process immediately.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://wa.me/919998757045" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200">
+          Message on WhatsApp for Faster Reply
+        </a>
+        <a href="/" class="text-slate-400 hover:text-white py-3 px-8 transition-colors duration-200">
+          Back to Homepage
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
+
+<script is:inline>
+  // Fire conversion event
+  if (typeof gtag === 'function') {
+    gtag('event', 'generate_lead', {
+      'event_category': 'Engagement',
+      'event_label': 'Emergency Recovery Request'
+    });
+  }
+</script>

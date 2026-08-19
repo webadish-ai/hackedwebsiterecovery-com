@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.vercel
+.astro
+dist
+node_modules
+wordpressrecovery-preview.png
+*.log
+.DS_Store

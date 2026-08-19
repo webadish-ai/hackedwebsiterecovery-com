@@ -1,0 +1,35 @@
+---
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+<!-- Google tag (gtag.js) -->
+<script async src={`https://www.googletagmanager.com/gtag/js?id=${id}`}></script>
+<script is:inline define:vars={{ id }}>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', id);
+</script>
+
+<script is:inline>
+  window.trackWhatsAppClick = function() {
+    if (typeof gtag === 'function') {
+      gtag('event', 'whatsapp_click', {
+        'event_category': 'Engagement',
+        'event_label': 'WhatsApp Link'
+      });
+    }
+  };
+
+  window.trackPhoneClick = function() {
+    if (typeof gtag === 'function') {
+      gtag('event', 'phone_click', {
+        'event_category': 'Engagement',
+        'event_label': 'Phone Link'
+      });
+    }
+  };
+</script>

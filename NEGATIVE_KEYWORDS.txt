@@ -1,0 +1,141 @@
+free
+"for free"
+gratis
+cost
+cheap
+cheapest
+tutorial
+"how to"
+guide
+diy
+"do it yourself"
+youtube
+video
+course
+training
+learn
+class
+internship
+job
+jobs
+salary
+vacancy
+hiring
+career
+download
+nulled
+crack
+cracked
+"free plugin"
+"free theme"
+gpl
+github
+stackoverflow
+forum
+quora
+reddit
+"password recovery"
+"recover password"
+"forgot password"
+"admin password"
+"password reset"
+"reset password"
+"change password"
+"wp-login"
+"wp-admin"
+"recovery mode"
+"recovery link"
+"recovery email"
+"recovery url"
+"safe mode"
+backup
+restore
+"restore backup"
+"database backup"
+migration
+"migrate site"
+transfer
+clone
+"clone site"
+"elementor free"
+"contact form 7 free"
+"yoast free"
+"wordfence free"
+wix
+shopify
+squarespace
+magento
+joomla
+drupal
+blogger
+weebly
+
+# Vehicle / Roadside Recovery
+car
+truck
+tow
+towing
+van
+breakdown
+roadside
+assistance
+hyundai
+maruti
+honda
+tata
+toyota
+mahindra
+mechanic
+"flat tyre"
+battery
+accident
+"recovery truck"
+"recovery van"
+"vehicle recovery"
+
+# Personal Data / Device / File Recovery
+photo
+photos
+video
+videos
+image
+images
+deleted
+message
+messages
+chat
+chats
+"whatsapp message"
+"data recovery"
+"hard drive"
+"hard disk"
+ssd
+"sd card"
+disk
+"file recovery"
+"contact recovery"
+files
+recovery-software
+software
+
+# Social Media / Personal Account Recovery
+instagram
+facebook
+fb
+gmail
+"email account"
+"google account"
+yahoo
+hotmail
+outlook
+tiktok
+"social media"
+"hacked account"
+"account recovery"
+"account hacked"
+"hacked instagram"
+"hacked facebook"
+"snapchat"
+"twitter"
+"x account"
+

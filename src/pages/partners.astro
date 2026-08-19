@@ -1,0 +1,216 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import '@/styles/global.css';
+
+const faqs = [
+  {
+    q: 'How much commission do I earn?',
+    a: 'You earn 20% of every recovery you refer that converts into a paid job — paid after the client settles their invoice. On a typical ₹15,000–₹75,000 recovery that is ₹3,000–₹15,000 per referral, for an introduction that takes you two minutes.',
+  },
+  {
+    q: 'Do I have to do any of the technical work?',
+    a: 'No. You make the introduction; we handle diagnosis, cleanup, hardening, Google blacklist removal, and client communication end to end. You carry zero technical risk and never touch the infected site.',
+  },
+  {
+    q: 'Will you take my client from me?',
+    a: 'Never. We are a specialist recovery sub-contractor, not a competitor for design, hosting, or retainers. Once the emergency is resolved we hand the relationship straight back to you. Many partners keep the client on their own maintenance plan afterwards.',
+  },
+  {
+    q: 'Can I white-label or mark up instead of taking commission?',
+    a: 'Yes. If you would rather bill your client directly, we can work at a discounted wholesale rate and stay completely behind the scenes. Tell us which model you prefer when you sign up.',
+  },
+  {
+    q: 'Who is this best for?',
+    a: 'Web design agencies, freelance developers, and hosting resellers — anyone whose clients run WordPress and occasionally get hacked. If you do not offer in-house security, partnering means you can say "yes, we will handle it" instead of losing the client to panic.',
+  },
+  {
+    q: 'How do I refer a client?',
+    a: 'WhatsApp or email us the site URL and a one-line intro. We respond fast, assess for free, and quote. You can stay cc’d on everything or step back — your choice. We track every referral against you for commission.',
+  },
+];
+---
+
+<Base
+  title="Partner Programme — Earn 20% Referring Hacked-Site Recovery | WordPressRecovery.in"
+  description="Web agencies, freelancers & hosts: refer hacked WordPress clients to our recovery team and earn 20% commission. We do the work, you carry zero risk, your client stays yours. Join free."
+  canonical="https://www.wordpressrecovery.in/partners/"
+>
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="inline-flex items-center gap-2 bg-blue-500/15 border border-blue-400/30 text-blue-300 text-sm font-semibold px-4 py-2 rounded-full mb-8">
+        <span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse-slow inline-block"></span>
+        Partner Programme
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
+        Your Client Got Hacked.<br>
+        <span class="text-blue-400">Refer It. Earn 20%. Zero Risk.</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+        When an agency, freelancer, or host hits a hacked WordPress client and has no in-house security team — send it to us. We recover it fast, you earn 20% of the job, and your client stays yours.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <a href="#join" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
+          Become a Partner
+        </a>
+        <a href="https://wa.me/919998757045?text=I%27d%20like%20to%20join%20the%20WordPressRecovery%20partner%20programme." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp Us
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
+        {['20% referral commission', 'We do all the technical work', 'Your client stays yours', 'Free to join'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Who it's for -->
+  <section class="py-20 px-4 bg-slate-900">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Built for People Who Have Clients, Not Security Teams</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">If your clients run WordPress, some of them will get hacked. Instead of scrambling — or losing them — hand the emergency to specialists and get paid for it.</p>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-5">
+        {[
+          { title: 'Web Agencies', desc: 'Offer emergency recovery without hiring a security team. Say "yes, we’ll handle it" and keep the account.' },
+          { title: 'Freelance Developers', desc: 'A hacked client is out of scope and high-stress. Refer it, stay the hero, and earn on the side.' },
+          { title: 'Hosting & Resellers', desc: 'You suspend hacked accounts daily. Refer owners to a cleanup partner instead of just shutting them off.' },
+        ].map(c => (
+          <div class="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">
+            <h3 class="font-bold text-white text-lg mb-2">{c.title}</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">{c.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-20 px-4 bg-slate-950">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How the Partner Programme Works</h2>
+        <p class="text-slate-400">Three steps. Two minutes of your time per referral.</p>
+      </div>
+      <div class="space-y-4">
+        {[
+          { step: '1', title: 'Refer the client', desc: 'WhatsApp or email us the hacked site’s URL and a one-line intro. That’s your entire job.' },
+          { step: '2', title: 'We recover it', desc: 'Free diagnosis, fixed quote, then full cleanup, hardening, and Google blacklist removal — with our 30-day reinfection guarantee. You stay cc’d or step back.' },
+          { step: '3', title: 'You get paid', desc: 'Once the client settles, you earn 20% of the job. Your client returns to you, secure and grateful.' },
+        ].map(s => (
+          <div class="flex gap-5 items-start bg-slate-900/60 border border-slate-800 rounded-xl p-5">
+            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
+            <div>
+              <div class="font-semibold text-white mb-1">{s.title}</div>
+              <p class="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Commission highlight -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-3">What you earn</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">20% of Every Recovery You Refer</h2>
+      <p class="text-gray-600 mb-10 max-w-xl mx-auto">A two-minute introduction, no technical work, no risk. Here’s what that looks like per job.</p>
+      <div class="grid sm:grid-cols-3 gap-5">
+        {[
+          { job: '₹15,000', you: '₹3,000' },
+          { job: '₹30,000', you: '₹6,000' },
+          { job: '₹75,000', you: '₹15,000' },
+        ].map(r => (
+          <div class="border border-gray-200 rounded-2xl p-6">
+            <div class="text-sm text-gray-500 mb-1">Recovery job</div>
+            <div class="text-xl font-bold text-slate-900 mb-3">{r.job}</div>
+            <div class="text-sm text-gray-500 mb-1">You earn</div>
+            <div class="text-2xl font-extrabold text-green-600">{r.you}</div>
+          </div>
+        ))}
+      </div>
+      <p class="text-xs text-gray-400 mt-8">Prefer to bill your client yourself? Ask us about white-label wholesale pricing instead.</p>
+    </div>
+  </section>
+
+  <!-- Join CTA -->
+  <section class="py-20 px-4 bg-blue-700 text-white" id="join">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-4">Join the Partner Programme</h2>
+      <p class="text-blue-100 max-w-xl mx-auto mb-10">Free to join, no commitment, no minimums. Send us a message and we’ll set you up — then you’re ready the next time a client’s site goes down.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://wa.me/919998757045?text=I%27d%20like%20to%20join%20the%20WordPressRecovery%20partner%20programme." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp to Join
+        </a>
+        <a href="mailto:help@wordpressrecovery.in?subject=Partner%20Programme%20signup" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          Email Us
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-20 px-4 bg-gray-50">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Partner Programme — FAQ</h2>
+      </div>
+      <div class="space-y-2" id="faq-list">
+        {faqs.map((faq) => (
+          <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <button class="faq-btn w-full text-left px-6 py-5 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500" aria-expanded="false">
+              <span class="font-semibold text-slate-900 text-[15px]">{faq.q}</span>
+              <svg class="faq-icon w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-280" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="faq-body border-t border-gray-100">
+              <div><p class="px-6 py-4 text-gray-600 text-sm leading-relaxed">{faq.a}</p></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+  <StickyCTA />
+</Base>
+
+<script>
+  import { initReveal } from '@/lib/reveal';
+  initReveal();
+
+  document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item')!;
+      const body = item.querySelector<HTMLElement>('.faq-body')!;
+      const icon = btn.querySelector<SVGElement>('.faq-icon')!;
+      const isOpen = body.classList.contains('open');
+      document.querySelectorAll<HTMLElement>('.faq-body').forEach(b => b.classList.remove('open'));
+      document.querySelectorAll<SVGElement>('.faq-icon').forEach(ic => ic.style.transform = '');
+      document.querySelectorAll<HTMLButtonElement>('.faq-btn').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      if (!isOpen) {
+        body.classList.add('open');
+        icon.style.transform = 'rotate(180deg)';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,85 @@
+---
+const symptoms = [
+  {
+    title: 'Redirecting to unknown pages',
+    desc: 'Visitors land on spam, casino, pharmacy, or adult sites instead of your homepage.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>`,
+  },
+  {
+    title: 'Google "This site may be hacked" warning',
+    desc: 'Google Safe Browsing or Chrome showing a security warning on your URL.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>`,
+  },
+  {
+    title: 'Hosting account suspended',
+    desc: 'Your host suspended the account citing malware, spam, or abuse.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>`,
+  },
+  {
+    title: 'Admin login not working',
+    desc: 'Locked out — password reset fails, admin user deleted by attackers.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>`,
+  },
+  {
+    title: 'White screen or critical PHP error',
+    desc: 'Blank white page, fatal error, or "The site is experiencing technical difficulties".',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>`,
+  },
+  {
+    title: 'Unknown admin users or strange files',
+    desc: 'Rogue admin accounts, unfamiliar plugins, suspicious files in wp-content.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>`,
+  },
+  {
+    title: 'Search results showing spam pages',
+    desc: 'Google indexes hundreds of pharma/gambling pages indexed under your domain.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>`,
+  },
+  {
+    title: 'Server sending spam emails',
+    desc: 'Host warns you are blacklisted for outbound spam from your server.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>`,
+  },
+];
+---
+<section class="py-20 px-4 bg-amber-50 border-y border-amber-200" id="symptoms">
+  <div class="max-w-4xl mx-auto">
+
+    <div class="text-center mb-12" data-reveal>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">Is Your Site Showing These Signs?</h2>
+      <p class="text-gray-600 max-w-xl mx-auto">If you recognise any of these, your site is likely already compromised. Every hour of delay makes cleanup harder and more costly.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      {symptoms.map((s, i) => (
+        <div
+          class="flex items-start gap-3 bg-white border border-amber-200 rounded-xl p-4 hover:border-amber-400 hover:shadow-sm transition-all duration-200"
+          data-reveal
+          data-delay={String(Math.min((i % 4) * 100, 400))}
+        >
+          <div class="bg-red-100 rounded-lg p-2 flex-shrink-0 mt-0.5">
+            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <Fragment set:html={s.icon} />
+            </svg>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 text-sm">{s.title}</p>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">{s.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-10" data-reveal>
+      <a
+        href="#contact"
+        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-red-700/20 hover:shadow-red-600/30 focus-visible:ring-2 focus-visible:ring-red-400"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        Yes, I see these — Get Help Now
+      </a>
+    </div>
+  </div>
+</section>
