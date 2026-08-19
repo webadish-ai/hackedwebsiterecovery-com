@@ -6,7 +6,7 @@ export const prerender = false;
 
 const TEAM_INBOX = 'snehal@webadish.com';
 const OWNER_BCC = 'dilipparmar@gmail.com';
-const FROM = 'WordPressRecovery.in <help@webadish.com>';
+const FROM = 'HackedWebsiteRecovery <help@hackedwebsiterecovery.com>';
 
 export const POST: APIRoute = async ({ request }) => {
   const body = await request.json().catch(() => null);

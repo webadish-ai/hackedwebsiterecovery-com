@@ -8,3 +8,4 @@ node_modules
 wordpressrecovery-preview.png
 *.log
 .DS_Store
+.env*

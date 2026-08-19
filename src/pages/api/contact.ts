@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
   const resend = new Resend(apiKey);
 
   const { error } = await resend.emails.send({
-    from: 'WordPressRecovery.in <help@webadish.com>',
+    from: 'HackedWebsiteRecovery <help@hackedwebsiterecovery.com>',
     to: ['snehal@webadish.com'],
     bcc: ['dilipparmar@gmail.com'],
     reply_to: body.email,
