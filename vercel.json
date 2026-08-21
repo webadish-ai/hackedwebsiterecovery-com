@@ -8,14 +8,7 @@
     { "source": "/japanese-keyword-hack-removal-india/", "destination": "/japanese-keyword-hack-removal/", "permanent": true },
     { "source": "/pharma-hack-removal-india/", "destination": "/pharma-hack-removal/", "permanent": true },
     { "source": "/wp-admin-locked-after-hack-india/", "destination": "/wp-admin-locked-after-hack/", "permanent": true },
-    { "source": "/wordpress-redirect-virus-removal-india/", "destination": "/wordpress-redirect-virus-removal/", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "hackedwebsiterecovery.xyz" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.hackedwebsiterecovery.xyz" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "hackedwebsiterecovery.store" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.hackedwebsiterecovery.store" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "hackedwebsiterecovery.info" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "www.hackedwebsiterecovery.info" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true },
-    { "source": "/:path*", "has": [{ "type": "host", "value": "hackedwebsiterecovery.com" }], "destination": "https://www.hackedwebsiterecovery.com/:path*", "permanent": true }
+    { "source": "/wordpress-redirect-virus-removal-india/", "destination": "/wordpress-redirect-virus-removal/", "permanent": true }
   ],
   "headers": [
     {
