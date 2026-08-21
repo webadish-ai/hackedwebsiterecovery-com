@@ -405,7 +405,7 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
   }
 
   const lowerHtml = html.toLowerCase();
-  const foundSpam = SPAM_KEYWORDS.filter((k) => lowerHtml.includes(k));
+  const foundSpam = SPAM_KEYWORDS.filter((k) => new RegExp(`\\b${k}\\b`, 'i').test(lowerHtml));
   if (foundSpam.length >= 2) {
     findings.push({
       category: 'malware',
