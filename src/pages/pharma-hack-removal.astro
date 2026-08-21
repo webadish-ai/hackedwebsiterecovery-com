@@ -9,64 +9,64 @@ import '@/styles/global.css';
 
 const faqs = [
   {
-    q: 'I am locked out of wp-admin after a hack — can you get me back in?',
-    a: 'Yes. If your WordPress login no longer works because an attacker changed or deleted your admin account, we regain access through hosting-level access (cPanel/database/FTP) instead. We can create a fresh admin user or reset your existing one directly in the database, then secure the account so the attacker cannot lock you out again.',
+    q: 'What is the WordPress pharma hack?',
+    a: 'The pharma hack injects spam content for Viagra, Cialis, and other pharmaceutical keywords into your WordPress site — hidden links, spam pages, and hijacked titles and meta descriptions. It is designed to exploit your site’s SEO authority to rank the attacker’s pharmacy spam, and it is one of the most common WordPress infections we clean.',
   },
   {
-    q: 'The attacker deleted my admin user or changed the email — what now?',
-    a: 'This is a common move to keep you out while they use the site. Because we work at the database and hosting level, we do not depend on the WordPress login screen. We restore a legitimate administrator, remove the attacker’s rogue admin accounts, and reset the credentials and email back to you.',
+    q: 'Why do Viagra/Cialis keywords show in Google but not on my site?',
+    a: 'The pharma hack uses cloaking: the malicious code detects Google’s crawler and serves it the spam content, while normal visitors see your regular pages. That is why your site looks fine in the browser but "site:yourdomain.com" searches show pill spam in titles and descriptions. Checking your pages by browsing them will never reveal it.',
   },
   {
-    q: 'Password reset emails are not arriving — is that part of the hack?',
-    a: 'Often yes. Attackers change the admin email or break the site’s mail function so reset links never reach you. We bypass the broken reset flow entirely by working through hosting access, then fix the admin email and verify mail is working again before handover.',
+    q: 'I cleaned the spam but it came back. Why?',
+    a: 'Because the backdoor is still there. Pharma hack code hides in places surface scans miss — fake plugin files, the database (wp_options and post content), .htaccess rules, and encoded payloads inside legitimate-looking files. Unless every backdoor and the database payload are removed, the spam regenerates within days.',
   },
   {
-    q: 'Is regaining access enough, or do I still need a cleanup?',
-    a: 'Getting back in is only step one. If the malware and the entry point that let the attacker in are still there, they can lock you out again. We recommend pairing access recovery with a full cleanup and hardening so the root cause is closed. We will tell you exactly what we find after the diagnosis.',
+    q: 'Will the pharma hack hurt my Google rankings?',
+    a: 'Yes. Google may flag the site with "This site may be hacked" in results, your legitimate pages lose rankings to the injected spam, and visitors lose trust when they see pharmacy titles under your brand. The longer it stays, the deeper the damage — and the longer recovery of your real rankings takes after cleanup.',
   },
   {
-    q: 'How fast can you restore my admin access?',
-    a: 'Access recovery itself is usually quick — often within a couple of hours of receiving hosting access. A full cleanup and hardening on top typically completes within 4–12 hours. Same-day emergency handling is available. You get a time estimate after the free diagnosis.',
+    q: 'How do you remove the pharma hack?',
+    a: 'We scan every file and the full database, remove the cloaking code, spam pages, hidden links, and every backdoor, then clean hijacked titles and metas. We request re-crawling of your real pages in Search Console and submit a reconsideration request if Google flagged the site. Finally we close the entry point so it cannot return. Most cleanups complete within 4–12 hours of access.',
   },
   {
-    q: 'What does this cost in India?',
-    a: 'Admin access recovery is included in our malware cleanup, which starts at ₹14,999 for standard WordPress sites and covers regaining access, removing rogue admins, cleaning malware, and hardening. WooCommerce and complex sites are quoted individually. Diagnosis is free with a fixed quote before any work begins.',
+    q: 'What does pharma hack removal cost?',
+    a: 'It is part of our malware cleanup, starting at $179 for standard WordPress sites — including database cleanup, backdoor removal, Search Console re-crawl requests, and entry-point hardening. WooCommerce and complex sites are quoted individually. Diagnosis is free and you get a fixed quote before any work begins.',
   },
 ];
 
-const symptoms = [
-  { label: 'Login credentials rejected', desc: 'Your correct username and password suddenly no longer work at /wp-admin.' },
-  { label: 'Admin account deleted', desc: 'Your administrator user is gone, or demoted, and an unfamiliar admin exists instead.' },
-  { label: 'Reset emails never arrive', desc: 'The "lost password" link is never delivered because the admin email was changed or mail is broken.' },
-  { label: 'Locked at hosting level too', desc: 'cPanel or hosting passwords were changed, compounding the lockout.' },
+const signs = [
+  { label: 'Pill spam in Google results', desc: 'Searching "site:yourdomain.com" shows Viagra, Cialis, or pharmacy keywords in your page titles and descriptions.' },
+  { label: 'Site looks normal in the browser', desc: 'Cloaking serves spam only to Google’s crawler — you see your normal pages, Google sees a pharmacy.' },
+  { label: 'Hidden links and spam pages', desc: 'Invisible links to online pharmacies injected into your content, or new spam URLs indexed under your domain.' },
+  { label: '"This site may be hacked" warning', desc: 'Google adds the hacked-site label under your listing, and organic traffic starts dropping.' },
 ];
 ---
 
 <Base
-  title="Locked Out of WordPress Admin After Hack? Recovery India"
-  description="Attacker locked you out of wp-admin, deleted your admin user, or changed the email? We regain access through hosting-level recovery, remove rogue admins, clean the site, and secure your login. Free diagnosis, fixed price from ₹14,999."
-  canonical="https://www.wordpressrecovery.in/wp-admin-locked-after-hack-india/"
+  title="Pharma Hack Removal | Fix Viagra Spam on WordPress"
+  description="Viagra or pharmacy keywords showing in Google for your WordPress site? We remove the cloaked pharma spam, database payloads, and every backdoor, then clean your Google results. Free diagnosis, fixed price from $179."
+  canonical="https://www.hackedwebsiterecovery.com/pharma-hack-removal/"
 >
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "WordPress Admin Access Recovery India",
-    "description": "Recovery of WordPress administrator access after a hack — regains entry via hosting-level access, removes rogue admin accounts, resets credentials and email, and hardens the login.",
+    "name": "Pharma Hack Removal",
+    "description": "Removal of the WordPress pharma hack: deletes cloaked pharmaceutical spam, hidden links, database payloads, and backdoors, cleans hijacked titles and metas, and hardens the site against reinfection.",
     "provider": {
       "@type": "ProfessionalService",
-      "name": "WordPressRecovery.in",
-      "url": "https://www.wordpressrecovery.in",
-      "telephone": "+919998757045"
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com",
+      "telephone": "+447344540450"
     },
-    "areaServed": { "@type": "Country", "name": "India" },
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
     "offers": {
       "@type": "Offer",
-      "price": "14999",
-      "priceCurrency": "INR",
-      "description": "Starting price for admin access recovery and cleanup"
+      "price": "179",
+      "priceCurrency": "USD",
+      "description": "Starting price for pharma hack removal"
     },
-    "serviceType": "WordPress Admin Access Recovery"
+    "serviceType": "Pharma Hack Removal"
   })} />
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
@@ -89,29 +89,29 @@ const symptoms = [
     <div class="max-w-4xl mx-auto text-center relative">
       <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-semibold px-4 py-2 rounded-full mb-8">
         <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
-        WordPress Admin Recovery — India
+        Pharma Hack Removal
       </div>
 
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-        Locked Out of<br>
-        <span class="text-blue-400">Your Own WordPress?</span>
+        Viagra Spam Showing<br>
+        <span class="text-blue-400">in Your Google Results?</span>
       </h1>
 
       <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-        Attacker changed your password, deleted your admin user, or hijacked the email? We get you back in through hosting-level recovery — no dependence on the broken login screen — then remove rogue admins and secure the account. Fixed price. Free diagnosis.
+        The pharma hack cloaks pharmacy spam inside your WordPress site — invisible to you, served to Google. We remove the cloaking code, database payloads, and every backdoor, then clean your search results — so it cannot return. Fixed price. Free diagnosis.
       </p>
 
       <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
         <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
           Get Free Diagnosis
         </a>
-        <a href="https://wa.me/919998757045?text=I%20am%20locked%20out%20of%20my%20WordPress%20admin%20after%20a%20hack.%20I%20need%20help." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+        <a href="https://wa.me/919998757045?text=My%20site%20has%20the%20pharma%20hack%20(Viagra%20spam%20in%20Google).%20I%20need%20it%20removed." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
           WhatsApp Now
         </a>
       </div>
 
       <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
-        {['Access via hosting recovery', 'Rogue admin accounts removed', 'Login email & passwords reset', 'Same-day service available'].map(item => (
+        {['Cloaked spam & backdoors removed', 'Database payloads cleaned', 'Google results restored', 'Same-day service available'].map(item => (
           <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
             <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -123,18 +123,18 @@ const symptoms = [
     </div>
   </section>
 
-  <!-- Symptoms -->
+  <!-- Signs -->
   <section class="py-20 px-4 bg-slate-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Locked-Out Symptoms We Fix</h2>
-        <p class="text-slate-400 max-w-2xl mx-auto">If you recognise any of these, an attacker has taken control of your admin — and we can take it back.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Signs of the Pharma Hack</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">If you recognise any of these, your WordPress site has been compromised and is being used to host cloaked pharmacy spam.</p>
       </div>
       <div class="grid sm:grid-cols-2 gap-4">
-        {symptoms.map(w => (
+        {signs.map(w => (
           <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex gap-4">
             <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             </div>
             <div>
               <div class="font-semibold text-white mb-1">{w.label}</div>
@@ -151,9 +151,9 @@ const symptoms = [
     <div class="max-w-4xl mx-auto">
       <div class="bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10">
         <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Real client recovery</div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Admin compromise reversed and access secured</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">SEO-spam infection removed at the source — no return</h2>
         <p class="text-gray-600 leading-relaxed mb-8">
-          A WebAdish client (Verofax) came to us with a partial admin compromise alongside malware and a Google warning. We restored legitimate access, removed the attacker’s foothold, hardened the login and entry point, then monitored to confirm no reinfection — so the attacker could not return or lock them out again.
+          A WebAdish client (Verofax) was hit with an infection that damaged their search presence and kept returning after surface cleanups, because hidden backdoors remained — the same mechanism that keeps pharma spam regenerating. We removed every backdoor, restored search integrity, and confirmed the site stayed clean with no reinfection.
         </p>
         <div class="grid grid-cols-3 gap-4 mb-8">
           {[
@@ -179,16 +179,16 @@ const symptoms = [
   <section class="py-20 px-4 bg-slate-950">
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Get You Back In</h2>
-        <p class="text-slate-400">Regain control, remove the attacker, and close the door behind them.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Remove It — For Good</h2>
+        <p class="text-slate-400">Kill the cloaking, clean the database, close the door.</p>
       </div>
       <div class="space-y-4">
         {[
-          { step: '1', title: 'Free Diagnosis', desc: 'We confirm the lockout and how the attacker got in, using hosting access rather than the broken login. You get a fixed quote first.' },
-          { step: '2', title: 'Regain Access', desc: 'We restore a legitimate administrator via the database/hosting level and reset your password and admin email back to you.' },
-          { step: '3', title: 'Remove Rogue Admins', desc: 'Every unauthorised admin account, hidden user, and backdoor that allowed the takeover is removed.' },
-          { step: '4', title: 'Clean & Harden', desc: 'Malware is removed and the entry point closed — credentials, keys, and permissions reset so you cannot be locked out again.' },
-          { step: '5', title: 'Handover & Report', desc: 'You get secure access plus a report of what was found and removed, and recommendations to stay protected.' },
+          { step: '1', title: 'Free Diagnosis', desc: 'We confirm the hack by crawling your site as Googlebot and checking "site:" results, then locate the cloaking code, database payloads, and backdoors. Fixed quote first.' },
+          { step: '2', title: 'Backup & Remove Source', desc: 'Full backup taken, then we remove the cloaking scripts, spam pages, hidden links, and every backdoor from files and database.' },
+          { step: '3', title: 'Clean Your Google Results', desc: 'Hijacked titles and metas are restored, spam URLs submitted for removal, and your real pages queued for re-crawling in Search Console.' },
+          { step: '4', title: 'Harden the Entry Point', desc: 'The vulnerability used for access is closed and credentials reset, so the spam cannot regenerate.' },
+          { step: '5', title: 'Handover & Report', desc: 'You receive a report of what was removed, plus the reconsideration request if Google flagged the site.' },
         ].map(s => (
           <div class="flex gap-5 items-start bg-slate-900/60 border border-slate-800 rounded-xl p-5">
             <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
@@ -207,17 +207,17 @@ const symptoms = [
   <!-- Pricing -->
   <section class="py-20 px-4 bg-white">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Admin Recovery Pricing (India)</h2>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Pharma Hack Removal Pricing</h2>
       <p class="text-gray-600 mb-12">Fixed-fee pricing. You receive a quote after the free diagnosis — no surprises.</p>
 
       <div class="grid sm:grid-cols-2 gap-5 mb-8">
         <div class="border-2 border-blue-600 rounded-2xl p-7 text-left shadow-xl shadow-blue-100 relative">
           <div class="absolute -top-3.5 left-6 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">MOST COMMON</div>
-          <div class="text-sm font-semibold text-blue-600 mb-2">Access Recovery + Cleanup</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹14,999<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-sm font-semibold text-blue-600 mb-2">Pharma Spam Cleanup</div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$179<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Standard WordPress sites</div>
           <ul class="space-y-2 text-sm text-gray-700">
-            {['Hosting-level access recovery', 'Rogue admin account removal', 'Password & admin email reset', 'Malware & backdoor removal', 'Login & entry point hardening', 'Cleanup report'].map(f => (
+            {['Cloaking & spam removal', 'Backdoor removal', 'Database payload cleanup', 'Titles & metas restored', 'Search Console re-crawl requests', 'Entry point hardening'].map(f => (
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 {f}
@@ -228,10 +228,10 @@ const symptoms = [
 
         <div class="border border-gray-200 rounded-2xl p-7 text-left">
           <div class="text-sm font-semibold text-gray-500 mb-2">WooCommerce / Complex</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹75,000<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$899<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Stores, lead-heavy & multi-site</div>
           <ul class="space-y-2 text-sm text-gray-700">
-            {['Everything in standard recovery', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
+            {['Everything in standard cleanup', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 {f}
@@ -241,7 +241,7 @@ const symptoms = [
         </div>
       </div>
 
-      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. UPI and bank transfer accepted.</p>
+      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. Card and bank transfer accepted.</p>
     </div>
   </section>
 
@@ -249,8 +249,8 @@ const symptoms = [
   <section class="py-20 px-4 bg-gray-50">
     <div class="max-w-3xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Admin Lockout Recovery — FAQ</h2>
-        <p class="text-gray-600">Common questions about being locked out of WordPress after a hack.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Pharma Hack — FAQ</h2>
+        <p class="text-gray-600">Common questions about the pharma (Viagra spam) hack on WordPress.</p>
       </div>
       <div class="space-y-2" id="faq-list">
         {faqs.map((faq) => (

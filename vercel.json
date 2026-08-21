@@ -1,11 +1,14 @@
 {
   "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "wordpressrecovery.in" }],
-      "destination": "https://www.wordpressrecovery.in/:path*",
-      "permanent": true
-    }
+    { "source": "/wordpress-malware-removal-india/", "destination": "/wordpress-malware-removal/", "permanent": true },
+    { "source": "/google-blacklist-removal-india/", "destination": "/google-blacklist-removal/", "permanent": true },
+    { "source": "/woocommerce-hacked-recovery-india/", "destination": "/woocommerce-hacked-recovery/", "permanent": true },
+    { "source": "/hosting-account-suspended-malware-india/", "destination": "/hosting-account-suspended-malware/", "permanent": true },
+    { "source": "/wordpress-hosting-suspended-malware-india/", "destination": "/wordpress-hosting-suspended-malware/", "permanent": true },
+    { "source": "/japanese-keyword-hack-removal-india/", "destination": "/japanese-keyword-hack-removal/", "permanent": true },
+    { "source": "/pharma-hack-removal-india/", "destination": "/pharma-hack-removal/", "permanent": true },
+    { "source": "/wp-admin-locked-after-hack-india/", "destination": "/wp-admin-locked-after-hack/", "permanent": true },
+    { "source": "/wordpress-redirect-virus-removal-india/", "destination": "/wordpress-redirect-virus-removal/", "permanent": true }
   ],
   "headers": [
     {

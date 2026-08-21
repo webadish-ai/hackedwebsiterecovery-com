@@ -5,7 +5,7 @@ interface Props {
   canonical?: string;
   noindex?: boolean;
 }
-const { title, description, canonical = new URL(Astro.url.pathname, 'https://www.hackedwebsiterecovery.in').href, noindex = false } = Astro.props;
+const { title, description, canonical = new URL(Astro.url.pathname, 'https://www.hackedwebsiterecovery.com').href, noindex = false } = Astro.props;
 import GoogleAnalytics from '@/components/GoogleAnalytics.astro';
 const gaId = import.meta.env.PUBLIC_GA_ID;
 ---
@@ -33,11 +33,11 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonical} />
-  <meta property="og:site_name" content="HackedWebsiteRecovery.in" />
-  <meta property="og:locale" content="en_IN" />
+  <meta property="og:site_name" content="HackedWebsiteRecovery.com" />
+  <meta property="og:locale" content="en" />
 
   <!-- Open Graph Image -->
-  <meta property="og:image" content="https://www.hackedwebsiterecovery.in/og-image.png" />
+  <meta property="og:image" content="https://www.hackedwebsiterecovery.com/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
@@ -45,7 +45,7 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content="https://www.hackedwebsiterecovery.in/og-image.png" />
+  <meta name="twitter:image" content="https://www.hackedwebsiterecovery.com/og-image.png" />
 
   <!-- Fonts are self-hosted via @fontsource-variable (imported in global.css) —
        no third-party font request on the critical path. -->
@@ -55,15 +55,15 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
   {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    "name": "HackedWebsiteRecovery.in",
-    "description": "Emergency WordPress recovery, malware removal, and security hardening for Indian businesses by WebAdish LLP.",
-    "url": "https://www.hackedwebsiterecovery.in",
-    "telephone": "+919998757045",
-    "email": "help@hackedwebsiterecovery.in",
+    "name": "HackedWebsiteRecovery.com",
+    "description": "Emergency WordPress recovery, malware removal, and security hardening for businesses worldwide by WebAdish LLP.",
+    "url": "https://www.hackedwebsiterecovery.com",
+    "telephone": "+447344540450",
+    "email": "help@hackedwebsiterecovery.com",
     "areaServed": [
-      { "@type": "Country", "name": "India" }
+      { "@type": "Place", "name": "Worldwide" }
     ],
-    "priceRange": "₹14,999 – ₹75,000+",
+    "priceRange": "$179 – $899+",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",

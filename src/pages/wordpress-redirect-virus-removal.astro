@@ -9,64 +9,64 @@ import '@/styles/global.css';
 
 const faqs = [
   {
-    q: 'What is the Japanese keyword hack?',
-    a: 'The Japanese keyword hack (also called the "Japanese SEO spam" hack) injects thousands of auto-generated pages with Japanese text and links to fake stores into your WordPress site. Google indexes these pages under your domain, so your search results fill with Japanese spam titles. It is designed to hijack your site’s SEO authority to rank the attacker’s spam.',
+    q: 'Why does my WordPress site redirect to spam or casino sites?',
+    a: 'A redirect virus means an attacker has injected malicious code into your site that sends visitors to spam, pharma, casino, or adult pages. The code usually hides in your .htaccess file, theme functions.php, the WordPress database (wp_options or wp_posts), or a fake plugin. Plugin scanners often miss it because it can be conditional — only redirecting mobile users, or only visitors arriving from Google.',
   },
   {
-    q: 'Why do Japanese pages show up in Google for my site?',
-    a: 'The attacker has gained access — usually via a vulnerable plugin, theme, or stolen credentials — and added a script that generates spam pages and a sitemap pointing Google to them. They often add themselves as a Search Console owner to speed up indexing. The pages may not be visible when you browse your site normally, but they appear in "site:yourdomain.com" searches.',
+    q: 'The redirect only happens on mobile or from Google — why?',
+    a: 'This is a common, deliberate evasion. Malware checks the visitor’s device or referrer and only redirects mobile visitors, or only those clicking through from Google search — so the site owner, who types the URL directly on desktop, sees nothing wrong. We test across devices and referrers to find conditional redirects that surface scans miss.',
   },
   {
-    q: 'I keep deleting the spam pages but they come back. Why?',
-    a: 'Because the backdoor and the generator script are still active and re-creating them. Deleting indexed pages without removing the source is why the hack persists. We remove the generator, every backdoor, the malicious sitemap, and any rogue Search Console owners, then harden the entry point so the pages cannot regenerate.',
+    q: 'I deleted the .htaccess redirect but it came back. What now?',
+    a: 'If the redirect returns, the real source — a backdoor or infected database entry — is still active and re-injecting the code. Removing the symptom without removing the backdoor is why DIY fixes fail. We trace the redirect to its origin, remove every backdoor and injected entry, and harden the entry point so it cannot reappear.',
   },
   {
-    q: 'Will this hack hurt my Google rankings?',
-    a: 'Yes — significantly if left unaddressed. Google may flag the site as hacked, your legitimate pages can lose rankings, and the spam pages waste your crawl budget. The faster it is cleaned and the spam pages are removed from the index, the faster your real rankings recover. We also handle the Search Console cleanup and reconsideration where needed.',
+    q: 'Will removing the redirect virus affect my content or SEO?',
+    a: 'No. We take a full backup first and clean surgically — your posts, pages, products, and media are untouched. On SEO: the faster the redirect is removed, the less damage. While it is live, Google may flag the site and rankings can drop; once clean (and any Google warning cleared), rankings typically recover.',
   },
   {
-    q: 'How do you clean the Japanese keyword hack?',
-    a: 'We locate and remove the spam-page generator and all backdoors, delete the injected pages and malicious sitemap, remove any unauthorised Search Console users, and submit the cleaned URLs for re-crawling. Then we harden the entry point. Most cleanups complete within 4–12 hours of access; heavily infected sites may take longer.',
+    q: 'How fast can you remove a redirect hack?',
+    a: 'Most redirect-virus cleanups are completed within 4–12 hours of receiving access. Conditional or multi-layered redirects with several backdoors may take up to 24 hours. Same-day emergency service is available. You get a time estimate after the free diagnosis.',
   },
   {
-    q: 'What does Japanese keyword hack removal cost in India?',
-    a: 'It is part of our malware cleanup, starting at ₹14,999 for standard WordPress sites — including removal of the generator, backdoors, spam pages, and the Search Console cleanup. WooCommerce and complex sites are quoted individually. Diagnosis is free and you get a fixed quote before any work begins.',
+    q: 'What does redirect virus removal cost?',
+    a: 'Redirect-virus removal is part of our malware cleanup, starting at $179 for standard WordPress sites. The price includes finding and removing the redirect source, hardening, and (if needed) the Google blacklist reconsideration. Diagnosis is free and you get a fixed quote before work begins. WooCommerce and complex sites are quoted individually.',
   },
 ];
 
-const signs = [
-  { label: 'Japanese titles in Google', desc: 'Searching "site:yourdomain.com" shows hundreds or thousands of pages with Japanese spam titles and descriptions.' },
-  { label: 'Unknown pages & sitemaps', desc: 'New URLs and an unfamiliar sitemap.xml you never created, pointing Google to the spam.' },
-  { label: 'Rogue Search Console owner', desc: 'An unknown user added as a verified owner in Google Search Console to control indexing.' },
-  { label: 'Spam returns after deletion', desc: 'Pages reappear within hours or days because a backdoor keeps regenerating them.' },
+const hideouts = [
+  { label: '.htaccess redirects', desc: 'Rewrite rules added to .htaccess that silently forward visitors to a spam domain.' },
+  { label: 'Database injections', desc: 'Malicious JavaScript or URLs injected into wp_options, wp_posts, or widget content.' },
+  { label: 'Theme & plugin files', desc: 'Obfuscated code added to functions.php or hidden inside a fake/cloned plugin.' },
+  { label: 'Conditional / cloaked redirects', desc: 'Code that only fires for mobile users or Google referrers, so the owner never sees it.' },
 ];
 ---
 
 <Base
-  title="Japanese Keyword Hack Removal India | Fix Japanese SEO Spam"
-  description="Japanese spam pages showing in Google for your WordPress site? We remove the generator, backdoors, and injected pages, clean Search Console, and harden the site so it cannot return. Free diagnosis, fixed price from ₹14,999."
-  canonical="https://www.wordpressrecovery.in/japanese-keyword-hack-removal-india/"
+  title="WordPress Redirect Virus Removal | Stop Spam Redirects"
+  description="Site redirecting to spam, casino, or pharma pages? We find and remove the redirect virus at its source — .htaccess, database, and backdoors — so it does not come back. Free diagnosis, fixed price from $179."
+  canonical="https://www.hackedwebsiterecovery.com/wordpress-redirect-virus-removal/"
 >
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Japanese Keyword Hack Removal India",
-    "description": "Removal of the Japanese keyword (Japanese SEO spam) hack from WordPress: deletes the spam-page generator, backdoors, injected pages, and malicious sitemap, cleans Google Search Console, and hardens the site.",
+    "name": "WordPress Redirect Virus Removal",
+    "description": "Removal of malicious redirects sending WordPress visitors to spam, casino, pharma, or adult sites. Traces and removes .htaccess, database, and backdoor sources, then hardens the entry point.",
     "provider": {
       "@type": "ProfessionalService",
-      "name": "WordPressRecovery.in",
-      "url": "https://www.wordpressrecovery.in",
-      "telephone": "+919998757045"
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com",
+      "telephone": "+447344540450"
     },
-    "areaServed": { "@type": "Country", "name": "India" },
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
     "offers": {
       "@type": "Offer",
-      "price": "14999",
-      "priceCurrency": "INR",
-      "description": "Starting price for Japanese keyword hack removal"
+      "price": "179",
+      "priceCurrency": "USD",
+      "description": "Starting price for redirect virus removal and hardening"
     },
-    "serviceType": "Japanese Keyword Hack Removal"
+    "serviceType": "WordPress Redirect Virus Removal"
   })} />
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
@@ -89,29 +89,29 @@ const signs = [
     <div class="max-w-4xl mx-auto text-center relative">
       <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-semibold px-4 py-2 rounded-full mb-8">
         <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
-        Japanese Keyword Hack Removal — India
+        WordPress Redirect Virus Removal
       </div>
 
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-        Japanese Spam Pages<br>
-        <span class="text-blue-400">in Your Google Results?</span>
+        Site Redirecting to<br>
+        <span class="text-blue-400">Spam? We Stop It.</span>
       </h1>
 
       <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-        The Japanese keyword hack floods your site with auto-generated spam pages to hijack your SEO. We remove the generator, every backdoor, the injected pages, and clean your Search Console — so it cannot regenerate. Fixed price. Free diagnosis.
+        Visitors sent to casino, pharma, or adult pages — or the redirect comes back every time you delete it? We trace the hack to its source, remove every backdoor, and harden the entry point so it stays gone. Fixed price. Free diagnosis.
       </p>
 
       <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
         <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
           Get Free Diagnosis
         </a>
-        <a href="https://wa.me/919998757045?text=My%20site%20has%20the%20Japanese%20keyword%20hack.%20I%20need%20it%20removed." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+        <a href="https://wa.me/919998757045?text=My%20WordPress%20site%20is%20redirecting%20to%20spam.%20I%20need%20it%20fixed." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
           WhatsApp Now
         </a>
       </div>
 
       <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
-        {['Generator & backdoors removed', 'Search Console cleaned', 'Spam pages de-indexed', 'Same-day service available'].map(item => (
+        {['Fixed at the source — not just .htaccess', 'Conditional/mobile redirects found', 'Backup before any changes', 'Same-day service available'].map(item => (
           <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
             <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -123,18 +123,18 @@ const signs = [
     </div>
   </section>
 
-  <!-- Signs -->
+  <!-- Where it hides -->
   <section class="py-20 px-4 bg-slate-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Signs of the Japanese Keyword Hack</h2>
-        <p class="text-slate-400 max-w-2xl mx-auto">If you recognise any of these, your WordPress site has been compromised and is being used to host SEO spam.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Where a Redirect Virus Hides</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">A redirect almost always has a hidden source re-injecting it. Deleting one copy is not enough — we remove every one.</p>
       </div>
       <div class="grid sm:grid-cols-2 gap-4">
-        {signs.map(w => (
+        {hideouts.map(w => (
           <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex gap-4">
             <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
             </div>
             <div>
               <div class="font-semibold text-white mb-1">{w.label}</div>
@@ -151,9 +151,9 @@ const signs = [
     <div class="max-w-4xl mx-auto">
       <div class="bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10">
         <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Real client recovery</div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">SEO-spam infection removed at the source — no return</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Spam redirect stopped at the source — no reinfection</h2>
         <p class="text-gray-600 leading-relaxed mb-8">
-          A WebAdish client (Verofax) was hit with an infection that damaged their search presence and kept returning after surface cleanups, because hidden backdoors remained — the same mechanism that regenerates Japanese spam pages. We removed every backdoor, restored search integrity, and confirmed the site stayed clean with no reinfection.
+          A WebAdish client (Verofax) came to us after their site began redirecting visitors to external spam pages. Earlier plugin-based cleanups had only removed the surface code, and the redirect kept returning within days. We traced it to multiple hidden backdoors, removed them all, hardened the entry point, and confirmed the site clean across devices and referrers.
         </p>
         <div class="grid grid-cols-3 gap-4 mb-8">
           {[
@@ -179,16 +179,16 @@ const signs = [
   <section class="py-20 px-4 bg-slate-950">
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Remove It — For Good</h2>
-        <p class="text-slate-400">Kill the generator, clean the index, close the door.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Remove the Redirect — Permanently</h2>
+        <p class="text-slate-400">Find the source, remove every copy, close the door behind it.</p>
       </div>
       <div class="space-y-4">
         {[
-          { step: '1', title: 'Free Diagnosis', desc: 'We confirm the hack via Search Console and "site:" results, then locate the generator script, backdoors, and malicious sitemap. Fixed quote first.' },
-          { step: '2', title: 'Backup & Remove Source', desc: 'Full backup taken, then we remove the spam-page generator, every backdoor, and the injected pages and sitemap.' },
-          { step: '3', title: 'Clean Search Console', desc: 'We remove any unauthorised Search Console owners and submit the spam URLs for removal and re-crawling of your real pages.' },
-          { step: '4', title: 'Harden the Entry Point', desc: 'The vulnerability used for access is closed and credentials reset, so the pages cannot regenerate.' },
-          { step: '5', title: 'Handover & Report', desc: 'You receive a report of what was removed, plus the reconsideration request if Google flagged the site.' },
+          { step: '1', title: 'Free Diagnosis', desc: 'We reproduce the redirect across devices and referrers, then locate every source — .htaccess, database, theme, and backdoors. You get a fixed quote first.' },
+          { step: '2', title: 'Backup & Trace', desc: 'Full backup taken. We trace the redirect to its origin rather than just deleting the visible code, so nothing re-injects it later.' },
+          { step: '3', title: 'Remove Every Copy', desc: 'All redirect code, injected database entries, and the backdoors feeding them are removed — not just the one you found.' },
+          { step: '4', title: 'Harden & Verify', desc: 'The entry point is closed and credentials reset. We re-test on mobile, desktop, and Google referrers to confirm the redirect is fully gone.' },
+          { step: '5', title: 'Handover & Report', desc: 'You receive a report of what was found and removed, plus the Google reconsideration request if your site was flagged.' },
         ].map(s => (
           <div class="flex gap-5 items-start bg-slate-900/60 border border-slate-800 rounded-xl p-5">
             <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
@@ -207,17 +207,17 @@ const signs = [
   <!-- Pricing -->
   <section class="py-20 px-4 bg-white">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Japanese Hack Removal Pricing (India)</h2>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Redirect Removal Pricing</h2>
       <p class="text-gray-600 mb-12">Fixed-fee pricing. You receive a quote after the free diagnosis — no surprises.</p>
 
       <div class="grid sm:grid-cols-2 gap-5 mb-8">
         <div class="border-2 border-blue-600 rounded-2xl p-7 text-left shadow-xl shadow-blue-100 relative">
           <div class="absolute -top-3.5 left-6 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">MOST COMMON</div>
-          <div class="text-sm font-semibold text-blue-600 mb-2">SEO Spam Cleanup</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹14,999<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-sm font-semibold text-blue-600 mb-2">Redirect Removal + Hardening</div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$179<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Standard WordPress sites</div>
           <ul class="space-y-2 text-sm text-gray-700">
-            {['Spam-page generator removal', 'Backdoor removal', 'Injected pages & sitemap cleanup', 'Search Console owner cleanup', 'Entry point hardening', 'Cleanup report'].map(f => (
+            {['Full server & database scan', 'Redirect source tracing', 'Backdoor removal', 'Conditional/mobile redirect check', 'Entry point hardening', 'Cleanup report'].map(f => (
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 {f}
@@ -228,10 +228,10 @@ const signs = [
 
         <div class="border border-gray-200 rounded-2xl p-7 text-left">
           <div class="text-sm font-semibold text-gray-500 mb-2">WooCommerce / Complex</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹75,000<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$899<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Stores, lead-heavy & multi-site</div>
           <ul class="space-y-2 text-sm text-gray-700">
-            {['Everything in standard cleanup', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
+            {['Everything in standard removal', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 {f}
@@ -241,7 +241,7 @@ const signs = [
         </div>
       </div>
 
-      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. UPI and bank transfer accepted.</p>
+      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. Card and bank transfer accepted.</p>
     </div>
   </section>
 
@@ -249,8 +249,8 @@ const signs = [
   <section class="py-20 px-4 bg-gray-50">
     <div class="max-w-3xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Japanese Keyword Hack — FAQ</h2>
-        <p class="text-gray-600">Common questions about the Japanese SEO spam hack on WordPress.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Redirect Virus Removal — FAQ</h2>
+        <p class="text-gray-600">Common questions about spam-redirect hacks on WordPress.</p>
       </div>
       <div class="space-y-2" id="faq-list">
         {faqs.map((faq) => (

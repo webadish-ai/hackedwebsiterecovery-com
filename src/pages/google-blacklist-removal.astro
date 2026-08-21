@@ -9,64 +9,64 @@ import '@/styles/global.css';
 
 const faqs = [
   {
-    q: 'My host suspended my site for malware — how do I get it back online?',
-    a: 'Hosts suspend an account when they detect malware, spam being sent, or abuse complaints. To lift the suspension you must remove the malware to their satisfaction and, usually, reply to their abuse ticket with confirmation of the cleanup. We do both: clean the site at the server level and prepare the documentation your host needs to reactivate the account.',
+    q: 'How long does it take to remove a Google blacklist warning?',
+    a: 'Once your site is fully clean, we submit a reconsideration request to Google Search Console. Google typically reviews and clears the "This site may be hacked" or "Deceptive site ahead" warning within 1–3 days. The cleanup itself usually takes 4–12 hours. In a recent eCommerce recovery we handled, the Google warning was cleared within 48 hours of starting work.',
   },
   {
-    q: 'My hosting account is suspended — can you even access it to clean it?',
-    a: 'Yes, in most cases. Many hosts keep file and database access (cPanel/FTP/phpMyAdmin) available during a malware suspension even when the public site is down, precisely so the issue can be fixed. If access is fully locked, we guide you on what to request from your host so we can get in and clean the site.',
+    q: 'What does the "This site may be hacked" warning mean?',
+    a: 'It means Google Safe Browsing detected hacked content, malware, or injected spam pages on your domain. Google adds a warning label in search results and Chrome may show a red interstitial page before visitors can reach your site. It is a strong signal that your WordPress site is compromised and needs cleaning — not just a cosmetic Google issue.',
   },
   {
-    q: 'Do you work with my hosting provider?',
-    a: 'We regularly clean sites on SiteGround, Hostinger, GoDaddy, Bluehost, Hostgator, BigRock, and any standard cPanel or Plesk host. The cleanup approach is the same regardless of provider; what changes is each host’s reactivation process, which we are familiar with.',
+    q: 'Can you remove "Deceptive site ahead" and "Dangerous site" warnings too?',
+    a: 'Yes. "Deceptive site ahead", "Dangerous site", "The site ahead contains malware", and "This site may be hacked" are all Google Safe Browsing flags. The fix is the same: remove the malicious content and entry point causing the flag, then request a review. We handle the full process including the Search Console submission.',
   },
   {
-    q: 'Will my host suspend me again after reactivation?',
-    a: 'Only if the malware or its entry point is still present. This is the most common reason for repeat suspension — a surface cleanup that misses a backdoor. We remove every backdoor and harden the entry point, so the infection that triggered the suspension does not return and re-trip the host’s scanners.',
+    q: 'Will I lose my Google rankings because of the blacklist?',
+    a: 'A blacklist causes a sharp traffic drop while the warning is live, because users see a warning before they reach your site and Google may suppress flagged pages. Once the site is cleaned and the warning is cleared, rankings typically begin recovering. Acting fast limits the SEO damage — the longer a site stays flagged, the longer recovery takes.',
   },
   {
-    q: 'How fast can you get my suspended site reactivated?',
-    a: 'The cleanup is usually done within 4–12 hours of access. After that, reactivation depends on your host’s review time once you reply to their ticket — often a few hours to a day. We prioritise suspended sites because every hour offline is lost business. Same-day handling is available.',
+    q: 'Do I need access to my Google Search Console?',
+    a: 'It helps. If you already have Search Console set up, we use it to submit the reconsideration request directly. If you do not, we can guide you through verifying ownership (a 5-minute step), or submit through the available channels. We also need hosting/cPanel access to clean the underlying malware causing the flag.',
   },
   {
-    q: 'What does it cost to clean a suspended WordPress site in India?',
-    a: 'It is part of our malware cleanup, starting at ₹14,999 for standard WordPress sites, including the cleanup, hardening, and the reactivation documentation for your host. WooCommerce and complex sites are quoted individually. Diagnosis is free and you get a fixed quote before any work begins.',
+    q: 'What does Google blacklist removal cost?',
+    a: 'Blacklist removal is included as part of our malware cleanup, which starts at $179 for standard WordPress sites. The price covers the full cleanup, hardening, and the Google reconsideration request. The diagnosis is free and you get a fixed quote before any work starts. WooCommerce and complex sites are quoted individually.',
   },
 ];
 
-const reasons = [
-  { label: 'Malware detected on the account', desc: 'The host’s scanner (often Imunify360 or similar) flagged infected files and disabled the site to protect their network.' },
-  { label: 'Outbound spam from your account', desc: 'A hacked site sending bulk spam email gets the whole hosting account suspended fast.' },
-  { label: 'Phishing or malicious pages', desc: 'Attackers used your domain to host phishing or malware pages, triggering abuse complaints.' },
-  { label: 'Excessive resource usage', desc: 'Malware running cron jobs or attacks from your account spikes CPU, leading to suspension.' },
+const warnings = [
+  { label: 'This site may be hacked', desc: 'Shown under your listing in Google search results — warns users your pages were compromised.' },
+  { label: 'Deceptive site ahead', desc: 'Full-page red warning in Chrome before the visitor can reach your site. Most traffic turns back here.' },
+  { label: 'The site ahead contains malware', desc: 'Google Safe Browsing detected malware being served to visitors from your domain.' },
+  { label: 'Dangerous site / Phishing', desc: 'Your domain is being used (often without your knowledge) to host phishing or attack pages.' },
 ];
 ---
 
 <Base
-  title="Hosting Suspended for Malware? WordPress Cleanup India"
-  description="Host suspended your WordPress account for malware or spam? We clean the site to your host’s requirements and prepare the reactivation documentation — SiteGround, Hostinger, GoDaddy, Bluehost, cPanel. Free diagnosis, fixed price from ₹14,999."
-  canonical="https://www.wordpressrecovery.in/wordpress-hosting-suspended-malware-india/"
+  title="Google Blacklist Removal | Fix Site Hacked Warning"
+  description="Remove the Google 'This site may be hacked' or 'Deceptive site ahead' warning. Full WordPress malware cleanup plus Search Console reconsideration. Free diagnosis, fixed price from $179."
+  canonical="https://www.hackedwebsiterecovery.com/google-blacklist-removal/"
 >
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Hosting Suspension Recovery India",
-    "description": "Cleanup of WordPress sites suspended by the hosting provider for malware, spam, or abuse. Removes the malware to host requirements, hardens the entry point, and prepares reactivation documentation.",
+    "name": "Google Blacklist Removal",
+    "description": "Remove Google Safe Browsing warnings (This site may be hacked / Deceptive site ahead) from WordPress sites. Includes malware cleanup, hardening, and Search Console reconsideration request.",
     "provider": {
       "@type": "ProfessionalService",
-      "name": "WordPressRecovery.in",
-      "url": "https://www.wordpressrecovery.in",
-      "telephone": "+919998757045"
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com",
+      "telephone": "+447344540450"
     },
-    "areaServed": { "@type": "Country", "name": "India" },
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
     "offers": {
       "@type": "Offer",
-      "price": "14999",
-      "priceCurrency": "INR",
-      "description": "Starting price for cleanup of a malware-suspended WordPress site"
+      "price": "179",
+      "priceCurrency": "USD",
+      "description": "Starting price including malware cleanup and Google blacklist reconsideration"
     },
-    "serviceType": "Hosting Suspension Recovery"
+    "serviceType": "Google Blacklist Removal"
   })} />
 
   <script type="application/ld+json" slot="head" set:html={JSON.stringify({
@@ -89,29 +89,29 @@ const reasons = [
     <div class="max-w-4xl mx-auto text-center relative">
       <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-semibold px-4 py-2 rounded-full mb-8">
         <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
-        Hosting Suspension Recovery — India
+        Google Blacklist Removal
       </div>
 
       <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-        Host Suspended Your Site<br>
-        <span class="text-blue-400">for Malware?</span>
+        Google Says Your Site<br>
+        <span class="text-blue-400">"May Be Hacked"?</span>
       </h1>
 
       <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
-        We clean the infection to your host’s requirements and prepare the reactivation documentation they ask for — so your account comes back online and stays online. Works with all major Indian and global hosts. Fixed price. Free diagnosis.
+        We remove the malware causing the warning, then submit the Google reconsideration request to clear it — fast. Most warnings are cleared within 1–3 days of cleanup. Fixed price. Free diagnosis.
       </p>
 
       <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
         <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
           Get Free Diagnosis
         </a>
-        <a href="https://wa.me/919998757045?text=My%20host%20suspended%20my%20site%20for%20malware.%20I%20need%20it%20cleaned%20and%20reactivated." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+        <a href="https://wa.me/919998757045?text=Google%20is%20showing%20a%20hacked%20warning%20on%20my%20site.%20I%20need%20it%20removed." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
           WhatsApp Now
         </a>
       </div>
 
       <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
-        {['Cleaned to host requirements', 'Reactivation docs prepared', 'Backup before any changes', 'Same-day service available'].map(item => (
+        {['Warning cleared in 1–3 days', 'Reconsideration request handled', 'Backup before any changes', 'Same-day cleanup available'].map(item => (
           <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
             <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -123,27 +123,26 @@ const reasons = [
     </div>
   </section>
 
-  <!-- Why suspended -->
+  <!-- Which warning -->
   <section class="py-20 px-4 bg-slate-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Why Hosts Suspend a Site</h2>
-        <p class="text-slate-400 max-w-2xl mx-auto">A suspension almost always traces back to a hacked site. Clearing the suspension means removing the cause, not just asking the host nicely.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Which Google Warning Are You Seeing?</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">All of these come from Google Safe Browsing and mean the same thing — your WordPress site is serving hacked or malicious content. We remove all of them.</p>
       </div>
       <div class="grid sm:grid-cols-2 gap-4">
-        {reasons.map(w => (
+        {warnings.map(w => (
           <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 flex gap-4">
             <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
             <div>
-              <div class="font-semibold text-white mb-1">{w.label}</div>
+              <div class="font-semibold text-white mb-1">&ldquo;{w.label}&rdquo;</div>
               <p class="text-slate-400 text-sm leading-relaxed">{w.desc}</p>
             </div>
           </div>
         ))}
       </div>
-      <p class="text-center text-slate-500 text-sm mt-8">We clean sites on SiteGround, Hostinger, GoDaddy, Bluehost, Hostgator, BigRock, and any cPanel or Plesk host.</p>
     </div>
   </section>
 
@@ -152,15 +151,15 @@ const reasons = [
     <div class="max-w-4xl mx-auto">
       <div class="bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10">
         <div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-5">Real client recovery</div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Infection removed at the root — no repeat flag</h2>
+        <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 leading-tight">Hacked eCommerce site — Google warning cleared in 48 hours</h2>
         <p class="text-gray-600 leading-relaxed mb-8">
-          A WebAdish client (Verofax) had repeated infections because earlier cleanups removed only surface malware while hidden backdoors remained — exactly the pattern that gets an account suspended again days later. We ran a full forensic cleanup, removed every backdoor, hardened the entry point, and confirmed the site stayed clean.
+          A WebAdish client (Verofax) came to us after their site started redirecting visitors to spam and Google flagged it. Earlier plugin-based cleanups had failed and the infection kept returning. We ran a full forensic cleanup, removed multiple hidden backdoors, hardened the entry point, and submitted the reconsideration request.
         </p>
         <div class="grid grid-cols-3 gap-4 mb-8">
           {[
             { value: '<48h', label: 'Full recovery' },
-            { value: '0', label: 'Reinfections in 30 days' },
             { value: '48h', label: 'Google warning cleared' },
+            { value: '0', label: 'Reinfections in 30 days' },
           ].map(m => (
             <div class="bg-green-50 border border-green-100 rounded-2xl py-5 text-center">
               <div class="text-2xl font-extrabold text-green-700 leading-none">{m.value}</div>
@@ -180,16 +179,16 @@ const reasons = [
   <section class="py-20 px-4 bg-slate-950">
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Get You Reactivated</h2>
-        <p class="text-slate-400">Clean to the host’s standard, document it, and keep it from happening again.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">How We Clear the Google Warning</h2>
+        <p class="text-slate-400">Removing the warning without removing the cause just gets you re-flagged. We do both.</p>
       </div>
       <div class="space-y-4">
         {[
-          { step: '1', title: 'Free Diagnosis', desc: 'We review the suspension notice and your host’s scan, then scope the infection. You get a fixed quote before work begins.' },
-          { step: '2', title: 'Backup & Clean', desc: 'Full backup taken, then a server-level cleanup removes all malware, spam scripts, and backdoors the host’s scanner flagged.' },
-          { step: '3', title: 'Harden the Entry Point', desc: 'We close the vulnerability and reset credentials so the same infection cannot return and re-trip the suspension.' },
-          { step: '4', title: 'Prepare Reactivation Docs', desc: 'We document what was found and removed in the format hosts expect, so you can reply to their abuse ticket with confidence.' },
-          { step: '5', title: 'Back Online', desc: 'Once your host reviews and lifts the suspension, we confirm the live site is clean and functioning end-to-end.' },
+          { step: '1', title: 'Free Diagnosis', desc: 'We confirm the Safe Browsing flag, identify the hacked content Google detected, and scope the infection. You get a fixed quote before any work begins.' },
+          { step: '2', title: 'Backup & Clean', desc: 'Full backup taken first. Then a server-level scan removes all malware, injected spam pages, and hidden backdoors causing the flag.' },
+          { step: '3', title: 'Close the Entry Point', desc: 'We harden the specific vulnerability the attacker used and reset credentials — so Google does not re-flag the site days later.' },
+          { step: '4', title: 'Submit Reconsideration', desc: 'We verify the site is clean in Google Search Console and submit the Security Issues reconsideration request on your behalf.' },
+          { step: '5', title: 'Warning Cleared', desc: 'Google reviews and removes the warning, typically within 1–3 days. We confirm with you once it is lifted and traffic can flow again.' },
         ].map(s => (
           <div class="flex gap-5 items-start bg-slate-900/60 border border-slate-800 rounded-xl p-5">
             <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">{s.step}</div>
@@ -208,17 +207,17 @@ const reasons = [
   <!-- Pricing -->
   <section class="py-20 px-4 bg-white">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Suspension Recovery Pricing (India)</h2>
-      <p class="text-gray-600 mb-12">Fixed-fee pricing. You receive a quote after the free diagnosis — no surprises.</p>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Blacklist Removal Pricing</h2>
+      <p class="text-gray-600 mb-12">Blacklist removal is included in the malware cleanup — one fixed fee, no surprises.</p>
 
       <div class="grid sm:grid-cols-2 gap-5 mb-8">
         <div class="border-2 border-blue-600 rounded-2xl p-7 text-left shadow-xl shadow-blue-100 relative">
           <div class="absolute -top-3.5 left-6 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full">MOST COMMON</div>
-          <div class="text-sm font-semibold text-blue-600 mb-2">Cleanup + Reactivation</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹14,999<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-sm font-semibold text-blue-600 mb-2">Cleanup + Blacklist Removal</div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$179<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Standard WordPress sites</div>
           <ul class="space-y-2 text-sm text-gray-700">
-            {['Full server & database scan', 'Malware & backdoor removal', 'Outbound-spam source removal', 'Entry point hardening', 'Reactivation documentation for host', 'Cleanup report'].map(f => (
+            {['Full server & database scan', 'Malware & backdoor removal', 'Injected spam page cleanup', 'Entry point hardening', 'Search Console reconsideration request', 'Cleanup report'].map(f => (
               <li class="flex items-center gap-2">
                 <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 {f}
@@ -229,7 +228,7 @@ const reasons = [
 
         <div class="border border-gray-200 rounded-2xl p-7 text-left">
           <div class="text-sm font-semibold text-gray-500 mb-2">WooCommerce / Complex</div>
-          <div class="text-4xl font-extrabold text-slate-900 mb-1">₹75,000<span class="text-xl font-normal text-gray-400">+</span></div>
+          <div class="text-4xl font-extrabold text-slate-900 mb-1">$899<span class="text-xl font-normal text-gray-400">+</span></div>
           <div class="text-xs text-gray-400 mb-5">Stores, lead-heavy & multi-site</div>
           <ul class="space-y-2 text-sm text-gray-700">
             {['Everything in standard cleanup', 'WooCommerce data integrity check', 'Payment gateway verification', 'Extended root cause investigation', 'Priority same-day handling'].map(f => (
@@ -242,7 +241,7 @@ const reasons = [
         </div>
       </div>
 
-      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. UPI and bank transfer accepted.</p>
+      <p class="text-sm text-gray-400">All prices are starting points. Exact quote provided after free diagnosis. Card and bank transfer accepted.</p>
     </div>
   </section>
 
@@ -250,8 +249,8 @@ const reasons = [
   <section class="py-20 px-4 bg-gray-50">
     <div class="max-w-3xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Hosting Suspension Recovery — FAQ</h2>
-        <p class="text-gray-600">Common questions about a malware suspension on WordPress hosting.</p>
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Google Blacklist Removal — FAQ</h2>
+        <p class="text-gray-600">Common questions about clearing a Google Safe Browsing warning.</p>
       </div>
       <div class="space-y-2" id="faq-list">
         {faqs.map((faq) => (

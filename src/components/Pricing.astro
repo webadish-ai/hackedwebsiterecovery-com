@@ -1,11 +1,11 @@
 ---
-const india = [
-  { label: 'Diagnosis', price: 'Free', sub: 'or ₹1,999 for deep manual review', desc: 'Initial assessment of infection type and scope', featured: false },
-  { label: 'Malware Cleanup', price: '₹14,999+', sub: 'Starting price', desc: 'Malware removal, cleanup, and basic hardening', featured: false },
-  { label: 'Full Recovery', price: '₹29,999+', sub: 'Starting price', desc: 'Full hacked site recovery for business-critical websites', featured: true },
-  { label: 'Emergency Same-Day', price: '₹49,999+', sub: 'Starting price', desc: 'Priority same-day recovery with dedicated attention', featured: false },
-  { label: 'WooCommerce / Critical', price: '₹75,000+', sub: 'Starting price', desc: 'For stores, lead-heavy sites, and complex hacked environments', featured: false },
-  { label: 'Monthly Protection', price: '₹9,999/mo+', sub: 'Per month', desc: 'Monitoring, backups, updates, and security', featured: false, blue: true },
+const pricing = [
+  { label: 'Diagnosis', price: 'Free', sub: 'or $23 for deep manual review', desc: 'Initial assessment of infection type and scope', featured: false },
+  { label: 'Malware Cleanup', price: '$179+', sub: 'Starting price', desc: 'Malware removal, cleanup, and basic hardening', featured: false },
+  { label: 'Full Recovery', price: '$349+', sub: 'Starting price', desc: 'Full hacked site recovery for business-critical websites', featured: true },
+  { label: 'Emergency Same-Day', price: '$579+', sub: 'Starting price', desc: 'Priority same-day recovery with dedicated attention', featured: false },
+  { label: 'WooCommerce / Critical', price: '$899+', sub: 'Starting price', desc: 'For stores, lead-heavy sites, and complex hacked environments', featured: false },
+  { label: 'Monthly Protection', price: '$115/mo+', sub: 'Per month', desc: 'Monitoring, backups, updates, and security', featured: false, blue: true },
 ];
 ---
 <section class="py-20 px-4 bg-white" id="pricing">
@@ -13,16 +13,16 @@ const india = [
 
     <div class="text-center mb-14" data-reveal>
       <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Transparent Pricing</h2>
-      <p class="text-gray-600 max-w-xl mx-auto">India-focused emergency WordPress recovery pricing. You receive a clear scope and fixed quote before we begin. No hidden charges. Prices shown are starting points — complex cases quoted individually.</p>
+      <p class="text-gray-600 max-w-xl mx-auto">Emergency WordPress recovery pricing for businesses worldwide. You receive a clear scope and fixed quote before we begin. No hidden charges. Prices shown are starting points — complex cases quoted individually.</p>
     </div>
 
     <div class="mb-12" data-reveal>
       <div class="flex items-center gap-3 mb-6">
-        <span class="bg-orange-100 text-orange-700 font-bold text-sm px-3 py-1 rounded-lg flex-shrink-0">India (INR)</span>
+        <span class="bg-orange-100 text-orange-700 font-bold text-sm px-3 py-1 rounded-lg flex-shrink-0">Pricing (USD)</span>
         <div class="h-px bg-gray-200 flex-1"></div>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
-        {india.map((tier) => (
+        {pricing.map((tier) => (
           <div class={`rounded-2xl p-6 text-center transition-all duration-200 relative ${
             tier.featured
               ? 'border-2 border-blue-600 shadow-xl shadow-blue-100'
@@ -46,7 +46,7 @@ const india = [
 
     <p class="text-center text-xs text-gray-400 mt-8">
       All prices are starting points. Exact quote provided after diagnosis.<br>
-      Payment: UPI and bank transfer accepted in India.
+      Payment: Card and bank transfer accepted.
     </p>
 
   </div>

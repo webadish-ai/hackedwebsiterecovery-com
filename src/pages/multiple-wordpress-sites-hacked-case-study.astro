@@ -1,0 +1,218 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import '@/styles/global.css';
+---
+
+<Base
+  title="263 WordPress Sites Recovered — Agency Case Study | HackedWebsiteRecovery.com"
+  description="How we recovered 263 WordPress sites across a real estate agency's hosting portfolio — including a database-level backdoor that file-based malware scanners can't detect. Full case study."
+  canonical="https://www.hackedwebsiterecovery.com/multiple-wordpress-sites-hacked-case-study/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Recovering 168 WordPress Sites From a Multi-Layer Malware Campaign — Including a Database Backdoor Automated Scanners Can't See",
+    "description": "A real estate marketing agency's 263-site WordPress portfolio was reinfected after a first cleanup attempt. We found layered malware, a vulnerable reinfection vector, and two previously-undocumented database-trigger backdoors.",
+    "author": { "@type": "Organization", "name": "HackedWebsiteRecovery.com" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com"
+    }
+  })} />
+
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="inline-flex items-center gap-2 bg-blue-500/15 border border-blue-500/30 text-blue-300 text-sm font-semibold px-4 py-2 rounded-full mb-8">
+        Agency Portfolio Case Study
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-6 tracking-tight">
+        263 WordPress Sites. One Hosting Account.<br>
+        <span class="text-blue-400">Two Backdoors Hidden Inside the Database.</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+        A real estate marketing agency's portfolio had already been "cleaned" once and kept getting reinfected. Here's what we found when we went looking for the reason — and how we recovered all 263 sites with zero data loss.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
+          Get a Free Portfolio Audit
+        </a>
+        <a href="https://wa.me/919998757045?text=I%20manage%20multiple%20WordPress%20sites%20and%20need%20help%20after%20reading%20the%20case%20study." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp Now
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400">
+        {['263 sites recovered', 'Zero data loss', 'Reinfection stopped for good'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- The situation -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-3xl mx-auto prose-case">
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">The Situation</h2>
+      <p class="text-gray-700 leading-relaxed mb-4">
+        A real estate marketing agency managing a portfolio of <strong>263 WordPress sites across three shared hosting servers</strong> came to us with a problem that had already been through one round of "cleanup" — sites were still throwing intermittent HTTP 408 errors, a hosting-panel malware scanner had flagged infections, and the agency no longer fully trusted what was and wasn't actually fixed.
+      </p>
+      <p class="text-gray-700 leading-relaxed mb-4">
+        The two servers actually showing symptoms held <strong>168 sites</strong> between them. A third server on the same account — sharing the same at-risk credentials, though not showing symptoms — was proactively audited as part of the same response.
+      </p>
+      <p class="text-gray-700 leading-relaxed">
+        That instinct turned out to be correct. What we found underneath was a campaign far more sophisticated than the surface symptoms suggested — and it included a persistence technique we don't see written about often: a backdoor hidden not in any file, but inside the database itself.
+      </p>
+    </div>
+  </section>
+
+  <!-- How they got in -->
+  <section class="py-20 px-4 bg-slate-900">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">How the Attacker Got In</h2>
+      <p class="text-slate-300 leading-relaxed mb-8">
+        The entry point was mundane and completely preventable: a shared hosting password, reused across both servers, had been sitting in a plaintext credentials file. Once compromised, it gave the attacker account-level access — not to one WordPress site, but to the entire hosting account and every site on it.
+      </p>
+      <p class="text-slate-300 leading-relaxed mb-6">From there, the attacker deployed a layered, self-healing infrastructure designed to survive a normal cleanup:</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {[
+          { title: 'Black-hat SEO tool', desc: 'Silently installed itself as a hidden "must-use" plugin on any site it touched.' },
+          { title: 'File manager webshell', desc: 'Identical byte-for-byte across multiple sites — full file read/write via a browser.' },
+          { title: 'Spam doorway pages', desc: 'Disguised as real pages (about-us.php, contact-us.php), pulling gambling-spam on every visit.' },
+          { title: 'Rogue admin accounts', desc: 'Randomized names, created across dozens of sites.' },
+          { title: 'Theme-level "dropper"', desc: 'Silently re-created the backdoor plugin the moment it was deleted.' },
+        ].map(item => (
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+            <div class="font-semibold text-white mb-1">{item.title}</div>
+            <p class="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+      <p class="text-slate-300 leading-relaxed mt-8">
+        This combination is why the account-wide resource usage kept climbing and sites kept timing out even after a first cleanup pass: the malware was designed to heal itself faster than a surface-level scan could keep up.
+      </p>
+    </div>
+  </section>
+
+  <!-- The discovery -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">The Discovery That Mattered Most</h2>
+      <p class="text-gray-700 leading-relaxed mb-4">
+        Deep in the recovery process, one client site became completely inaccessible — not even the hosting panel's own one-click admin login worked. Every conventional check came back clean: no rogue files, no suspicious plugins, correct file permissions, a fully verified WordPress core.
+      </p>
+      <p class="text-gray-700 leading-relaxed mb-4">
+        The reason turned out to be something WordPress itself never creates on its own: a <strong>database trigger</strong>.
+      </p>
+      <p class="text-gray-700 leading-relaxed mb-4">
+        The attacker had planted a piece of logic directly inside the site's MySQL database that silently intercepted any attempt to create a new administrator account — allowing only their own disguised account to exist. Once that account was removed during cleanup, the trigger made it <em>permanently impossible</em> to create a replacement admin through any normal means. The site wasn't broken. It was booby-trapped.
+      </p>
+      <div class="bg-red-50 border border-red-200 rounded-xl p-6 my-8">
+        <p class="text-slate-900 font-semibold leading-relaxed">
+          Widening the search turned up a second trigger on a handful of other sites: it watched every public blog comment for a specific phrase. The moment that phrase appeared — something any anonymous visitor could submit — the trigger silently created a full administrator account with a password the attacker already controlled.
+        </p>
+        <p class="text-red-700 font-bold mt-3">No login, no file upload, no existing access required — just one public comment.</p>
+      </div>
+      <p class="text-gray-700 leading-relaxed">
+        Because WordPress never uses database triggers, stored procedures, or scheduled events on its own, <em>any</em> presence of one is a red flag — but it's a category of compromise that standard file-based malware scanners simply don't look for. We found and removed these across every affected site. None of the second, comment-activated backdoors had actually been triggered yet — caught in time.
+      </p>
+    </div>
+  </section>
+
+  <!-- The recovery -->
+  <section class="py-20 px-4 bg-slate-950">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">The Recovery</h2>
+      <p class="text-slate-400 mb-8">Working across the two affected servers — plus a precautionary full audit of the third — the recovery covered:</p>
+      <ul class="space-y-3">
+        {[
+          'Full removal of every backdoor file, cloaker, and rogue admin account, with evidence preserved for the client’s records',
+          'Identification and removal of the actual reinfection mechanism — a vulnerable file-manager plugin the attacker was actively using to re-upload payloads even after files were cleaned',
+          'Full database audit for hidden triggers, stored procedures, and scheduled events across every site',
+          'Credential rotation across hosting accounts, with key-based authentication to close the original entry point',
+          'Resource and infrastructure cleanup — resolving file-count and memory pressure independent of the malware',
+          'Full comparison of every site’s configured URL against its actual domain, to rule out hijacked redirects',
+        ].map(item => (
+          <li class="flex gap-3 text-slate-300 leading-relaxed">
+            <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Outcome stats -->
+  <section class="py-20 px-4 bg-white">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-12 text-center">The Outcome</h2>
+      <div class="grid sm:grid-cols-3 gap-6 mb-12">
+        <div class="text-center p-6 border border-gray-100 rounded-xl bg-gray-50">
+          <div class="text-4xl font-extrabold text-blue-600 mb-2">263</div>
+          <div class="text-gray-600 text-sm">sites recovered &amp; audited</div>
+        </div>
+        <div class="text-center p-6 border border-gray-100 rounded-xl bg-gray-50">
+          <div class="text-4xl font-extrabold text-blue-600 mb-2">0</div>
+          <div class="text-gray-600 text-sm">data loss — content, client data, email</div>
+        </div>
+        <div class="text-center p-6 border border-gray-100 rounded-xl bg-gray-50">
+          <div class="text-4xl font-extrabold text-blue-600 mb-2">2</div>
+          <div class="text-gray-600 text-sm">unknown database backdoors closed before exploitation</div>
+        </div>
+      </div>
+      <p class="text-gray-700 leading-relaxed max-w-2xl mx-auto text-center">
+        The actual reinfection vector was identified and removed — not just the symptoms. A full write-up and evidence trail was delivered to the client for their own records.
+      </p>
+    </div>
+  </section>
+
+  <!-- Why this matters / CTA -->
+  <section class="py-24 px-4 bg-slate-900 text-center">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">Why This Matters</h2>
+      <p class="text-slate-300 leading-relaxed mb-4">
+        If your WordPress site — or your agency's entire portfolio — has ever been "cleaned" and you're still not fully confident it's actually secure, this case is a useful gut-check: <strong class="text-white">file-based malware scans, even thorough ones, do not check your database for triggers, stored procedures, or scheduled events.</strong>
+      </p>
+      <p class="text-slate-300 leading-relaxed mb-10">
+        That's not a hypothetical gap. It's exactly how a real attacker maintained access on this account — and it's the kind of thing that only gets found when someone goes looking for it specifically.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30">
+          Get a Free Portfolio Audit
+        </a>
+        <a href="https://wa.me/919998757045?text=I%20manage%20multiple%20WordPress%20sites%20and%20need%20help%20after%20reading%20the%20case%20study." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200">
+          WhatsApp Now
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>
+
+<script>
+  import { initReveal } from '@/lib/reveal';
+  initReveal();
+</script>
