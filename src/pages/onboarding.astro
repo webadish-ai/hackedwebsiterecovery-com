@@ -1,0 +1,59 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { getMockOrder } from '@/lib/mock-orders';
+import { getPlan } from '@/lib/plans';
+import '@/styles/global.css';
+const orderId = Astro.url.searchParams.get('order_id') ?? '';
+const order = getMockOrder(orderId);
+const plan = getPlan(order?.planId);
+---
+<Base title="Recovery Onboarding | HackedWebsiteRecovery.com" description="Complete the safe onboarding checklist for your confirmed recovery order." noindex={true}>
+  <Nav />
+  <main class="bg-slate-50 px-4 py-16 sm:py-24">
+    <div class="mx-auto max-w-3xl">
+      <a href={`/payment-confirmation/?order_id=${encodeURIComponent(orderId)}`} class="text-sm font-semibold text-blue-700 hover:text-blue-600">← Payment confirmation</a>
+      <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-10">
+        <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Safe onboarding</p>
+        <h1 class="mb-4 text-4xl font-extrabold tracking-tight text-slate-900">Prepare your site hand-off.</h1>
+        <p class="mb-8 text-lg leading-relaxed text-slate-600">Your payment is confirmed for <strong>{plan?.name ?? 'your recovery plan'}</strong>. The secure access checklist will be available in the production portal. This demo deliberately does not collect credentials.</p>
+        <div class="grid gap-4 sm:grid-cols-3">
+          {['Create a recent site backup', 'Have your hosting contact ready', 'Keep an owner available for approvals'].map((item, index) => <div class="rounded-xl border border-slate-200 bg-slate-50 p-4"><div class="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">{index + 1}</div><p class="text-sm font-semibold leading-relaxed text-slate-800">{item}</p></div>)}
+        </div>
+        <label class="mt-8 flex gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-relaxed text-slate-700"><input id="ready" type="checkbox" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600" /> <span>I understand the production portal will request structured, temporary access only after identity and case checks are complete.</span></label>
+        <p id="onboarding-error" class="mt-5 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert"></p>
+        <button id="start-onboarding" class="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-5 py-4 text-sm font-bold text-white transition-colors hover:bg-blue-500">Complete simulated onboarding</button>
+        <a id="portal-link" href={`/portal/?order_id=${encodeURIComponent(orderId)}`} class="mt-4 hidden text-center text-sm font-semibold text-blue-700 hover:text-blue-600">Open your recovery portal →</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<script define:vars={{ orderId }}>
+  const ready = document.querySelector('#ready');
+  const button = document.querySelector('#start-onboarding');
+  const error = document.querySelector('#onboarding-error');
+  const link = document.querySelector('#portal-link');
+  window.dispatchEvent(new CustomEvent('storefront_event', { detail: { event: 'onboarding_started' } }));
+  if (typeof window.gtag === 'function') window.gtag('event', 'onboarding_started');
+  button?.addEventListener('click', async () => {
+    if (!ready?.checked) { if (error) { error.textContent = 'Please confirm the onboarding checklist first.'; error.classList.remove('hidden'); } return; }
+    button.disabled = true;
+    button.textContent = 'Saving checklist…';
+    try {
+      const response = await fetch('/api/onboarding/mock', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId, ready: true }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Onboarding could not be saved.');
+      button.textContent = 'Onboarding complete';
+      link?.classList.remove('hidden');
+      window.dispatchEvent(new CustomEvent('storefront_event', { detail: { event: 'credentials_completed' } }));
+      if (typeof window.gtag === 'function') window.gtag('event', 'credentials_completed');
+    } catch (err) {
+      if (error) { error.textContent = err instanceof Error ? err.message : 'Onboarding could not be saved.'; error.classList.remove('hidden'); }
+      button.disabled = false;
+      button.textContent = 'Retry simulated onboarding';
+    }
+  });
+</script>

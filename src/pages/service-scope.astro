@@ -1,0 +1,9 @@
+---
+import LegalPage from '@/components/LegalPage.astro';
+const sections = [
+  { heading: 'Standard recovery', body: 'One standard WordPress incident includes a pre-change snapshot, cleanup and hardening work, a findings report, and 30-day follow-up. Assessment determines whether a case fits standard scope.' },
+  { heading: 'Cases requiring a quote', body: 'Multisite, hosting-account compromise, cross-site infection, missing-data restoration, custom applications, and complex WooCommerce cases need separate assessment and written approval.' },
+  { heading: 'What we do not promise', body: 'We do not promise universal or same-day completion. The four-hour, 24/7 first-response deadline begins only after payment is confirmed and usable access is received. Completion is estimated after assessment.' },
+];
+---
+<LegalPage title="Service Scope" description="What WordPress recovery plans include and which cases need a quote." eyebrow="Before you buy" intro="Use this page to check whether your incident is likely to fit a standard plan before you place an order." sections={sections} />

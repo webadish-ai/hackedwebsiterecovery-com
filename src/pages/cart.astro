@@ -1,0 +1,69 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { calculatePrice, formatINR, getPlan } from '@/lib/plans';
+import '@/styles/global.css';
+
+const plan = getPlan(Astro.url.searchParams.get('plan')) ?? getPlan('recovery')!;
+const quantity = calculatePrice(plan, Number(Astro.url.searchParams.get('quantity') || 1)).quantity;
+const totals = calculatePrice(plan, quantity);
+---
+<Base title="Your Recovery Plan | HackedWebsiteRecovery.com" description="Review your selected WordPress recovery plan and GST-inclusive order total." noindex={true}>
+  <Nav />
+  <main class="bg-slate-50 px-4 py-16 sm:py-24">
+    <div class="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+      <section>
+        <a href="/compare/" class="mb-8 inline-flex text-sm font-semibold text-blue-700 hover:text-blue-600">← Compare plans</a>
+        <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Order summary</p>
+        <h1 class="mb-4 text-4xl font-extrabold tracking-tight text-slate-900">Ready to start recovery?</h1>
+        <p class="mb-8 max-w-xl text-lg leading-relaxed text-slate-600">Review your plan before continuing to secure checkout. GST is calculated on the server and shown separately.</p>
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-5">
+            <div><div class="text-sm font-semibold text-blue-600">{plan.eyebrow}</div><h2 class="text-2xl font-bold text-slate-900">{plan.name}</h2></div>
+            <div class="text-right"><div class="text-xl font-extrabold text-slate-900">{formatINR(plan.pricePaise)}</div><div class="text-xs text-slate-500">{plan.billingLabel}</div></div>
+          </div>
+          <ul class="mt-5 space-y-3 text-sm text-slate-700">
+            {plan.inclusions.map((item) => <li class="flex gap-2"><span class="text-green-600" aria-hidden="true">✓</span>{item}</li>)}
+          </ul>
+          <div class="mt-6 border-t border-slate-100 pt-5 text-sm text-slate-600">
+            <div class="flex items-center justify-between gap-4"><label for="quantity" class="font-semibold text-slate-900">Quantity</label><select id="quantity" class="rounded-lg border border-slate-300 px-3 py-2" data-price={plan.pricePaise} data-plan={plan.id} aria-label="Plan quantity">{Array.from({ length: plan.id === 'recovery' ? 10 : 1 }, (_, i) => i + 1).map((n) => <option value={n} selected={n === quantity}>{n}</option>)}</select></div>
+            {plan.id === 'recovery' && <p class="mt-2 text-xs text-slate-500">Buy up to 10 standard incidents in one order.</p>}
+          </div>
+        </div>
+      </section>
+
+      <aside class="h-fit rounded-2xl bg-slate-950 p-6 text-white shadow-xl lg:sticky lg:top-24">
+        <h2 class="mb-6 text-xl font-bold">Order total</h2>
+        <dl class="space-y-4 text-sm">
+          <div class="flex justify-between gap-4 text-slate-300"><dt>Plan subtotal</dt><dd id="subtotal">{formatINR(totals.subtotalPaise)}</dd></div>
+          <div class="flex justify-between gap-4 text-slate-300"><dt>GST (18%)</dt><dd id="gst">{formatINR(totals.gstPaise)}</dd></div>
+          <div class="flex justify-between gap-4 border-t border-slate-700 pt-4 text-lg font-bold"><dt>Total today</dt><dd id="total">{formatINR(totals.totalPaise)}</dd></div>
+        </dl>
+        <a id="checkout-link" href={`/checkout/?plan=${plan.id}&quantity=${quantity}`} class="mt-8 inline-flex w-full justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold transition-colors hover:bg-blue-400">Continue to secure checkout</a>
+        <p class="mt-4 text-center text-xs leading-relaxed text-slate-400">This Milestone 1 demo uses a simulated payment confirmation. No live payment is taken.</p>
+      </aside>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<script define:vars={{ planId: plan.id }}>
+  const quantitySelect = document.querySelector('#quantity');
+  const subtotal = document.querySelector('#subtotal');
+  const gst = document.querySelector('#gst');
+  const total = document.querySelector('#total');
+  const checkoutLink = document.querySelector('#checkout-link');
+  const money = (paise) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 }).format(paise / 100);
+  function update() {
+    const qty = Number(quantitySelect?.value || 1);
+    const base = Number(quantitySelect?.dataset.price || 0) * qty;
+    const tax = Math.round(base * 18 / 100);
+    if (subtotal) subtotal.textContent = money(base);
+    if (gst) gst.textContent = money(tax);
+    if (total) total.textContent = money(base + tax);
+    if (checkoutLink) checkoutLink.href = `/checkout/?plan=${planId}&quantity=${qty}`;
+  }
+  quantitySelect?.addEventListener('change', update);
+  update();
+</script>

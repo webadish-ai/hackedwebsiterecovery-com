@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev --port 3005",
+    "lint": "tsc --noEmit",
+    "typecheck": "astro check",
+    "test": "node --test --experimental-strip-types tests/**/*.test.ts",
+    "browser-test": "node --test --experimental-strip-types tests/browser-smoke.test.ts",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -19,6 +23,7 @@
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.4",
     "typescript": "^5.8.3"
   }
 }
