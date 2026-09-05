@@ -1,5 +1,5 @@
-import type { Plan } from './plans';
-import { calculatePrice, PLAN_VERSION } from './plans';
+import type { Plan } from './plans.ts';
+import { calculatePrice, PLAN_VERSION } from './plans.ts';
 
 export type MockOrderStatus = 'pending_payment' | 'paid' | 'onboarding_started' | 'onboarding_complete';
 
@@ -12,15 +12,16 @@ export interface MockOrder {
   subtotalPaise: number;
   gstPaise: number;
   totalPaise: number;
-  email: string;
-  website: string;
   status: MockOrderStatus;
   createdAt: string;
 }
 
+export const MOCK_ORDER_TTL_MS = 15 * 60 * 1000;
+export const MOCK_ORDER_CAPACITY = 100;
 const orders = new Map<string, MockOrder>();
 
-export function createMockOrder(input: { plan: Plan; quantity: number; email: string; website: string }): MockOrder {
+export function createMockOrder(input: { plan: Plan; quantity: number }, now = new Date()): MockOrder {
+  pruneMockOrders(now.getTime());
   const totals = calculatePrice(input.plan, input.quantity);
   const id = `mock_${crypto.randomUUID()}`;
   const order: MockOrder = {
@@ -32,29 +33,39 @@ export function createMockOrder(input: { plan: Plan; quantity: number; email: st
     subtotalPaise: totals.subtotalPaise,
     gstPaise: totals.gstPaise,
     totalPaise: totals.totalPaise,
-    email: input.email,
-    website: input.website,
     status: 'pending_payment',
-    createdAt: new Date().toISOString(),
+    createdAt: now.toISOString(),
   };
+  while (orders.size >= MOCK_ORDER_CAPACITY) {
+    const oldest = [...orders.entries()].sort(([, a], [, b]) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0]?.[0];
+    if (!oldest) break;
+    orders.delete(oldest);
+  }
   orders.set(id, order);
   return order;
 }
 
 export function getMockOrder(id: string | null | undefined): MockOrder | undefined {
+  pruneMockOrders();
   return id ? orders.get(id) : undefined;
 }
 
 export function confirmMockPayment(id: string): MockOrder | undefined {
-  const order = orders.get(id);
+  const order = getMockOrder(id);
   if (!order) return undefined;
   if (order.status === 'pending_payment') order.status = 'paid';
   return order;
 }
 
 export function updateMockOrder(id: string, status: MockOrderStatus): MockOrder | undefined {
-  const order = orders.get(id);
+  const order = getMockOrder(id);
   if (!order) return undefined;
   order.status = status;
   return order;
+}
+
+export function pruneMockOrders(now = Date.now()): void {
+  for (const [id, order] of orders) {
+    if (now - Date.parse(order.createdAt) >= MOCK_ORDER_TTL_MS) orders.delete(id);
+  }
 }

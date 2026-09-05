@@ -7,7 +7,7 @@
     "lint": "tsc --noEmit",
     "typecheck": "astro check",
     "test": "node --test --experimental-strip-types tests/**/*.test.ts",
-    "browser-test": "node --test --experimental-strip-types tests/browser-smoke.test.ts",
+    "smoke": "node --test --experimental-strip-types tests/smoke.test.ts",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

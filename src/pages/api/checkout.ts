@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { createMockOrder } from '@/lib/mock-orders';
-import { calculatePrice, getPlan, isValidWebsite } from '@/lib/plans';
+import { createMockOrder } from '../../lib/mock-orders.ts';
+import { calculatePrice, getPlan, isValidWebsite } from '../../lib/plans.ts';
 
 export const prerender = false;
 
@@ -25,7 +25,7 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'The order total changed. Please refresh and try again.' }, 409);
   }
 
-  const order = createMockOrder({ plan, quantity: totals.quantity, email, website });
+  const order = createMockOrder({ plan, quantity: totals.quantity });
   return json({
     ok: true,
     mode: 'mock',
