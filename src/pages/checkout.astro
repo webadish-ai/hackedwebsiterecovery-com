@@ -1,0 +1,85 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { calculatePrice, formatINR, getPlan } from '@/lib/plans';
+import '@/styles/global.css';
+
+const plan = getPlan(Astro.url.searchParams.get('plan')) ?? getPlan('recovery')!;
+const quantity = calculatePrice(plan, Number(Astro.url.searchParams.get('quantity') || 1)).quantity;
+const totals = calculatePrice(plan, quantity);
+---
+<Base title="Secure Checkout | HackedWebsiteRecovery.com" description="Enter your contact and site details to create a recovery order." noindex={true}>
+  <Nav />
+  <main class="bg-slate-50 px-4 py-14 sm:py-20">
+    <div class="mx-auto max-w-5xl">
+      <div class="mb-10"><a href={`/cart/?plan=${plan.id}&quantity=${quantity}`} class="text-sm font-semibold text-blue-700 hover:text-blue-600">← Back to order summary</a><p class="mb-3 mt-8 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Secure checkout</p><h1 class="text-4xl font-extrabold tracking-tight text-slate-900">Tell us where to start.</h1><p class="mt-4 max-w-2xl text-lg leading-relaxed text-slate-600">We use these details to match your confirmed order to a recovery case. Usable access is collected later through the secure portal after payment.</p></div>
+      <div class="grid gap-8 lg:grid-cols-[1fr_0.72fr]">
+        <form id="checkout-form" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <input type="hidden" name="planId" value={plan.id} />
+          <input type="hidden" name="quantity" value={quantity} />
+          <input type="hidden" name="subtotalPaise" value={totals.subtotalPaise} />
+          <fieldset>
+            <legend class="mb-5 text-xl font-bold text-slate-900">Contact details</legend>
+            <div class="grid gap-5 sm:grid-cols-2">
+              <label class="text-sm font-semibold text-slate-800 sm:col-span-2">Email address<input required name="email" type="email" autocomplete="email" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="you@company.com" /></label>
+              <label class="text-sm font-semibold text-slate-800">Phone number<input required name="phone" type="tel" autocomplete="tel" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="+91 98765 43210" /></label>
+              <label class="text-sm font-semibold text-slate-800">Billing name<input required name="billingName" autocomplete="name" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="Your name or company" /></label>
+              <label class="text-sm font-semibold text-slate-800">Company (optional)<input name="company" autocomplete="organization" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" /></label>
+              <label class="text-sm font-semibold text-slate-800">GSTIN (optional)<input name="gstin" autocomplete="off" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal uppercase outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="For a business invoice" /></label>
+            </div>
+          </fieldset>
+          <fieldset class="mt-9 border-t border-slate-100 pt-8">
+            <legend class="mb-5 text-xl font-bold text-slate-900">Website details</legend>
+            <div class="grid gap-5">
+              <label class="text-sm font-semibold text-slate-800">Website URL<input required name="website" type="url" inputmode="url" autocomplete="url" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="https://example.com" /></label>
+              <label class="text-sm font-semibold text-slate-800">What is happening? (optional)<textarea name="symptoms" rows="4" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" placeholder="For example: redirect, blacklist warning, or a locked admin."></textarea></label>
+            </div>
+          </fieldset>
+          <fieldset class="mt-9 border-t border-slate-100 pt-8">
+            <legend class="mb-5 text-xl font-bold text-slate-900">Policies</legend>
+            <label class="flex gap-3 text-sm leading-relaxed text-slate-700"><input required name="termsAccepted" type="checkbox" value="true" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600" /> <span>I accept the <a class="font-semibold text-blue-700 underline" href="/terms/" target="_blank">Terms ({'2026-09-05'})</a>, <a class="font-semibold text-blue-700 underline" href="/privacy/" target="_blank">Privacy Policy</a>, and <a class="font-semibold text-blue-700 underline" href="/refunds/" target="_blank">Refund Policy</a>.</span></label>
+            <label class="mt-4 flex gap-3 text-sm leading-relaxed text-slate-700"><input required name="scopeAccepted" type="checkbox" value="true" class="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600" /> <span>I understand that complex cases may require a separate quote and that the response deadline starts after payment is confirmed and usable access is received.</span></label>
+          </fieldset>
+          <p id="form-error" class="mt-6 hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert"></p>
+          <button type="submit" class="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-5 py-4 text-sm font-bold text-white transition-colors hover:bg-blue-500 disabled:cursor-wait disabled:opacity-60"><span id="submit-label">Continue to simulated payment</span></button>
+          <p class="mt-4 text-center text-xs leading-relaxed text-slate-500">Milestone 1 demo: the next step is simulated. No live payment is taken and no credentials are requested on this page.</p>
+        </form>
+
+        <aside class="h-fit rounded-2xl bg-slate-950 p-6 text-white shadow-xl lg:sticky lg:top-24">
+          <div class="mb-2 text-sm font-semibold text-blue-300">{plan.eyebrow}</div><h2 class="text-2xl font-bold">{plan.name}</h2><p class="mt-2 text-sm text-slate-400">{plan.billingLabel} · {quantity} item{quantity === 1 ? '' : 's'}</p>
+          <dl class="mt-7 space-y-4 text-sm"><div class="flex justify-between gap-4 text-slate-300"><dt>Subtotal</dt><dd>{formatINR(totals.subtotalPaise)}</dd></div><div class="flex justify-between gap-4 text-slate-300"><dt>GST (18%)</dt><dd>{formatINR(totals.gstPaise)}</dd></div><div class="flex justify-between gap-4 border-t border-slate-700 pt-4 text-lg font-bold"><dt>Total today</dt><dd>{formatINR(totals.totalPaise)}</dd></div></dl>
+          <div class="mt-7 border-t border-slate-800 pt-6 text-xs leading-relaxed text-slate-400"><strong class="text-slate-200">Included:</strong> {plan.inclusions.slice(0, 3).join(' · ')}</div>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#checkout-form');
+  const error = document.querySelector<HTMLElement>('#form-error');
+  const button = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+  const label = document.querySelector<HTMLElement>('#submit-label');
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form || !button) return;
+    button.disabled = true;
+    if (label) label.textContent = 'Creating your order…';
+    if (error) error.classList.add('hidden');
+    const data = Object.fromEntries(new FormData(form).entries());
+    const payload = { ...data, quantity: Number(data.quantity), subtotalPaise: Number(data.subtotalPaise), termsAccepted: data.termsAccepted === 'true', scopeAccepted: data.scopeAccepted === 'true' };
+    window.dispatchEvent(new CustomEvent('storefront_event', { detail: { event: 'begin_checkout' } }));
+    try {
+      const response = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'We could not create this order.');
+      window.location.href = `/payment-confirmation/?order_id=${encodeURIComponent(result.order.id)}`;
+    } catch (err) {
+      if (error) { error.textContent = err instanceof Error ? err.message : 'We could not create this order. Please try again.'; error.classList.remove('hidden'); }
+      button.disabled = false;
+      if (label) label.textContent = 'Continue to simulated payment';
+    }
+  });
+</script>

@@ -1,0 +1,51 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import { PLANS, formatINR } from '@/lib/plans';
+import '@/styles/global.css';
+---
+<Base title="Compare Recovery Plans | HackedWebsiteRecovery.com" description="Compare the three India-focused WordPress recovery and care plans, inclusions, exclusions, GST, and site allowances." noindex={true}>
+  <Nav />
+  <main class="bg-slate-50 px-4 py-16 sm:py-24">
+    <div class="mx-auto max-w-6xl">
+      <div class="mb-12 max-w-3xl">
+        <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Plan comparison</p>
+        <h1 class="mb-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">Choose the level of cover your site needs.</h1>
+        <p class="text-lg leading-relaxed text-slate-600">Every plan shows the price before GST. We confirm the scope after purchase and begin the four-hour, 24/7 first-response deadline only after payment and usable access are received.</p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-3">
+        {PLANS.map((plan) => (
+          <article id={plan.id} class={`flex scroll-mt-24 flex-col rounded-2xl bg-white p-6 ${plan.featured ? 'border-2 border-blue-600 shadow-xl shadow-blue-100' : 'border border-slate-200'}`}>
+            <div class="mb-2 text-sm font-semibold text-blue-600">{plan.eyebrow}</div>
+            <h2 class="mb-2 text-2xl font-extrabold text-slate-900">{plan.name}</h2>
+            <p class="mb-6 min-h-12 text-sm leading-relaxed text-slate-600">{plan.description}</p>
+            <div class="text-3xl font-extrabold text-slate-900">{formatINR(plan.pricePaise)}</div>
+            <div class="mb-6 text-xs font-medium text-slate-500">{plan.billingLabel} · 18% GST added at checkout</div>
+            <div class="mb-6 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">{plan.siteAllowance}</div>
+            <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate-900">Included</h3>
+            <ul class="mb-6 space-y-2 text-sm text-slate-600">
+              {plan.inclusions.map((item) => <li class="flex gap-2"><span class="text-green-600" aria-hidden="true">✓</span>{item}</li>)}
+            </ul>
+            <h3 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate-900">Separate quote</h3>
+            <ul class="mb-7 space-y-2 text-sm text-slate-600">
+              {plan.exclusions.map((item) => <li class="flex gap-2"><span class="text-amber-600" aria-hidden="true">•</span>{item}</li>)}
+            </ul>
+            <a href={`/cart/?plan=${plan.id}`} class={`mt-auto inline-flex justify-center rounded-xl px-5 py-3 text-sm font-bold transition-colors ${plan.featured ? 'bg-blue-600 text-white hover:bg-blue-500' : 'border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'}`}>{plan.actionLabel}</a>
+          </article>
+        ))}
+      </div>
+
+      <div class="mt-12 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-relaxed text-amber-950">
+        <strong>Scope rule:</strong> multisite, hosting-account compromise, cross-site infection, missing-data restoration, custom applications, and complex WooCommerce cases require a separately approved quote. For unsupported paid work that has not started, choose the quote or refund path with our team.
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  window.dispatchEvent(new CustomEvent('storefront_event', { detail: { event: 'view_plan' } }));
+  if (typeof window.gtag === 'function') window.gtag('event', 'view_plan');
+</script>

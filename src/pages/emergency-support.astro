@@ -1,0 +1,9 @@
+---
+import LegalPage from '@/components/LegalPage.astro';
+const sections = [
+  { heading: 'Urgent first response', body: 'After confirmed payment and usable access, the team targets a first response within four hours, 24/7. This is a response target, not a completion promise.' },
+  { heading: 'Contact the team', body: 'For an urgent question before purchase, email help@hackedwebsiterecovery.com or use WhatsApp at +91 99987 57045. Do not send passwords, API keys, hosting credentials, or payment secrets by email or chat.' },
+  { heading: 'If the site is business-critical', body: 'Preserve a current backup, avoid repeated plugin or database changes, and keep an authorized owner available for approvals. We will estimate completion after the assessment.' },
+];
+---
+<LegalPage title="Emergency Support" description="Safe emergency support guidance for hacked WordPress sites." eyebrow="Need help now" intro="Reach a human for triage and plan guidance. Keep credentials out of messages while we establish the secure hand-off." sections={sections} />

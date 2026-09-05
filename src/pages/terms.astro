@@ -1,0 +1,10 @@
+---
+import LegalPage from '@/components/LegalPage.astro';
+const sections = [
+  { heading: 'Service agreement', body: 'A checkout creates an order request for the selected versioned plan. We assess the site after payment and usable access are received. Completion time is estimated after assessment and is not promised before then.' },
+  { heading: 'Coverage and scope', body: 'Recovery covers one standard WordPress incident. Recovery + Care includes the stated monitoring and additional standard incident during its term. Agency Care covers up to 10 sites for portfolio monitoring; recovery work is purchased separately.' },
+  { heading: 'Separate quotes', body: 'Multisite, hosting-account compromise, cross-site infection, missing-data restoration, custom applications, and complex WooCommerce cases require a separately approved quote. No quote is accepted automatically.' },
+  { heading: 'Customer responsibilities', body: 'You must be authorized to request work on the site and provide accurate billing and website details. In production, access will be requested through a secure portal and should be temporary and revocable.' },
+];
+---
+<LegalPage title="Terms of Service" description="Terms for WordPress recovery and care plans." eyebrow="Legal · Version 2026-09-05" intro="These terms describe what a recovery plan includes, when work begins, and how complex work is handled." sections={sections} />

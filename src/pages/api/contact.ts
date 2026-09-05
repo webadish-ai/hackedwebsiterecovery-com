@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request }) => {
     from: 'HackedWebsiteRecovery <help@hackedwebsiterecovery.com>',
     to: ['snehal@webadish.com'],
     bcc: ['dilipparmar@gmail.com'],
-    reply_to: body.email,
+    replyTo: body.email,
     subject: `Emergency Recovery Request – ${body.website || body.email}`,
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">
@@ -65,7 +65,7 @@ export const POST: APIRoute = async ({ request }) => {
     .send({
       from: 'HackedWebsiteRecovery <help@hackedwebsiterecovery.com>',
       to: [body.email],
-      reply_to: 'snehal@webadish.com',
+      replyTo: 'snehal@webadish.com',
       subject: `Emergency Recovery Request Received – HackedWebsiteRecovery`,
       html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b;">

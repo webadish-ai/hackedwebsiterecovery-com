@@ -1,0 +1,9 @@
+---
+import LegalPage from '@/components/LegalPage.astro';
+const sections = [
+  { heading: 'Quote or refund rule', body: 'If we identify unsupported paid work before work has started, we will offer a separately approved quote or a full refund. We do not add surprise charges or automatically accept a quote on your behalf.' },
+  { heading: 'How to request help', body: 'Email help@hackedwebsiterecovery.com with your order reference and the reason for your request. We will confirm the scope and any available refund route before processing it.' },
+  { heading: 'Care plans', body: 'Annual Recovery + Care renews through an authenticated pay-to-renew checkout. Agency Care is a monthly mandate product in the planned live release. This demo does not create a mandate or charge a payment method.' },
+];
+---
+<LegalPage title="Refund Policy" description="Refund and quote rules for recovery plans." eyebrow="Legal" intro="Our refund rule keeps unsupported work clear and customer-approved before technical work begins." sections={sections} />

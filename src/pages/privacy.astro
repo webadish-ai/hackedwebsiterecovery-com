@@ -1,0 +1,10 @@
+---
+import LegalPage from '@/components/LegalPage.astro';
+const sections = [
+  { heading: 'Information we use', body: 'For a purchase we use the contact, billing, website, and symptom details you choose to submit. Milestone 1 stores a short-lived in-memory mock order for the demo flow. Production storage, identity, and retention controls are part of later milestones.' },
+  { heading: 'How we use it', body: 'We use order details to calculate the price, provide support, confirm payment, and prepare a recovery case. We do not sell personal information. We do not ask for passwords or access credentials on this demo checkout.' },
+  { heading: 'Analytics', body: 'Storefront analytics use an allow-listed event name only, such as view_plan or payment_confirmed. Submitted URLs, form values, order details, credentials, cookies, authorization headers, and payment secrets are not attached to these events.' },
+  { heading: 'Your choices', body: 'Contact help@hackedwebsiterecovery.com to ask about a purchase record or privacy request. We may need to verify ownership before responding.' },
+];
+---
+<LegalPage title="Privacy Policy" description="Privacy information for HackedWebsiteRecovery.com storefront customers." eyebrow="Legal" intro="We collect the minimum information needed to discuss and deliver WordPress recovery services, with payment and access safeguards planned at every release." sections={sections} />
