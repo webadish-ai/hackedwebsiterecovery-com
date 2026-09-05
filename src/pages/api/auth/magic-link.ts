@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { consumeMagicLink, createDevelopmentSession, isDevelopmentWorkflowEnabled, requestMagicLink } from '../../../lib/auth.ts';
 import { createSupabaseServerClient } from '../../../lib/supabase-server.ts';
+import { getTrustedSiteUrl } from '../../../lib/supabase.ts';
 
 export const prerender = false;
 
@@ -12,7 +13,9 @@ export const POST: APIRoute = async (context) => {
   const supabase = createSupabaseServerClient({ request, cookies: context.cookies });
   if (supabase) {
     if (!email) return json({ error: 'A valid email address is required.' }, 400);
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: new URL('/api/auth/callback', request.url).toString() } });
+    const redirectTo = getMagicLinkRedirectUrl();
+    if (!redirectTo) return json({ error: 'Authentication is not configured.' }, 503);
+    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
     return error ? json({ error: 'Unable to send a sign-in link. Please try again.' }, 502) : json({ ok: true, mode: 'supabase', message: 'Check your email for a secure sign-in link.' }, 200);
   }
   if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Authentication is not configured.' }, 503);
@@ -33,3 +36,8 @@ export const POST: APIRoute = async (context) => {
 };
 
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }); }
+
+export function getMagicLinkRedirectUrl(env: Record<string, string | undefined> = process.env): string | null {
+  const siteUrl = getTrustedSiteUrl(env);
+  return siteUrl ? new URL('/api/auth/callback', siteUrl).toString() : null;
+}

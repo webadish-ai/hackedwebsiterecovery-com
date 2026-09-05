@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '../../../../lib/database.types.ts';
 import { isDevelopmentWorkflowEnabled } from '../../../../lib/auth.ts';
 import { developmentWorkflow, WorkflowError } from '../../../../lib/case-workflow.ts';
 import { notifications } from '../../../../lib/notifications.ts';
 import type { CaseStatus } from '../../../../lib/workflow-types.ts';
 import { getRequestActor } from '../../../../lib/request-context.ts';
 import { getCaseDataService } from '../../../../lib/data-service.ts';
+import { createSupabaseServerClient } from '../../../../lib/supabase-server.ts';
 
 export const prerender = false;
 
@@ -23,10 +26,16 @@ export const GET: APIRoute = async (context) => {
 
 export const POST: APIRoute = async (context) => {
   const { request, params } = context;
+  const body = await request.json().catch(() => null) as { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null;
+  const supabase = context.locals?.supabase ?? createSupabaseServerClient({ request, cookies: context.cookies });
+  if (supabase) {
+    const actor = await getRequestActor(context);
+    if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
+    return dispatchSupabaseAction(supabase, params.id ?? '', body);
+  }
   if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
   const actor = await getRequestActor(context);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
-  const body = await request.json().catch(() => null) as { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null;
   try {
     const id = params.id ?? '';
     switch (body?.action) {
@@ -47,5 +56,39 @@ export const POST: APIRoute = async (context) => {
     }
   } catch (error) { const e = error instanceof WorkflowError ? error : new WorkflowError('forbidden', 'Case action failed.'); return json({ error: e.message, code: e.code }, e.code === 'not_found' ? 404 : 403); }
 };
+
+async function dispatchSupabaseAction(client: SupabaseClient<Database>, caseId: string, body: { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null) {
+  switch (body?.action) {
+    case 'transition': {
+      const validStatuses: CaseStatus[] = ['awaiting_payment', 'awaiting_access', 'triage', 'awaiting_approval', 'in_progress', 'verification', 'monitoring', 'completed', 'quoted_separately', 'refunded', 'cancelled'];
+      if (typeof body.status !== 'string' || !validStatuses.includes(body.status as CaseStatus)) return json({ error: 'A valid case status is required.' }, 400);
+      const result = await client.rpc('staff_transition_case', { p_case_id: caseId, p_to_status: body.status as CaseStatus, p_body: typeof body.text === 'string' ? body.text : '' });
+      return rpcResponse(result, 'case');
+    }
+    case 'assign': {
+      const staffId = typeof body.staffId === 'string' && body.staffId ? body.staffId : null;
+      if (!staffId) return json({ error: 'A staff account is required.' }, 400);
+      const result = await client.rpc('staff_assign_case', { p_case_id: caseId, p_staff_id: staffId });
+      return rpcResponse(result, 'case');
+    }
+    case 'access_usable': {
+      const accessUsableAt = typeof body.accessUsableAt === 'string' ? body.accessUsableAt : new Date().toISOString();
+      const result = await client.rpc('staff_mark_access_usable', { p_case_id: caseId, p_access_usable_at: accessUsableAt });
+      return rpcResponse(result, 'case');
+    }
+    case 'update': {
+      if (typeof body.text !== 'string' || typeof body.customerVisible !== 'boolean') return json({ error: 'Update text and visibility are required.' }, 400);
+      const result = await client.rpc('staff_add_case_update', { p_case_id: caseId, p_body: body.text, p_customer_visible: body.customerVisible });
+      return rpcResponse(result, 'event', 201);
+    }
+    default: return json({ error: 'Unknown case action.' }, 400);
+  }
+}
+
+function rpcResponse(result: { data: unknown; error: { code?: string } | null }, key: 'case' | 'event', successStatus = 200) {
+  if (!result.error) return json({ [key]: result.data }, successStatus);
+  const status = result.error.code === 'P0002' ? 404 : result.error.code === '42501' ? 403 : 400;
+  return json({ error: 'Case action failed.', code: status === 403 ? 'forbidden' : 'invalid_request' }, status);
+}
 
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }); }

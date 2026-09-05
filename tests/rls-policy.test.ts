@@ -19,4 +19,13 @@ test('Milestone 2 migration enables RLS and protects customer-visible boundaries
   assert.doesNotMatch(sql, /audit_insert_authenticated/);
   assert.doesNotMatch(sql, /create policy credentials_/);
   for (const fn of ['set_response_deadline', 'enforce_case_transition', 'prevent_event_update', 'prevent_audit_update']) assert.match(sql, new RegExp(`function public\\.${fn}\\(\\) returns trigger language plpgsql set search_path = public`));
+  for (const fn of ['staff_assign_case', 'staff_transition_case', 'staff_add_case_update', 'staff_mark_access_usable']) {
+    assert.match(sql, new RegExp(`function public\\.${fn}`));
+    assert.match(sql, new RegExp(`function public\\.${fn}[\\s\\S]*?public\\.is_staff\\(\\)`));
+    assert.match(sql, new RegExp(`function public\\.${fn}[\\s\\S]*?security definer set search_path = public`));
+  }
+  assert.match(sql, /staff_transition_case[\s\S]*?case_status_transition_allowed/);
+  assert.match(sql, /staff_transition_case[\s\S]*?insert into public\.case_events[\s\S]*?insert into public\.audit_logs/);
+  assert.match(sql, /staff_add_case_update[\s\S]*?password\|secret\|api/);
+  assert.doesNotMatch(sql, /create policy cases_staff_write/);
 });

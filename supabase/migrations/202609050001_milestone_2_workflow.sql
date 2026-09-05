@@ -38,6 +38,94 @@ create trigger case_events_append_only before update or delete on public.case_ev
 create or replace function public.prevent_audit_update() returns trigger language plpgsql set search_path = public as $$ begin raise exception 'audit logs are append-only'; end $$;
 create trigger audit_logs_append_only before update or delete on public.audit_logs for each row execute function public.prevent_audit_update();
 
+create or replace function public.case_status_transition_allowed(from_status public.case_status, to_status public.case_status) returns boolean language sql immutable set search_path = public as $$
+  select (from_status = 'awaiting_payment' and to_status in ('awaiting_access', 'refunded', 'cancelled'))
+      or (from_status = 'awaiting_access' and to_status in ('triage', 'refunded', 'cancelled'))
+      or (from_status = 'triage' and to_status in ('awaiting_access', 'awaiting_approval', 'in_progress', 'quoted_separately', 'refunded', 'cancelled'))
+      or (from_status = 'awaiting_approval' and to_status in ('in_progress', 'quoted_separately', 'cancelled'))
+      or (from_status = 'in_progress' and to_status in ('awaiting_approval', 'verification', 'awaiting_access', 'cancelled'))
+      or (from_status = 'verification' and to_status in ('in_progress', 'monitoring', 'completed'))
+      or (from_status = 'monitoring' and to_status in ('in_progress', 'completed'))
+      or (from_status = 'completed' and to_status in ('monitoring', 'refunded'))
+      or (from_status = 'quoted_separately' and to_status in ('awaiting_approval', 'refunded', 'cancelled'))
+$$;
+
+create or replace function public.staff_assign_case(p_case_id uuid, p_staff_id uuid) returns public.cases
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases;
+begin
+  if not public.is_staff() then raise exception 'Staff MFA is required.' using errcode = '42501'; end if;
+  if not public.is_admin() and p_staff_id <> auth.uid() then raise exception 'Only an admin can assign another operator.' using errcode = '42501'; end if;
+  if not exists (select 1 from public.profiles p where p.id = p_staff_id and p.role in ('staff', 'admin') and p.mfa_enrolled_at is not null) then raise exception 'The assignee must be an enrolled staff account.' using errcode = '22023'; end if;
+  select * into case_record from public.cases where id = p_case_id for update;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  if case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin can update this case.' using errcode = '42501'; end if;
+  update public.cases set assigned_staff_id = p_staff_id, updated_at = now() where id = p_case_id returning * into case_record;
+  insert into public.case_events (case_id, organization_id, type, body, customer_visible, actor_user_id) values (case_record.id, case_record.organization_id, 'case_assigned', 'Case assignment updated.', false, auth.uid());
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'case_assigned', 'case', case_record.id::text, jsonb_build_object('assigned_staff_id', p_staff_id));
+  return case_record;
+end $$;
+
+create or replace function public.staff_transition_case(p_case_id uuid, p_to_status public.case_status, p_body text default '') returns public.cases
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases; from_status public.case_status; event_body text := coalesce(trim(p_body), '');
+begin
+  if not public.is_staff() then raise exception 'Staff MFA is required.' using errcode = '42501'; end if;
+  select * into case_record from public.cases where id = p_case_id for update;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  if case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin can update this case.' using errcode = '42501'; end if;
+  if not public.case_status_transition_allowed(case_record.status, p_to_status) then raise exception 'Invalid case transition.' using errcode = '22023'; end if;
+  if p_to_status = 'awaiting_access' and not exists (select 1 from public.orders o where o.id = case_record.order_id and o.payment_state = 'verified') then raise exception 'Payment must be verified before access can be requested.' using errcode = '22023'; end if;
+  if p_to_status = 'triage' and case_record.access_usable_at is null then raise exception 'Usable access is required before triage.' using errcode = '22023'; end if;
+  if length(event_body) > 5000 or event_body ~* '(password|secret|api[_ -]?key|bearer|private key)\s*[:=]' then raise exception 'Secrets must never be written to case events.' using errcode = '22023'; end if;
+  from_status := case_record.status;
+  update public.cases set status = p_to_status, updated_at = now() where id = p_case_id returning * into case_record;
+  insert into public.case_events (case_id, organization_id, type, from_status, to_status, body, customer_visible, actor_user_id) values (case_record.id, case_record.organization_id, 'status_changed', from_status, p_to_status, event_body, true, auth.uid());
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'case_status_changed', 'case', case_record.id::text, jsonb_build_object('to_status', p_to_status));
+  return case_record;
+end $$;
+
+create or replace function public.staff_add_case_update(p_case_id uuid, p_body text, p_customer_visible boolean) returns public.case_events
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases; event_record public.case_events; event_body text := coalesce(trim(p_body), '');
+begin
+  if not public.is_staff() then raise exception 'Staff MFA is required.' using errcode = '42501'; end if;
+  select * into case_record from public.cases where id = p_case_id for update;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  if case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin can update this case.' using errcode = '42501'; end if;
+  if event_body = '' or length(event_body) > 5000 or p_customer_visible is null then raise exception 'Update text is empty or too long.' using errcode = '22023'; end if;
+  if event_body ~* '(password|secret|api[_ -]?key|bearer|private key)\s*[:=]' then raise exception 'Secrets must never be written to case events.' using errcode = '22023'; end if;
+  update public.cases set updated_at = now() where id = p_case_id returning * into case_record;
+  insert into public.case_events (case_id, organization_id, type, body, customer_visible, actor_user_id) values (case_record.id, case_record.organization_id, case when p_customer_visible then 'customer_update' else 'internal_note' end, event_body, p_customer_visible, auth.uid()) returning * into event_record;
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'case_update_added', 'case', case_record.id::text, jsonb_build_object('customer_visible', p_customer_visible));
+  return event_record;
+end $$;
+
+create or replace function public.staff_mark_access_usable(p_case_id uuid, p_access_usable_at timestamptz default now()) returns public.cases
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases;
+begin
+  if not public.is_staff() then raise exception 'Staff MFA is required.' using errcode = '42501'; end if;
+  if p_access_usable_at is null or p_access_usable_at > now() then raise exception 'Usable access time must be present and cannot be in the future.' using errcode = '22023'; end if;
+  select * into case_record from public.cases where id = p_case_id for update;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  if case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin can update this case.' using errcode = '42501'; end if;
+  update public.sites set access_state = 'usable' where id = case_record.site_id and organization_id = case_record.organization_id;
+  update public.cases set access_usable_at = p_access_usable_at, updated_at = now() where id = p_case_id returning * into case_record;
+  insert into public.case_events (case_id, organization_id, type, body, customer_visible, actor_user_id) values (case_record.id, case_record.organization_id, 'access_verified', 'Usable access received.', true, auth.uid());
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'case_access_marked_usable', 'case', case_record.id::text, jsonb_build_object('access_usable_at', p_access_usable_at));
+  return case_record;
+end $$;
+
+revoke all on function public.staff_assign_case(uuid, uuid) from public;
+revoke all on function public.staff_transition_case(uuid, public.case_status, text) from public;
+revoke all on function public.staff_add_case_update(uuid, text, boolean) from public;
+revoke all on function public.staff_mark_access_usable(uuid, timestamptz) from public;
+grant execute on function public.staff_assign_case(uuid, uuid) to authenticated;
+grant execute on function public.staff_transition_case(uuid, public.case_status, text) to authenticated;
+grant execute on function public.staff_add_case_update(uuid, text, boolean) to authenticated;
+grant execute on function public.staff_mark_access_usable(uuid, timestamptz) to authenticated;
+
 alter table public.profiles enable row level security;
 alter table public.organizations enable row level security;
 alter table public.organization_members enable row level security;
@@ -65,7 +153,8 @@ create policy payments_staff_or_owner on public.payments for select using (exist
 create policy subscriptions_tenant on public.subscriptions for select using (public.is_org_member(organization_id) or public.is_staff());
 create policy sites_tenant on public.sites for all using (public.is_org_member(organization_id) or public.is_staff()) with check (public.is_org_member(organization_id) or public.is_admin());
 create policy cases_tenant on public.cases for select using (public.is_org_member(organization_id) or public.is_staff());
-create policy cases_staff_write on public.cases for update using (public.is_staff()) with check (public.is_staff());
+-- Case changes go through the MFA-checked staff RPCs above so every action has
+-- an event and audit record in the same transaction.
 create policy case_events_customer_safe on public.case_events for select using ((customer_visible and public.is_org_member(organization_id)) or public.is_staff());
 create policy case_events_staff_insert on public.case_events for insert with check (public.is_staff());
 create policy quotes_tenant on public.quotes for select using (public.is_org_member(organization_id) or public.is_staff());

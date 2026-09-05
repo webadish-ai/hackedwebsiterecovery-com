@@ -20,7 +20,7 @@
     "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
     "@supabase/ssr": "^0.12.6",
     "@supabase/supabase-js": "^2.115.0",
-    "astro": "^6.4.3",
+    "astro": "^6.4.8",
     "resend": "^4.5.1",
     "tailwindcss": "^3.4.17"
   },

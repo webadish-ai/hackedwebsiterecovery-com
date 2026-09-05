@@ -2,6 +2,17 @@ export interface PublicSupabaseConfig {
   url: string;
   anonKey: string;
 }
+
+export function getTrustedSiteUrl(env: Record<string, string | undefined> = {}): string | null {
+  const configured = env.PUBLIC_SITE_URL?.trim();
+  if (!configured || configured.includes('your-production-domain.example') || configured.includes('your-site.example')) return null;
+  try {
+    const url = new URL(configured);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) return null;
+    return url.origin;
+  } catch { return null; }
+}
+
 /**
  * Configuration boundary for the future Supabase server client. The app keeps
  * using the in-memory adapter when these placeholders are absent, so tests and

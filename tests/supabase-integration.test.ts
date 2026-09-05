@@ -3,8 +3,9 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { getCaseDataService, SupabaseCaseDataService } from '../src/lib/data-service.ts';
 import { getBrowserSupabaseConfig } from '../src/lib/supabase-browser.ts';
-import { getPublicSupabaseConfig } from '../src/lib/supabase.ts';
+import { getPublicSupabaseConfig, getTrustedSiteUrl } from '../src/lib/supabase.ts';
 import { protectedPath, staffPath } from '../src/lib/request-context.ts';
+import { getMagicLinkRedirectUrl } from '../src/pages/api/auth/magic-link.ts';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../src/lib/database.types.ts';
 
@@ -16,6 +17,22 @@ test('Supabase config accepts only valid public URL and anon key', () => {
   assert.equal(getPublicSupabaseConfig({ ...validEnv, PUBLIC_SUPABASE_URL: 'not-a-url' }), null);
   assert.equal(getPublicSupabaseConfig({ PUBLIC_SUPABASE_URL: 'https://your-project.supabase.co', PUBLIC_SUPABASE_ANON_KEY: 'secret' }), null);
   assert.equal(getPublicSupabaseConfig({ ...validEnv, PUBLIC_SUPABASE_ANON_KEY: 'your-development-anon-key' }), null);
+});
+
+test('magic-link redirects use the trusted site URL and fail closed for invalid origins', () => {
+  const env = { ...validEnv, PUBLIC_SITE_URL: 'https://portal.example.test' };
+  assert.equal(getTrustedSiteUrl(env), 'https://portal.example.test');
+  assert.equal(getMagicLinkRedirectUrl(env), 'https://portal.example.test/api/auth/callback');
+  assert.equal(getMagicLinkRedirectUrl({ ...env, PUBLIC_SITE_URL: 'javascript:alert(1)' }), null);
+  assert.equal(getMagicLinkRedirectUrl({ ...env, PUBLIC_SITE_URL: 'https://your-production-domain.example' }), null);
+  assert.equal(getMagicLinkRedirectUrl({ ...env, PUBLIC_SITE_URL: 'https://portal.example.test.evil.example' }), 'https://portal.example.test.evil.example/api/auth/callback');
+  assert.equal(getMagicLinkRedirectUrl({ PUBLIC_SUPABASE_URL: validEnv.PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY: validEnv.PUBLIC_SUPABASE_ANON_KEY }), null);
+});
+
+test('magic-link route never uses the untrusted request host for its callback', async () => {
+  const source = await readFile(new URL('../src/pages/api/auth/magic-link.ts', import.meta.url), 'utf8');
+  assert.match(source, /getMagicLinkRedirectUrl/);
+  assert.doesNotMatch(source, /request\.url/);
 });
 
 test('data service selects Supabase only with valid config and development only with explicit flag', () => {
@@ -40,6 +57,13 @@ test('service role source is server-only and browser module contains no service-
   assert.doesNotMatch(browser, /SERVICE_ROLE|serviceRole/i);
   assert.match(server, /SUPABASE_SERVICE_ROLE_KEY/);
   assert.match(server, /createSupabaseServiceRoleClient/);
+});
+
+test('staff API dispatches configured actions through transactional RPCs', async () => {
+  const source = await readFile(new URL('../src/pages/api/staff/cases/[id].ts', import.meta.url), 'utf8');
+  for (const rpc of ['staff_assign_case', 'staff_transition_case', 'staff_add_case_update', 'staff_mark_access_usable']) assert.match(source, new RegExp(`rpc\\(['"]${rpc}`));
+  assert.match(source, /if \(supabase\)/);
+  assert.match(source, /isDevelopmentWorkflowEnabled\(\)/);
 });
 
 test('Supabase timeline reads apply customer visibility and organization filters', async () => {

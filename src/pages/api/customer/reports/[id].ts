@@ -8,7 +8,11 @@ export const GET: APIRoute = async (context) => {
   const service = getCaseDataService({ client: context.locals?.supabase });
   if (!service) return json({ error: 'Report delivery is not configured.' }, 503);
   if (!actor) return json({ error: 'Sign in with your magic link first.' }, 401);
-  try { return json(await service.reportDownload(context.params.id ?? '', actor), 200); }
+  try {
+    const download = await service.reportDownload(context.params.id ?? '', actor);
+    if (download.signedUrl) return Response.redirect(download.signedUrl, 303);
+    return json(download, 200);
+  }
   catch { return json({ error: 'Report download failed.' }, 403); }
 };
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' } }); }
