@@ -62,12 +62,12 @@ export class SupabaseCaseDataService implements CaseDataService {
     if (actor.role === 'customer') query = query.eq('customer_visible', true);
     const result = await query as unknown as { data: AttachmentRow[] | null; error: Error | null };
     if (result.error) throw result.error;
-    return (result.data ?? []).map((row) => ({ id: row.id, organizationId: row.organization_id, caseId: row.case_id, kind: row.kind as AttachmentRecord['kind'], storagePath: row.storage_path, contentType: row.content_type, byteSize: Number(row.byte_size), customerVisible: row.customer_visible, createdAt: row.created_at }));
+    return (result.data ?? []).map((row) => ({ id: row.id, organizationId: row.organization_id, caseId: row.case_id, kind: row.kind as AttachmentRecord['kind'], storagePath: row.storage_path, contentType: row.content_type, byteSize: Number(row.byte_size), customerVisible: row.customer_visible, scanState: row.scan_state as AttachmentRecord['scanState'], createdAt: row.created_at }));
   }
 
   async reportDownload(attachmentId: string, actor: Actor) {
     if (actor.role === 'staff' || actor.role === 'admin') requireStaffMfa(actor);
-    let query = this.client.from('attachments').select('id,storage_path,customer_visible').eq('id', attachmentId);
+    let query = this.client.from('attachments').select('id,storage_path,customer_visible').eq('id', attachmentId).eq('scan_state', 'clean');
     if (actor.role === 'customer') query = query.eq('customer_visible', true);
     const result = await query.maybeSingle() as unknown as { data: Pick<AttachmentRow, 'id' | 'storage_path'> | null; error: Error | null };
     if (result.error || !result.data) throw new Error('Report not found.');

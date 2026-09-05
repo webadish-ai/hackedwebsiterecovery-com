@@ -53,7 +53,7 @@ test('customer timeline excludes internal notes', () => {
 
 test('report metadata is private and downloads expire quickly', () => {
   const fixture = createDevelopmentFixture();
-  const attachment = fixture.store.addAttachment({ organizationId: fixture.organization.id, caseId: fixture.case.id, kind: 'final_report', storagePath: `${fixture.case.id}/report.pdf`, contentType: 'application/pdf', byteSize: 1024, customerVisible: true }, fixture.staff);
+  const attachment = fixture.store.addAttachment({ organizationId: fixture.organization.id, caseId: fixture.case.id, kind: 'final_report', storagePath: `${fixture.case.id}/report.pdf`, contentType: 'application/pdf', byteSize: 1024, customerVisible: true, scanState: 'clean' }, fixture.staff);
   const download = fixture.store.createReportDownload(attachment.id, fixture.customer, new Date('2026-09-05T08:00:00Z'));
   assert.equal(download.expiresAt, '2026-09-05T08:05:00.000Z');
   assert.match(download.downloadToken, /^dev_report_/);

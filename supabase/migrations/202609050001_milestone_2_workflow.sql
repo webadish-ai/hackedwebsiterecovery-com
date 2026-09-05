@@ -17,13 +17,14 @@ create table public.sites (id uuid primary key default gen_random_uuid(), organi
 create table public.cases (id uuid primary key default gen_random_uuid(), organization_id uuid not null references public.organizations(id), order_id uuid not null, site_id uuid not null, status public.case_status not null default 'awaiting_payment', assigned_staff_id uuid references auth.users(id), payment_verified_at timestamptz, access_usable_at timestamptz, response_deadline_at timestamptz, created_at timestamptz not null default now(), updated_at timestamptz not null default now(), unique (id, organization_id), foreign key (order_id, organization_id) references public.orders(id, organization_id), foreign key (site_id, organization_id) references public.sites(id, organization_id), check (response_deadline_at is null or (payment_verified_at is not null and access_usable_at is not null)));
 create table public.case_events (id uuid primary key default gen_random_uuid(), case_id uuid not null, organization_id uuid not null references public.organizations(id), type text not null, from_status public.case_status, to_status public.case_status, body text not null default '', customer_visible boolean not null default false, actor_user_id uuid not null references auth.users(id), created_at timestamptz not null default now(), foreign key (case_id, organization_id) references public.cases(id, organization_id) on delete cascade);
 create table public.quotes (id uuid primary key default gen_random_uuid(), case_id uuid not null, organization_id uuid not null references public.organizations(id), amount_paise bigint not null check (amount_paise >= 0), terms text not null, state text not null default 'pending', accepted_at timestamptz, created_at timestamptz not null default now(), foreign key (case_id, organization_id) references public.cases(id, organization_id) on delete cascade);
-create table public.credential_sets (id uuid primary key default gen_random_uuid(), case_id uuid not null, organization_id uuid not null references public.organizations(id), state text not null default 'not_submitted', ciphertext text, key_version text, created_at timestamptz not null default now(), expires_at timestamptz, foreign key (case_id, organization_id) references public.cases(id, organization_id) on delete cascade);
+create table public.credential_sets (id uuid primary key default gen_random_uuid(), case_id uuid not null, organization_id uuid not null references public.organizations(id), state text not null default 'active' check (state in ('active', 'revoked', 'expired')), algorithm text not null default 'aes-256-gcm' check (algorithm = 'aes-256-gcm'), nonce text, auth_tag text, ciphertext text, key_version text, created_at timestamptz not null default now(), expires_at timestamptz, revoked_at timestamptz, expired_at timestamptz, foreign key (case_id, organization_id) references public.cases(id, organization_id) on delete cascade, check ((state = 'active' and nonce is not null and auth_tag is not null and ciphertext is not null and key_version is not null) or state in ('revoked', 'expired')));
 create table public.attachments (id uuid primary key default gen_random_uuid(), case_id uuid not null, organization_id uuid not null references public.organizations(id), kind text not null, storage_path text not null unique, content_type text not null, byte_size bigint not null check (byte_size > 0 and byte_size <= 26214400), customer_visible boolean not null default false, scan_state text not null default 'pending', created_at timestamptz not null default now(), foreign key (case_id, organization_id) references public.cases(id, organization_id) on delete cascade);
 create table public.webhook_events (id uuid primary key default gen_random_uuid(), provider text not null, fingerprint text not null unique, payload_hash text not null, received_at timestamptz not null default now(), processed_at timestamptz);
 create table public.audit_logs (id uuid primary key default gen_random_uuid(), organization_id uuid references public.organizations(id), actor_user_id uuid references auth.users(id), action text not null, target_type text not null, target_id text, metadata jsonb not null default '{}'::jsonb, created_at timestamptz not null default now());
 
 create index cases_queue_idx on public.cases (response_deadline_at, status);
 create index case_events_timeline_idx on public.case_events (case_id, created_at);
+create unique index credential_sets_one_active_per_case on public.credential_sets(case_id) where state = 'active';
 create unique index order_items_site_unique on public.order_items(order_id, site_id) where site_id is not null;
 
 create or replace function public.is_staff() returns boolean language sql stable security definer set search_path = public as $$ select (auth.jwt()->>'aal') = 'aal2' and exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('staff', 'admin') and p.mfa_enrolled_at is not null) $$;
@@ -126,6 +127,99 @@ grant execute on function public.staff_transition_case(uuid, public.case_status,
 grant execute on function public.staff_add_case_update(uuid, text, boolean) to authenticated;
 grant execute on function public.staff_mark_access_usable(uuid, timestamptz) to authenticated;
 
+-- Credential writes and reveals are controlled server actions. There are no
+-- exposed table policies, so clients cannot insert arbitrary ciphertext or
+-- read an encrypted row around these checks.
+create or replace function public.submit_credentials(p_case_id uuid, p_algorithm text, p_key_version text, p_nonce text, p_auth_tag text, p_ciphertext text, p_expires_at timestamptz default null) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases; order_owner uuid; old_record public.credential_sets; new_record public.credential_sets;
+begin
+  if p_algorithm <> 'aes-256-gcm' or p_key_version is null or p_key_version !~ '^[A-Za-z0-9._-]{1,64}$' or p_nonce is null or p_auth_tag is null or p_ciphertext is null then raise exception 'Invalid credential envelope.' using errcode = '22023'; end if;
+  if length(p_nonce) > 128 or length(p_auth_tag) > 128 or length(p_ciphertext) > 200000 then raise exception 'Invalid credential envelope.' using errcode = '22023'; end if;
+  select c into case_record from public.cases c where c.id = p_case_id for update;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
+  if order_owner is null then raise exception 'Case order was not found.' using errcode = 'P0002'; end if;
+  if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential owner or MFA staff access is required.' using errcode = '42501'; end if;
+  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
+  if p_expires_at is not null and p_expires_at <= now() then raise exception 'Credential expiry must be in the future.' using errcode = '22023'; end if;
+  update public.credential_sets set state = 'revoked', nonce = null, auth_tag = null, ciphertext = null, revoked_at = now() where case_id = p_case_id and state = 'active' returning * into old_record;
+  if old_record.id is not null then insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'credentials_replaced', 'credential_set', old_record.id::text, '{}'::jsonb); end if;
+  insert into public.credential_sets (case_id, organization_id, state, algorithm, nonce, auth_tag, ciphertext, key_version, expires_at) values (p_case_id, case_record.organization_id, 'active', p_algorithm, p_nonce, p_auth_tag, p_ciphertext, p_key_version, p_expires_at) returning * into new_record;
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (new_record.organization_id, auth.uid(), 'credentials_submitted', 'credential_set', new_record.id::text, jsonb_build_object('key_version', new_record.key_version));
+  return jsonb_build_object('id', new_record.id, 'case_id', new_record.case_id, 'organization_id', new_record.organization_id, 'state', new_record.state, 'algorithm', new_record.algorithm, 'key_version', new_record.key_version, 'created_at', new_record.created_at, 'expires_at', new_record.expires_at, 'revoked_at', new_record.revoked_at, 'expired_at', new_record.expired_at);
+end $$;
+
+create or replace function public.revoke_credentials(p_case_id uuid, p_credential_set_id uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare credential_record public.credential_sets; case_record public.cases; order_owner uuid;
+begin
+  select cs into credential_record from public.credential_sets cs where cs.id = p_credential_set_id and cs.case_id = p_case_id for update;
+  if not found then raise exception 'Credential set not found.' using errcode = 'P0002'; end if;
+  select c into case_record from public.cases c where c.id = credential_record.case_id and c.organization_id = credential_record.organization_id;
+  select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
+  if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential owner or MFA staff access is required.' using errcode = '42501'; end if;
+  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
+  if credential_record.state = 'active' then update public.credential_sets set state = 'revoked', nonce = null, auth_tag = null, ciphertext = null, revoked_at = coalesce(revoked_at, now()) where id = p_credential_set_id returning * into credential_record; end if;
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (credential_record.organization_id, auth.uid(), 'credentials_revoked', 'credential_set', credential_record.id::text, jsonb_build_object('state', credential_record.state));
+  return jsonb_build_object('id', credential_record.id, 'case_id', credential_record.case_id, 'organization_id', credential_record.organization_id, 'state', credential_record.state, 'algorithm', credential_record.algorithm, 'key_version', credential_record.key_version, 'created_at', credential_record.created_at, 'expires_at', credential_record.expires_at, 'revoked_at', credential_record.revoked_at, 'expired_at', credential_record.expired_at);
+end $$;
+
+create or replace function public.reveal_credentials(p_case_id uuid, p_credential_set_id uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare credential_record public.credential_sets; case_record public.cases;
+begin
+  if not public.is_staff() then raise exception 'Recent MFA staff access is required.' using errcode = '42501'; end if;
+  select cs into credential_record from public.credential_sets cs where cs.id = p_credential_set_id and cs.case_id = p_case_id for update;
+  if not found then raise exception 'Credential set not found.' using errcode = 'P0002'; end if;
+  select c into case_record from public.cases c where c.id = credential_record.case_id and c.organization_id = credential_record.organization_id;
+  if case_record.assigned_staff_id is null or (case_record.assigned_staff_id <> auth.uid() and not public.is_admin()) then raise exception 'Only the assigned operator or an admin may reveal credentials.' using errcode = '42501'; end if;
+  if credential_record.state <> 'active' or (credential_record.expires_at is not null and credential_record.expires_at <= now()) then
+    update public.credential_sets set state = 'expired', nonce = null, auth_tag = null, ciphertext = null, expired_at = coalesce(expired_at, now()) where id = p_credential_set_id returning * into credential_record;
+    return null;
+  end if;
+  insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (credential_record.organization_id, auth.uid(), 'credentials_revealed', 'credential_set', credential_record.id::text, '{}'::jsonb);
+  return jsonb_build_object('id', credential_record.id, 'case_id', credential_record.case_id, 'organization_id', credential_record.organization_id, 'algorithm', credential_record.algorithm, 'key_version', credential_record.key_version, 'nonce', credential_record.nonce, 'auth_tag', credential_record.auth_tag, 'ciphertext', credential_record.ciphertext, 'expires_at', credential_record.expires_at);
+end $$;
+
+create or replace function public.list_credentials_metadata(p_case_id uuid) returns table (id uuid, case_id uuid, organization_id uuid, state text, algorithm text, key_version text, created_at timestamptz, expires_at timestamptz, revoked_at timestamptz, expired_at timestamptz)
+language plpgsql security definer set search_path = public as $$
+declare case_record public.cases; order_owner uuid;
+begin
+  select c into case_record from public.cases c where c.id = p_case_id;
+  if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
+  select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
+  if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential ownership is required.' using errcode = '42501'; end if;
+  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may view credentials.' using errcode = '42501'; end if;
+  return query select cs.id, cs.case_id, cs.organization_id, cs.state, cs.algorithm, cs.key_version, cs.created_at, cs.expires_at, cs.revoked_at, cs.expired_at from public.credential_sets cs where cs.case_id = p_case_id order by cs.created_at desc;
+end $$;
+
+-- A scheduler/service-role job can call this function after completion. It
+-- destroys secret material while retaining an auditable metadata row.
+create or replace function public.purge_expired_credentials(p_completed_before timestamptz) returns integer
+language plpgsql security definer set search_path = public as $$
+declare removed integer;
+begin
+  if p_completed_before is null then raise exception 'A completion cutoff is required.' using errcode = '22023'; end if;
+  if p_completed_before > now() - interval '7 days' then raise exception 'Credential retention period has not elapsed.' using errcode = '22023'; end if;
+  with expired as (
+    update public.credential_sets cs set state = 'expired', nonce = null, auth_tag = null, ciphertext = null, expired_at = coalesce(cs.expired_at, now()) from public.cases c where c.id = cs.case_id and c.organization_id = cs.organization_id and c.status = 'completed' and c.updated_at <= p_completed_before and cs.state = 'active' returning cs.*
+  ) insert into public.audit_logs (organization_id, action, target_type, target_id, metadata) select organization_id, 'credentials_retention_purged', 'credential_set', id::text, '{}'::jsonb from expired;
+  get diagnostics removed = row_count;
+  return removed;
+end $$;
+
+revoke all on function public.submit_credentials(uuid, text, text, text, text, text, timestamptz) from public;
+revoke all on function public.revoke_credentials(uuid, uuid) from public;
+revoke all on function public.reveal_credentials(uuid, uuid) from public;
+revoke all on function public.list_credentials_metadata(uuid) from public;
+revoke all on function public.purge_expired_credentials(timestamptz) from public;
+grant execute on function public.submit_credentials(uuid, text, text, text, text, text, timestamptz) to authenticated;
+grant execute on function public.revoke_credentials(uuid, uuid) to authenticated;
+grant execute on function public.reveal_credentials(uuid, uuid) to authenticated;
+grant execute on function public.list_credentials_metadata(uuid) to authenticated;
+grant execute on function public.purge_expired_credentials(timestamptz) to service_role;
+
 alter table public.profiles enable row level security;
 alter table public.organizations enable row level security;
 alter table public.organization_members enable row level security;
@@ -162,11 +256,11 @@ create policy quotes_staff_write on public.quotes for all using (public.is_staff
 -- Credential ciphertext is a Milestone 3 concern. No exposed-role read policy
 -- exists until assigned-staff reveal with recent MFA is implemented.
 create policy attachments_customer_safe on public.attachments for select using ((customer_visible and public.is_org_member(organization_id)) or public.is_staff());
-create policy attachments_staff_insert on public.attachments for insert with check (public.is_staff());
+create policy attachments_staff_insert on public.attachments for insert with check (public.is_staff() and scan_state = 'pending');
 create policy webhook_staff_only on public.webhook_events for all using (public.is_staff()) with check (public.is_staff());
 create policy audit_staff_only on public.audit_logs for select using (public.is_staff());
 create policy audit_staff_insert on public.audit_logs for insert with check (public.is_staff() and auth.uid() = actor_user_id);
 
 insert into storage.buckets (id, name, public) values ('case-reports', 'case-reports', false) on conflict (id) do nothing;
-create policy case_reports_read on storage.objects for select using (bucket_id = 'case-reports' and (public.is_staff() or exists (select 1 from public.attachments a where a.storage_path = name and a.customer_visible and public.is_org_member(a.organization_id))));
+create policy case_reports_read on storage.objects for select using (bucket_id = 'case-reports' and exists (select 1 from public.attachments a where a.storage_path = name and a.scan_state = 'clean' and (public.is_staff() or (a.customer_visible and public.is_org_member(a.organization_id)))));
 create policy case_reports_staff_upload on storage.objects for insert with check (bucket_id = 'case-reports' and public.is_staff());

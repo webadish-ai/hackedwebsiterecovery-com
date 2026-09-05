@@ -103,3 +103,23 @@ test('Supabase timeline reads apply customer visibility and organization filters
   assert.equal(staffEvents[0]?.body, 'Customer update');
   assert.ok(!calls.some((call) => call.includes('customer_visible')));
 });
+
+test('credential APIs keep encryption server-side and use controlled RPCs', async () => {
+  const customer = await readFile(new URL('../src/pages/api/customer/cases/[id]/credentials.ts', import.meta.url), 'utf8');
+  const staff = await readFile(new URL('../src/pages/api/staff/cases/[id]/credentials.ts', import.meta.url), 'utf8');
+  assert.match(customer, /encryptCredentialPayload/);
+  assert.match(customer, /submit_credentials/);
+  assert.match(customer, /revoke_credentials/);
+  assert.match(customer, /p_case_id: caseId/);
+  assert.match(customer, /stored\.caseId !== caseId/);
+  assert.match(customer, /assertTrustedMutationOrigin/);
+  assert.match(customer, /assertCredentialRateLimit/);
+  assert.doesNotMatch(customer, /console\.(log|error|warn)/);
+  assert.doesNotMatch(customer, /JSON\.stringify\(body\.payload\)/);
+  assert.match(staff, /reveal_credentials/);
+  assert.match(staff, /decryptCredentialEnvelope/);
+  assert.match(staff, /requireStaffMfa/);
+  assert.match(staff, /p_case_id: context\.params\.id/);
+  assert.match(staff, /stored\.caseId !== \(context\.params\.id/);
+  assert.doesNotMatch(staff, /console\.(log|error|warn)/);
+});
