@@ -5,6 +5,8 @@ import { getCaseDataService, SupabaseCaseDataService } from '../src/lib/data-ser
 import { getBrowserSupabaseConfig } from '../src/lib/supabase-browser.ts';
 import { getPublicSupabaseConfig, getTrustedSiteUrl } from '../src/lib/supabase.ts';
 import { protectedPath, staffPath } from '../src/lib/request-context.ts';
+import { latestMfaVerificationAt } from '../src/lib/request-context.ts';
+import { envelopeFromReveal } from '../src/pages/api/staff/cases/[id]/credentials.ts';
 import { getMagicLinkRedirectUrl } from '../src/pages/api/auth/magic-link.ts';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../src/lib/database.types.ts';
@@ -107,6 +109,7 @@ test('Supabase timeline reads apply customer visibility and organization filters
 test('credential APIs keep encryption server-side and use controlled RPCs', async () => {
   const customer = await readFile(new URL('../src/pages/api/customer/cases/[id]/credentials.ts', import.meta.url), 'utf8');
   const staff = await readFile(new URL('../src/pages/api/staff/cases/[id]/credentials.ts', import.meta.url), 'utf8');
+  const requestContext = await readFile(new URL('../src/lib/request-context.ts', import.meta.url), 'utf8');
   assert.match(customer, /encryptCredentialPayload/);
   assert.match(customer, /submit_credentials/);
   assert.match(customer, /revoke_credentials/);
@@ -122,4 +125,16 @@ test('credential APIs keep encryption server-side and use controlled RPCs', asyn
   assert.match(staff, /p_case_id: context\.params\.id/);
   assert.match(staff, /stored\.caseId !== \(context\.params\.id/);
   assert.doesNotMatch(staff, /console\.(log|error|warn)/);
+  assert.match(requestContext, /latestMfaVerificationAt/);
+  assert.doesNotMatch(requestContext, /mfa_enrolled_at.*new Date\(\)\.toISOString/);
+});
+
+test('staff freshness uses timestamped MFA AMR entries and maps Supabase reveal rows', () => {
+  const now = Math.floor(Date.now() / 1000);
+  assert.ok(latestMfaVerificationAt([{ method: 'totp', timestamp: now - 30 }]));
+  assert.equal(latestMfaVerificationAt([{ method: 'totp', timestamp: now - 30 * 60 }]), new Date((now - 30 * 60) * 1000).toISOString());
+  assert.equal(latestMfaVerificationAt(['totp']), undefined);
+  assert.equal(latestMfaVerificationAt([{ method: 'password', timestamp: now }]), undefined);
+  assert.deepEqual(envelopeFromReveal({ algorithm: 'aes-256-gcm', key_version: 'v1', nonce: 'n', auth_tag: 'a', ciphertext: 'c' }), { version: 1, algorithm: 'aes-256-gcm', keyVersion: 'v1', nonce: 'n', authTag: 'a', ciphertext: 'c' });
+  assert.equal(envelopeFromReveal({ algorithm: 'aes-256-gcm', key_version: 'v1', nonce: 'n', auth_tag: 'a' }), null);
 });

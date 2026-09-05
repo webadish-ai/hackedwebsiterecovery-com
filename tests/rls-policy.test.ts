@@ -40,7 +40,12 @@ test('Milestone 3 credential controls are server-action only and tenant scoped',
   assert.match(sql, /submit_credentials[\s\S]*security definer set search_path = public/);
   assert.match(sql, /submit_credentials[\s\S]*auth\.uid\(\) <> order_owner/);
   assert.match(sql, /submit_credentials[\s\S]*case_record\.assigned_staff_id/);
+  assert.match(sql, /submit_credentials[\s\S]*assigned_staff_id is null or/);
+  assert.match(sql, /list_credentials_metadata[\s\S]*assigned_staff_id is null or/);
   assert.match(sql, /is_staff\(\)[\s\S]*auth\.jwt\(\)->>'aal'/);
+  assert.match(sql, /reveal_credentials[\s\S]*jsonb_array_elements/);
+  assert.match(sql, /reveal_credentials[\s\S]*interval '15 minutes'/);
+  assert.match(sql, /reveal_credentials[\s\S]*'totp', 'phone'/);
   assert.match(sql, /reveal_credentials[\s\S]*case_record\.assigned_staff_id is null/);
   assert.match(sql, /purge_expired_credentials[\s\S]*status = 'completed'/);
   assert.match(sql, /p_completed_before > now\(\) - interval '7 days'/);

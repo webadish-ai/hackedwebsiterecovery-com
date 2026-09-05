@@ -1,7 +1,8 @@
 import { defineMiddleware } from 'astro:middleware';
 import { isDevelopmentWorkflowEnabled } from './lib/auth.ts';
 import { createSupabaseServerClient } from './lib/supabase-server.ts';
-import { protectedPath, staffPath } from './lib/request-context.ts';
+import { latestMfaVerificationAt, protectedPath, staffPath } from './lib/request-context.ts';
+import { requireStaffMfa } from './lib/auth.ts';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   if (isDevelopmentWorkflowEnabled()) return next();
@@ -17,6 +18,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       client.auth.mfa.getAuthenticatorAssuranceLevel(),
     ]);
     if (!profile || !['staff', 'admin'].includes(profile.role) || !profile.mfa_enrolled_at || assurance?.currentLevel !== 'aal2') return new Response('Staff MFA is required for this route.', { status: 403 });
+    try { requireStaffMfa({ userId: user.id, role: profile.role, organizationIds: [], mfaVerifiedAt: latestMfaVerificationAt(assurance?.currentAuthenticationMethods) }); } catch { return new Response('Recent staff MFA verification is required for this route.', { status: 403 }); }
   }
   return next();
 });

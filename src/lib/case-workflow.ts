@@ -330,7 +330,7 @@ export class DevelopmentWorkflowStore {
   private credentialMetadata(stored: StoredCredential): CredentialRecord { return { id: stored.id, organizationId: stored.organizationId, caseId: stored.caseId, state: stored.state, keyVersion: stored.keyVersion, algorithm: stored.algorithm, createdAt: stored.createdAt, expiresAt: stored.expiresAt, revokedAt: stored.revokedAt, expiredAt: stored.expiredAt }; }
   private assertCredentialActor(record: CaseRecord, actor: Actor, reveal: boolean) {
     const owner = this.orders.get(record.orderId)?.customerUserId;
-    if (isStaff(actor)) { this.requireStaffMfa(actor); if (reveal && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may reveal credentials.'); if (!reveal && record.assignedStaffId && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may manage credentials.'); return; }
+    if (isStaff(actor)) { this.requireStaffMfa(actor); if (reveal && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may reveal credentials.'); if (!reveal && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may manage credentials.'); return; }
     if (reveal || actor.userId !== owner) throw new WorkflowError('forbidden', reveal ? 'Staff access is required.' : 'Credential ownership is required.');
   }
 }

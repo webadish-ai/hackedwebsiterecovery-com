@@ -28,8 +28,11 @@ test('customer credential ownership, assigned-staff MFA, replacement, and revoca
   assert.equal('ciphertext' in first, false);
   assert.equal([...fixture.store.credentials.values()][0].ciphertext?.includes('first-secret'), false);
   assert.throws(() => fixture.store.revealCredentials(first.id, fixture.customer), /Staff access/);
-  fixture.store.assignCase(fixture.case.id, fixture.staff.userId, fixture.staff);
   const otherStaff = { userId: 'other-staff', role: 'staff' as const, organizationIds: [], mfaVerifiedAt: new Date().toISOString() };
+  assert.throws(() => fixture.store.submitCredentials(fixture.case.id, { username: 'wrong-staff' }, otherStaff), /manage credentials/i);
+  assert.throws(() => fixture.store.revokeCredentials(first.id, otherStaff), /manage credentials/i);
+  assert.throws(() => fixture.store.listCredentialMetadata(fixture.case.id, otherStaff), /manage credentials/i);
+  fixture.store.assignCase(fixture.case.id, fixture.staff.userId, fixture.staff);
   assert.throws(() => fixture.store.revealCredentials(first.id, otherStaff), /assigned/i);
   assert.throws(() => fixture.store.revealCredentials(first.id, { ...fixture.staff, mfaVerifiedAt: undefined }), /MFA/i);
   assert.deepEqual(fixture.store.revealCredentials(first.id, fixture.staff), { username: 'owner', password: 'first-secret' });

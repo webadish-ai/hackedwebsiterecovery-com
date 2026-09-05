@@ -141,7 +141,7 @@ begin
   select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
   if order_owner is null then raise exception 'Case order was not found.' using errcode = 'P0002'; end if;
   if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential owner or MFA staff access is required.' using errcode = '42501'; end if;
-  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
+  if public.is_staff() and (case_record.assigned_staff_id is null or case_record.assigned_staff_id <> auth.uid()) and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
   if p_expires_at is not null and p_expires_at <= now() then raise exception 'Credential expiry must be in the future.' using errcode = '22023'; end if;
   update public.credential_sets set state = 'revoked', nonce = null, auth_tag = null, ciphertext = null, revoked_at = now() where case_id = p_case_id and state = 'active' returning * into old_record;
   if old_record.id is not null then insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (case_record.organization_id, auth.uid(), 'credentials_replaced', 'credential_set', old_record.id::text, '{}'::jsonb); end if;
@@ -159,7 +159,7 @@ begin
   select c into case_record from public.cases c where c.id = credential_record.case_id and c.organization_id = credential_record.organization_id;
   select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
   if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential owner or MFA staff access is required.' using errcode = '42501'; end if;
-  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
+  if public.is_staff() and (case_record.assigned_staff_id is null or case_record.assigned_staff_id <> auth.uid()) and not public.is_admin() then raise exception 'Only the assigned operator or an admin may manage credentials.' using errcode = '42501'; end if;
   if credential_record.state = 'active' then update public.credential_sets set state = 'revoked', nonce = null, auth_tag = null, ciphertext = null, revoked_at = coalesce(revoked_at, now()) where id = p_credential_set_id returning * into credential_record; end if;
   insert into public.audit_logs (organization_id, actor_user_id, action, target_type, target_id, metadata) values (credential_record.organization_id, auth.uid(), 'credentials_revoked', 'credential_set', credential_record.id::text, jsonb_build_object('state', credential_record.state));
   return jsonb_build_object('id', credential_record.id, 'case_id', credential_record.case_id, 'organization_id', credential_record.organization_id, 'state', credential_record.state, 'algorithm', credential_record.algorithm, 'key_version', credential_record.key_version, 'created_at', credential_record.created_at, 'expires_at', credential_record.expires_at, 'revoked_at', credential_record.revoked_at, 'expired_at', credential_record.expired_at);
@@ -170,6 +170,7 @@ language plpgsql security definer set search_path = public as $$
 declare credential_record public.credential_sets; case_record public.cases;
 begin
   if not public.is_staff() then raise exception 'Recent MFA staff access is required.' using errcode = '42501'; end if;
+  if not exists (select 1 from jsonb_array_elements(case when jsonb_typeof(auth.jwt()->'amr') = 'array' then auth.jwt()->'amr' else '[]'::jsonb end) as amr where lower(amr->>'method') in ('totp', 'phone') and (case when amr->>'timestamp' ~ '^[0-9]+(\.[0-9]+)?$' then (amr->>'timestamp')::numeric else null end) >= extract(epoch from now() - interval '15 minutes') and (case when amr->>'timestamp' ~ '^[0-9]+(\.[0-9]+)?$' then (amr->>'timestamp')::numeric else null end) <= extract(epoch from now())) then raise exception 'Recent MFA staff access is required.' using errcode = '42501'; end if;
   select cs into credential_record from public.credential_sets cs where cs.id = p_credential_set_id and cs.case_id = p_case_id for update;
   if not found then raise exception 'Credential set not found.' using errcode = 'P0002'; end if;
   select c into case_record from public.cases c where c.id = credential_record.case_id and c.organization_id = credential_record.organization_id;
@@ -190,7 +191,7 @@ begin
   if not found then raise exception 'Case not found.' using errcode = 'P0002'; end if;
   select o.customer_user_id into order_owner from public.orders o where o.id = case_record.order_id and o.organization_id = case_record.organization_id;
   if auth.uid() <> order_owner and not public.is_staff() then raise exception 'Credential ownership is required.' using errcode = '42501'; end if;
-  if public.is_staff() and case_record.assigned_staff_id is not null and case_record.assigned_staff_id <> auth.uid() and not public.is_admin() then raise exception 'Only the assigned operator or an admin may view credentials.' using errcode = '42501'; end if;
+  if public.is_staff() and (case_record.assigned_staff_id is null or case_record.assigned_staff_id <> auth.uid()) and not public.is_admin() then raise exception 'Only the assigned operator or an admin may view credentials.' using errcode = '42501'; end if;
   return query select cs.id, cs.case_id, cs.organization_id, cs.state, cs.algorithm, cs.key_version, cs.created_at, cs.expires_at, cs.revoked_at, cs.expired_at from public.credential_sets cs where cs.case_id = p_case_id order by cs.created_at desc;
 end $$;
 

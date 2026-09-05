@@ -23,7 +23,9 @@ export const POST: APIRoute = async (context) => {
     if (supabase && !isDevelopmentWorkflowEnabled()) {
       const result = await supabase.rpc('reveal_credentials', { p_case_id: context.params.id ?? '', p_credential_set_id: body.credentialSetId });
       if (result.error || !result.data || typeof result.data !== 'object' || Array.isArray(result.data)) return json({ error: 'Credential reveal failed.' }, result.error?.code === '42501' ? 403 : 400);
-      const payload = decryptCredentialEnvelope(result.data as unknown as CredentialEnvelope);
+      const envelope = envelopeFromReveal(result.data);
+      if (!envelope) return json({ error: 'Credential reveal failed.' }, 403);
+      const payload = decryptCredentialEnvelope(envelope);
       return json({ credentials: payload }, 200);
     }
     if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Credential storage is not configured.' }, 503);
@@ -35,5 +37,15 @@ export const POST: APIRoute = async (context) => {
     return json({ error: error instanceof Error && /MFA|assigned|unavailable/i.test(error.message) ? error.message : safeCredentialError() }, 403);
   }
 };
+
+/** Supabase RPC rows use database snake_case names; normalize at this server
+ * boundary and reject incomplete or unexpected encrypted material. */
+export function envelopeFromReveal(value: unknown): CredentialEnvelope | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const row = value as Record<string, unknown>;
+  if (row.algorithm !== 'aes-256-gcm' || typeof row.key_version !== 'string' || typeof row.nonce !== 'string' || typeof row.auth_tag !== 'string' || typeof row.ciphertext !== 'string') return null;
+  if (!row.key_version || !row.nonce || !row.auth_tag || !row.ciphertext) return null;
+  return { version: 1, algorithm: 'aes-256-gcm', keyVersion: row.key_version, nonce: row.nonce, authTag: row.auth_tag, ciphertext: row.ciphertext };
+}
 
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }); }
