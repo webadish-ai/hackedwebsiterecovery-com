@@ -7,10 +7,171 @@ const caseId = Astro.params.id ?? '';
 ---
 <Base title="Staff case | HackedWebsiteRecovery.com" description="Internal recovery case details." noindex={true}>
   <Nav />
-  <main class="bg-slate-50 px-4 py-16 sm:py-24"><div class="mx-auto max-w-3xl"><a href="/staff/" class="text-sm font-semibold text-blue-700">← Response queue</a><section id="staff-case" class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"><p class="text-sm text-slate-500">Loading case…</p></section></div></main>
+  <main class="bg-slate-50 px-4 py-16 sm:py-24">
+    <div class="mx-auto max-w-4xl">
+      <a href="/staff/" class="text-sm font-semibold text-blue-700">← Response queue</a>
+      <section id="staff-case" class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <p class="text-sm text-slate-500">Loading case…</p>
+      </section>
+      <p id="action-message" class="mt-4 hidden rounded-xl border px-4 py-3 text-sm" role="status"></p>
+    </div>
+  </main>
   <Footer />
 </Base>
 <script define:vars={{ caseId }}>
   const target = document.querySelector('#staff-case');
-  fetch(`/api/staff/cases/${encodeURIComponent(caseId)}`).then(async (response) => { const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Case unavailable.'); if (target) { target.textContent = ''; const heading = document.createElement('h1'); heading.className = 'text-2xl font-bold text-slate-900'; heading.textContent = `Case ${result.case.id}`; target.append(heading); const status = document.createElement('p'); status.className = 'mt-2 font-semibold text-blue-700'; status.textContent = result.case.status.replaceAll('_', ' '); target.append(status); const title = document.createElement('h2'); title.className = 'mt-8 text-lg font-bold text-slate-900'; title.textContent = 'Internal timeline'; target.append(title); for (const event of result.timeline ?? []) { const row = document.createElement('p'); row.className = 'mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700'; row.textContent = `${new Date(event.createdAt).toLocaleString()} · ${event.customerVisible ? 'Customer update' : 'Internal note'} · ${event.body}`; target.append(row); } } }).catch((error) => { if (target) target.textContent = error instanceof Error ? error.message : 'Case unavailable.'; });
+  const message = document.querySelector('#action-message');
+  const validNextStatuses = {
+    awaiting_payment: ['awaiting_access', 'refunded', 'cancelled'],
+    awaiting_access: ['triage', 'refunded', 'cancelled'],
+    triage: ['awaiting_access', 'awaiting_approval', 'in_progress', 'quoted_separately', 'refunded', 'cancelled'],
+    awaiting_approval: ['in_progress', 'quoted_separately', 'cancelled'],
+    in_progress: ['awaiting_approval', 'verification', 'awaiting_access', 'cancelled'],
+    verification: ['in_progress', 'monitoring', 'completed'],
+    monitoring: ['in_progress', 'completed'],
+    completed: ['monitoring', 'refunded'],
+    quoted_separately: ['awaiting_approval', 'refunded', 'cancelled'],
+    refunded: [],
+    cancelled: [],
+  };
+  let busy = false;
+  let currentCase;
+
+  function showMessage(text, tone = 'success') {
+    if (!message) return;
+    message.textContent = text;
+    message.className = tone === 'error'
+      ? 'mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800'
+      : 'mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800';
+  }
+
+  function setBusy(value) {
+    busy = value;
+    document.querySelectorAll('[data-case-action]').forEach((element) => { element.disabled = value; });
+    const status = document.querySelector('#next-status');
+    if (status) status.disabled = value || !(validNextStatuses[currentCase?.status] ?? []).length;
+  }
+
+  function renderTimeline(events) {
+    const heading = document.createElement('h2');
+    heading.className = 'mt-9 text-lg font-bold text-slate-900';
+    heading.textContent = 'Case timeline';
+    target?.append(heading);
+    if (!events.length) {
+      const empty = document.createElement('p');
+      empty.className = 'mt-3 text-sm text-slate-500';
+      empty.textContent = 'No updates have been recorded.';
+      target?.append(empty);
+      return;
+    }
+    const list = document.createElement('div');
+    list.className = 'mt-4 space-y-3';
+    for (const event of events) {
+      const row = document.createElement('p');
+      row.className = 'rounded-lg bg-slate-50 p-3 text-sm text-slate-700';
+      row.textContent = `${new Date(event.createdAt).toLocaleString()} · ${event.customerVisible ? 'Customer update' : 'Internal note'} · ${event.body}`;
+      list.append(row);
+    }
+    target?.append(list);
+  }
+
+  function renderCase(result) {
+    currentCase = result.case;
+    if (!target) return;
+    target.textContent = '';
+    const title = document.createElement('h1');
+    title.className = 'text-2xl font-bold text-slate-900';
+    title.textContent = `Case ${currentCase.id}`;
+    target.append(title);
+    const status = document.createElement('p');
+    status.className = 'mt-2 font-semibold capitalize text-blue-700';
+    status.textContent = currentCase.status.replaceAll('_', ' ');
+    target.append(status);
+    const deadline = document.createElement('p');
+    deadline.className = 'mt-2 text-sm text-slate-600';
+    deadline.textContent = currentCase.responseDeadlineAt
+      ? `First response deadline: ${new Date(currentCase.responseDeadlineAt).toLocaleString()}`
+      : 'Response clock starts after verified payment and usable access.';
+    target.append(deadline);
+
+    const controls = document.createElement('form');
+    controls.id = 'staff-actions';
+    controls.className = 'mt-8 grid gap-5 border-t border-slate-100 pt-7';
+    controls.addEventListener('submit', (event) => event.preventDefault());
+
+    const assignment = document.createElement('div');
+    assignment.className = 'grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-[1fr_auto] sm:items-end';
+    const assignmentLabel = document.createElement('label');
+    assignmentLabel.className = 'text-sm font-semibold text-slate-800';
+    assignmentLabel.htmlFor = 'staff-id';
+    assignmentLabel.textContent = 'Staff user ID (blank assigns you)';
+    const staffId = document.createElement('input');
+    staffId.id = 'staff-id'; staffId.type = 'text'; staffId.autocomplete = 'off'; staffId.className = 'mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'; staffId.placeholder = 'Optional admin assignee ID';
+    assignmentLabel.append(staffId);
+    const assignButton = document.createElement('button');
+    assignButton.type = 'button'; assignButton.dataset.caseAction = 'assign'; assignButton.className = 'rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-700'; assignButton.textContent = 'Assign case';
+    assignment.append(assignmentLabel, assignButton);
+    controls.append(assignment);
+
+    const accessButton = document.createElement('button');
+    accessButton.type = 'button'; accessButton.dataset.caseAction = 'access_usable'; accessButton.className = 'justify-self-start rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-bold text-blue-800 hover:bg-blue-100'; accessButton.textContent = 'Mark access usable';
+    controls.append(accessButton);
+
+    const transition = document.createElement('div');
+    transition.className = 'grid gap-3 rounded-xl border border-slate-200 p-4 sm:grid-cols-[1fr_auto] sm:items-end';
+    const transitionLabel = document.createElement('label');
+    transitionLabel.className = 'text-sm font-semibold text-slate-800'; transitionLabel.htmlFor = 'next-status'; transitionLabel.textContent = 'Move to an allowed next status';
+    const statusSelect = document.createElement('select');
+    statusSelect.id = 'next-status'; statusSelect.className = 'mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm';
+    const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Choose a status'; statusSelect.append(placeholder);
+    for (const nextStatus of validNextStatuses[currentCase.status] ?? []) { const option = document.createElement('option'); option.value = nextStatus; option.textContent = nextStatus.replaceAll('_', ' '); statusSelect.append(option); }
+    transitionLabel.append(statusSelect);
+    const transitionButton = document.createElement('button');
+    transitionButton.type = 'button'; transitionButton.dataset.caseAction = 'transition'; transitionButton.className = 'rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-500'; transitionButton.textContent = 'Save status'; transitionButton.disabled = !(validNextStatuses[currentCase.status] ?? []).length;
+    transition.append(transitionLabel, transitionButton); controls.append(transition);
+
+    const update = document.createElement('div');
+    update.className = 'grid gap-3 rounded-xl border border-slate-200 p-4';
+    const updateLabel = document.createElement('label'); updateLabel.className = 'text-sm font-semibold text-slate-800'; updateLabel.htmlFor = 'case-update'; updateLabel.textContent = 'Add a case update';
+    const updateText = document.createElement('textarea'); updateText.id = 'case-update'; updateText.rows = 4; updateText.maxLength = 5000; updateText.className = 'mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm'; updateText.placeholder = 'Write a concise update for the case record.'; updateLabel.append(updateText); update.append(updateLabel);
+    const visibility = document.createElement('label'); visibility.className = 'flex items-center gap-2 text-sm text-slate-700';
+    const customerVisible = document.createElement('input'); customerVisible.id = 'customer-visible'; customerVisible.type = 'checkbox'; customerVisible.className = 'h-4 w-4';
+    visibility.append(customerVisible, document.createTextNode('Share this update with the customer')); update.append(visibility);
+    const updateButton = document.createElement('button'); updateButton.type = 'button'; updateButton.dataset.caseAction = 'update'; updateButton.className = 'justify-self-start rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 hover:bg-slate-50'; updateButton.textContent = 'Add update'; update.append(updateButton); controls.append(update);
+    target.append(controls);
+    renderTimeline(result.timeline ?? []);
+    setBusy(false);
+  }
+
+  async function refresh() {
+    const response = await fetch(`/api/staff/cases/${encodeURIComponent(caseId)}`, { headers: { Accept: 'application/json' } });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'Case unavailable.');
+    renderCase(result);
+  }
+
+  document.addEventListener('click', async (event) => {
+    const button = event.target instanceof Element ? event.target.closest('[data-case-action]') : null;
+    if (!(button instanceof HTMLButtonElement) || busy) return;
+    const action = button.dataset.caseAction;
+    const payload = { action };
+    if (action === 'assign') payload.staffId = document.querySelector('#staff-id')?.value.trim() || undefined;
+    if (action === 'access_usable') payload.accessUsableAt = new Date().toISOString();
+    if (action === 'transition') {
+      const selected = document.querySelector('#next-status')?.value;
+      if (!selected || !(validNextStatuses[currentCase?.status] ?? []).includes(selected)) { showMessage('Choose an allowed next status.', 'error'); return; }
+      payload.status = selected;
+    }
+    if (action === 'update') { payload.text = document.querySelector('#case-update')?.value ?? ''; payload.customerVisible = document.querySelector('#customer-visible')?.checked === true; }
+    setBusy(true);
+    try {
+      const response = await fetch(`/api/staff/cases/${encodeURIComponent(caseId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'Case action failed.');
+      showMessage('Case updated.');
+      await refresh();
+    } catch (error) { showMessage(error instanceof Error ? error.message : 'Case action failed.', 'error'); setBusy(false); }
+  });
+
+  refresh().catch((error) => { if (target) target.textContent = error instanceof Error ? error.message : 'Case unavailable.'; });
 </script>

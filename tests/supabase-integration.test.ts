@@ -66,6 +66,19 @@ test('staff API dispatches configured actions through transactional RPCs', async
   assert.match(source, /isDevelopmentWorkflowEnabled\(\)/);
 });
 
+test('customer and staff case UIs keep their data boundaries and safe DOM rendering', async () => {
+  const customer = await readFile(new URL('../src/pages/portal/cases/[id].astro', import.meta.url), 'utf8');
+  const staff = await readFile(new URL('../src/pages/staff/cases/[id].astro', import.meta.url), 'utf8');
+  assert.match(customer, /\/api\/customer\/cases\?caseId=/);
+  assert.match(customer, /\/api\/customer\/reports\//);
+  assert.doesNotMatch(customer, /\/api\/staff|internal-note|internal note/i);
+  assert.doesNotMatch(customer, /innerHTML/);
+  for (const action of ['assign', 'access_usable', 'transition', 'update']) assert.match(staff, new RegExp(`caseAction = ['"]${action}`));
+  assert.match(staff, /method: 'POST'/);
+  assert.doesNotMatch(staff, /type\s*=\s*['"]password|credential|secret|private key/i);
+  assert.doesNotMatch(staff, /innerHTML/);
+});
+
 test('Supabase timeline reads apply customer visibility and organization filters', async () => {
   const calls: string[] = [];
   const event = { id: 'event_1', case_id: 'case_1', organization_id: 'org_1', type: 'update', from_status: null, to_status: null, body: 'Customer update', customer_visible: true, actor_user_id: 'staff_1', created_at: '2026-09-05T08:00:00Z' };

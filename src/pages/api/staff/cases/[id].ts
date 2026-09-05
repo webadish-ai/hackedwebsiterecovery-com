@@ -31,7 +31,7 @@ export const POST: APIRoute = async (context) => {
   if (supabase) {
     const actor = await getRequestActor(context);
     if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
-    return dispatchSupabaseAction(supabase, params.id ?? '', body);
+    return dispatchSupabaseAction(supabase, params.id ?? '', actor, body);
   }
   if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
   const actor = await getRequestActor(context);
@@ -57,7 +57,7 @@ export const POST: APIRoute = async (context) => {
   } catch (error) { const e = error instanceof WorkflowError ? error : new WorkflowError('forbidden', 'Case action failed.'); return json({ error: e.message, code: e.code }, e.code === 'not_found' ? 404 : 403); }
 };
 
-async function dispatchSupabaseAction(client: SupabaseClient<Database>, caseId: string, body: { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null) {
+async function dispatchSupabaseAction(client: SupabaseClient<Database>, caseId: string, actor: { userId: string }, body: { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null) {
   switch (body?.action) {
     case 'transition': {
       const validStatuses: CaseStatus[] = ['awaiting_payment', 'awaiting_access', 'triage', 'awaiting_approval', 'in_progress', 'verification', 'monitoring', 'completed', 'quoted_separately', 'refunded', 'cancelled'];
@@ -66,8 +66,7 @@ async function dispatchSupabaseAction(client: SupabaseClient<Database>, caseId: 
       return rpcResponse(result, 'case');
     }
     case 'assign': {
-      const staffId = typeof body.staffId === 'string' && body.staffId ? body.staffId : null;
-      if (!staffId) return json({ error: 'A staff account is required.' }, 400);
+      const staffId = typeof body.staffId === 'string' && body.staffId.trim() ? body.staffId.trim() : actor.userId;
       const result = await client.rpc('staff_assign_case', { p_case_id: caseId, p_staff_id: staffId });
       return rpcResponse(result, 'case');
     }

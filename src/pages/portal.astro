@@ -26,20 +26,9 @@ const user = Astro.locals.user;
 
 {user ? <script>
   const container = document.querySelector('#customer-cases');
-  const selectedCase = new URLSearchParams(location.search).get('case_id');
-  fetch(`/api/customer/cases${selectedCase ? `?caseId=${encodeURIComponent(selectedCase)}` : ''}`).then(async (response) => {
+  fetch('/api/customer/cases', { headers: { Accept: 'application/json' } }).then(async (response) => {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || 'Cases could not be loaded.');
-    if (selectedCase && result.case) {
-      if (container) {
-        container.textContent = '';
-        const back = document.createElement('a'); back.href = '/portal/'; back.className = 'text-sm font-semibold text-blue-700'; back.textContent = '← All cases'; container.append(back);
-        const title = document.createElement('h2'); title.className = 'mt-5 text-2xl font-bold text-slate-900'; title.textContent = `Case ${result.case.id}`; container.append(title);
-        for (const event of result.timeline ?? []) { const row = document.createElement('p'); row.className = 'mt-3 rounded-lg bg-slate-50 p-3 text-sm text-slate-700'; row.textContent = `${new Date(event.createdAt).toLocaleString()} · ${event.body}`; container.append(row); }
-        for (const attachment of result.attachments ?? []) { const report = document.createElement('a'); report.className = 'mt-4 block text-sm font-semibold text-blue-700'; report.href = `/api/customer/reports/${encodeURIComponent(attachment.id)}`; report.textContent = `Download ${attachment.kind.replaceAll('_', ' ')}`; container.append(report); }
-      }
-      return;
-    }
     if (!result.cases?.length) { if (container) container.textContent = 'No recovery cases are attached to this account yet.'; return; }
     if (container) {
       container.textContent = '';
@@ -48,7 +37,7 @@ const user = Astro.locals.user;
         const heading = document.createElement('h2'); heading.className = 'text-lg font-bold text-slate-900'; heading.textContent = `Case ${item.id}`;
         const status = document.createElement('p'); status.className = 'mt-1 text-sm font-semibold text-blue-700'; status.textContent = item.status.replaceAll('_', ' ');
         const timeline = document.createElement('p'); timeline.className = 'mt-4 text-sm text-slate-600'; timeline.textContent = item.responseDeadlineAt ? `First response deadline: ${new Date(item.responseDeadlineAt).toLocaleString()}` : 'Response clock starts after verified payment and usable access.';
-        const link = document.createElement('a'); link.className = 'mt-4 inline-block text-sm font-semibold text-blue-700'; link.href = `/portal/?case_id=${encodeURIComponent(item.id)}`; link.textContent = 'View timeline and reports →';
+        const link = document.createElement('a'); link.className = 'mt-4 inline-block text-sm font-semibold text-blue-700'; link.href = `/portal/cases/${encodeURIComponent(item.id)}`; link.textContent = 'View timeline and reports →';
         card.append(heading, status, timeline, link); container.append(card);
       }
     }
