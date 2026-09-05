@@ -17,6 +17,8 @@ export type PaymentState = 'pending' | 'verified' | 'failed' | 'refunded';
 export type AccessState = 'not_requested' | 'requested' | 'usable' | 'revoked';
 export type MembershipRole = 'owner' | 'member' | 'agency_admin';
 export type AttachmentKind = 'host_report' | 'final_report' | 'invoice';
+export type AttachmentScanState = 'pending' | 'quarantined' | 'clean' | 'rejected';
+export type CredentialState = 'active' | 'revoked' | 'expired';
 
 export interface Actor {
   userId: string;
@@ -89,5 +91,20 @@ export interface AttachmentRecord {
   contentType: string;
   byteSize: number;
   customerVisible: boolean;
+  scanState: AttachmentScanState;
   createdAt: string;
+}
+
+/** Metadata deliberately excludes all encrypted payload fields. */
+export interface CredentialRecord {
+  id: string;
+  organizationId: string;
+  caseId: string;
+  state: CredentialState;
+  keyVersion: string;
+  algorithm: 'aes-256-gcm';
+  createdAt: string;
+  expiresAt?: string;
+  revokedAt?: string;
+  expiredAt?: string;
 }

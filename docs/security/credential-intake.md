@@ -1,0 +1,7 @@
+# Credential intake foundation
+
+Credential submissions are encrypted in the server runtime with AES-256-GCM before they reach Supabase. The envelope stores an algorithm, key version, nonce, authentication tag, and ciphertext; plaintext is never written to cases, events, audit metadata, notifications, URLs, or application logs. `CREDENTIAL_MASTER_KEY` is a server-only base64 encoded 32-byte key and `CREDENTIAL_KEY_VERSION` identifies the active key version.
+
+Customer submit, replace, and revoke operations use authenticated server actions. Staff reveal requires an enrolled staff account with a current AAL2 session and assignment to the case (admins may reveal). Replaced, revoked, expired, or retention-purged rows have their encrypted fields cleared while audit metadata remains. A scheduled service-role job calls `purge_expired_credentials` after the configured completion retention period.
+
+Attachment records start quarantined and customer report delivery only signs clean objects. The current in-memory development adapter is available only with `ENABLE_DEVELOPMENT_WORKFLOW=true` outside production and a test/development key. The in-memory credential rate limiter is defense-in-depth for a single process; configure a durable distributed limiter before launch so limits hold across instances. Before connecting a real project, configure Supabase Auth AAL2, the canonical `PUBLIC_SITE_URL`, server key storage/rotation, storage scanning, and a scheduler for retention RPCs.

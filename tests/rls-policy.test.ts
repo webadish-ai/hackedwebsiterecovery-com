@@ -29,3 +29,26 @@ test('Milestone 2 migration enables RLS and protects customer-visible boundaries
   assert.match(sql, /staff_add_case_update[\s\S]*?password\|secret\|api/);
   assert.doesNotMatch(sql, /create policy cases_staff_write/);
 });
+
+test('Milestone 3 credential controls are server-action only and tenant scoped', async () => {
+  const sql = await readFile(new URL('../supabase/migrations/202609050001_milestone_2_workflow.sql', import.meta.url), 'utf8');
+  assert.match(sql, /algorithm text not null default 'aes-256-gcm'/);
+  assert.match(sql, /nonce text/);
+  assert.match(sql, /auth_tag text/);
+  assert.match(sql, /credential_sets_one_active_per_case/);
+  assert.doesNotMatch(sql, /create policy credential_sets_/);
+  assert.match(sql, /submit_credentials[\s\S]*security definer set search_path = public/);
+  assert.match(sql, /submit_credentials[\s\S]*auth\.uid\(\) <> order_owner/);
+  assert.match(sql, /submit_credentials[\s\S]*case_record\.assigned_staff_id/);
+  assert.match(sql, /submit_credentials[\s\S]*assigned_staff_id is null or/);
+  assert.match(sql, /list_credentials_metadata[\s\S]*assigned_staff_id is null or/);
+  assert.match(sql, /is_staff\(\)[\s\S]*auth\.jwt\(\)->>'aal'/);
+  assert.match(sql, /reveal_credentials[\s\S]*jsonb_array_elements/);
+  assert.match(sql, /reveal_credentials[\s\S]*interval '15 minutes'/);
+  assert.match(sql, /reveal_credentials[\s\S]*'totp', 'phone'/);
+  assert.match(sql, /reveal_credentials[\s\S]*case_record\.assigned_staff_id is null/);
+  assert.match(sql, /purge_expired_credentials[\s\S]*status = 'completed'/);
+  assert.match(sql, /p_completed_before > now\(\) - interval '7 days'/);
+  assert.match(sql, /grant execute on function public\.purge_expired_credentials[\s\S]*to service_role/);
+  assert.match(sql, /case_reports_read[\s\S]*scan_state[\s\S]*customer_visible/);
+});

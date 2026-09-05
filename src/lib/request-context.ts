@@ -15,7 +15,26 @@ export async function getRequestActor(context: Pick<APIContext, 'request' | 'coo
     client.auth.mfa.getAuthenticatorAssuranceLevel(),
   ]);
   const role = profile?.role ?? 'customer';
-  return { userId: user.id, role, organizationIds: (memberships ?? []).map((item) => item.organization_id), mfaVerifiedAt: role === 'staff' || role === 'admin' ? (profile?.mfa_enrolled_at && assurance?.currentLevel === 'aal2' ? new Date().toISOString() : undefined) : undefined };
+  const mfaVerifiedAt = role === 'staff' || role === 'admin'
+    ? (profile?.mfa_enrolled_at && assurance?.currentLevel === 'aal2' ? latestMfaVerificationAt(assurance?.currentAuthenticationMethods) : undefined)
+    : undefined;
+  return { userId: user.id, role, organizationIds: (memberships ?? []).map((item) => item.organization_id), mfaVerifiedAt };
+}
+
+/** Supabase returns detailed AMR entries for timestamp-aware sessions. String-only
+ * AMR claims cannot prove freshness and therefore fail closed for staff actions. */
+export function latestMfaVerificationAt(methods: unknown): string | undefined {
+  if (!Array.isArray(methods)) return undefined;
+  const timestamps = methods.flatMap((entry) => {
+    if (!entry || typeof entry !== 'object') return [];
+    const method = (entry as { method?: unknown }).method;
+    const timestamp = (entry as { timestamp?: unknown }).timestamp;
+    if ((method !== 'totp' && method !== 'phone') || typeof timestamp !== 'number' || !Number.isFinite(timestamp)) return [];
+    const date = new Date(timestamp * 1000);
+    return Number.isFinite(date.getTime()) ? [date] : [];
+  });
+  if (!timestamps.length) return undefined;
+  return new Date(Math.max(...timestamps.map((date) => date.getTime()))).toISOString();
 }
 
 export function protectedPath(pathname: string): boolean {

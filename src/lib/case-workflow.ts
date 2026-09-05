@@ -1,8 +1,9 @@
 import type {
   Actor, AttachmentRecord, CaseEventRecord, CaseRecord, CaseStatus, Organization,
-  OrderRecord, SiteRecord,
+  CredentialRecord, OrderRecord, SiteRecord,
 } from './workflow-types.ts';
 import { assertDevelopmentWorkflowEnabled } from './auth.ts';
+import { decryptCredentialEnvelope, encryptCredentialPayload, type CredentialPayload } from './credentials.ts';
 
 export const RESPONSE_WINDOW_MS = 4 * 60 * 60 * 1000;
 
@@ -63,7 +64,11 @@ export class DevelopmentWorkflowStore {
   readonly events: CaseEventRecord[] = [];
   readonly attachments = new Map<string, AttachmentRecord>();
   readonly memberships = new Map<string, Map<string, 'owner' | 'member' | 'agency_admin'>>();
+  readonly credentials = new Map<string, StoredCredential>();
+  private readonly credentialEnv: Record<string, string | undefined>;
   private sequence = 0;
+
+  constructor(credentialEnv: Record<string, string | undefined> = process.env) { this.credentialEnv = credentialEnv; }
 
   private ensureEnabled() { assertDevelopmentWorkflowEnabled(); }
 
@@ -232,13 +237,13 @@ export class DevelopmentWorkflowStore {
     if (!Number.isFinite(assuranceAge) || assuranceAge < 0 || assuranceAge > 15 * 60 * 1000) throw new WorkflowError('mfa_required', 'Recent staff MFA verification is required.');
   }
 
-  addAttachment(input: Omit<AttachmentRecord, 'id' | 'createdAt'>, actor: Actor): AttachmentRecord {
+  addAttachment(input: Omit<AttachmentRecord, 'id' | 'createdAt' | 'scanState'> & { scanState?: AttachmentRecord['scanState'] }, actor: Actor): AttachmentRecord {
     this.ensureEnabled();
     this.requireStaffMfa(actor);
     const record = this.getCase(input.caseId, actor);
     if (record.organizationId !== input.organizationId) throw new WorkflowError('forbidden', 'Organization does not own this case.');
     if (!['application/pdf', 'text/plain'].includes(input.contentType) || input.byteSize <= 0 || input.byteSize > 25 * 1024 * 1024) throw new WorkflowError('forbidden', 'Attachment type or size is not allowed.');
-    const attachment: AttachmentRecord = { ...input, id: this.id('attachment'), createdAt: new Date().toISOString() };
+    const attachment: AttachmentRecord = { ...input, scanState: input.scanState ?? 'quarantined', id: this.id('attachment'), createdAt: new Date().toISOString() };
     this.attachments.set(attachment.id, attachment);
     return attachment;
   }
@@ -255,9 +260,82 @@ export class DevelopmentWorkflowStore {
     if (!attachment) throw new WorkflowError('not_found', 'Report not found.');
     this.getCase(attachment.caseId, actor);
     if (!isStaff(actor) && !attachment.customerVisible) throw new WorkflowError('forbidden', 'This report is not available to the customer.');
+    if (attachment.scanState !== 'clean') throw new WorkflowError('forbidden', 'This report is not available yet.');
     return { attachmentId, expiresAt: new Date(now.getTime() + 5 * 60 * 1000).toISOString(), downloadToken: `dev_report_${crypto.randomUUID()}` };
   }
+
+  markAttachmentClean(attachmentId: string, actor: Actor): AttachmentRecord {
+    this.ensureEnabled(); this.requireStaffMfa(actor);
+    const attachment = this.attachments.get(attachmentId);
+    if (!attachment) throw new WorkflowError('not_found', 'Attachment not found.');
+    this.getCase(attachment.caseId, actor);
+    attachment.scanState = 'clean';
+    return attachment;
+  }
+
+  submitCredentials(caseId: string, payload: CredentialPayload, actor: Actor, expiresAt?: string, now = new Date()): CredentialRecord {
+    this.ensureEnabled();
+    const record = this.getCase(caseId, actor);
+    this.assertCredentialActor(record, actor, false);
+    if (expiresAt && (!Number.isFinite(Date.parse(expiresAt)) || Date.parse(expiresAt) <= now.getTime())) throw new WorkflowError('forbidden', 'Credential expiry must be in the future.');
+    const envelope = encryptCredentialPayload(payload, this.credentialEnv);
+    for (const existing of this.credentials.values()) {
+      if (existing.caseId === caseId && existing.state === 'active') this.revokeStored(existing, now, 'replaced');
+    }
+    const stored: StoredCredential = { id: this.id('credential'), organizationId: record.organizationId, caseId, state: 'active', algorithm: envelope.algorithm, keyVersion: envelope.keyVersion, nonce: envelope.nonce, authTag: envelope.authTag, ciphertext: envelope.ciphertext, createdAt: now.toISOString(), expiresAt };
+    this.credentials.set(stored.id, stored);
+    return this.credentialMetadata(stored);
+  }
+
+  replaceCredentials(caseId: string, payload: CredentialPayload, actor: Actor, expiresAt?: string, now = new Date()): CredentialRecord {
+    return this.submitCredentials(caseId, payload, actor, expiresAt, now);
+  }
+
+  listCredentialMetadata(caseId: string, actor: Actor): CredentialRecord[] {
+    this.ensureEnabled(); const record = this.getCase(caseId, actor); this.assertCredentialActor(record, actor, false);
+    return [...this.credentials.values()].filter((item) => item.caseId === caseId).map((item) => this.credentialMetadata(item));
+  }
+
+  revokeCredentials(credentialId: string, actor: Actor, now = new Date()): CredentialRecord {
+    this.ensureEnabled();
+    const stored = this.credentials.get(credentialId);
+    if (!stored) throw new WorkflowError('not_found', 'Credential set not found.');
+    const record = this.getCase(stored.caseId, actor); this.assertCredentialActor(record, actor, false);
+    if (stored.state === 'active') this.revokeStored(stored, now, 'revoked');
+    return this.credentialMetadata(stored);
+  }
+
+  revealCredentials(credentialId: string, actor: Actor, now = new Date()): CredentialPayload {
+    this.ensureEnabled();
+    const stored = this.credentials.get(credentialId);
+    if (!stored) throw new WorkflowError('not_found', 'Credential set not found.');
+    const record = this.getCase(stored.caseId, actor); this.assertCredentialActor(record, actor, true);
+    if (stored.state !== 'active') throw new WorkflowError('forbidden', 'Credential set is unavailable.');
+    if (stored.expiresAt && Date.parse(stored.expiresAt) <= now.getTime()) { stored.state = 'expired'; stored.expiredAt = now.toISOString(); stored.nonce = undefined; stored.authTag = undefined; stored.ciphertext = undefined; throw new WorkflowError('forbidden', 'Credential set is unavailable.'); }
+    return decryptCredentialEnvelope({ version: 1, algorithm: stored.algorithm, keyVersion: stored.keyVersion, nonce: stored.nonce!, authTag: stored.authTag!, ciphertext: stored.ciphertext! }, this.credentialEnv);
+  }
+
+  purgeExpiredCredentials(completedBefore: Date, now = new Date()): number {
+    this.ensureEnabled();
+    if (completedBefore.getTime() > now.getTime() - 7 * 24 * 60 * 60 * 1000) return 0;
+    let count = 0;
+    for (const stored of this.credentials.values()) {
+      const record = this.cases.get(stored.caseId);
+      if (record?.status === 'completed' && Date.parse(record.updatedAt) <= completedBefore.getTime() && stored.state === 'active') { stored.state = 'expired'; stored.expiredAt = now.toISOString(); stored.nonce = undefined; stored.authTag = undefined; stored.ciphertext = undefined; count += 1; }
+    }
+    return count;
+  }
+
+  private revokeStored(stored: StoredCredential, at: Date, reason: 'revoked' | 'replaced') { stored.state = 'revoked'; stored.revokedAt = at.toISOString(); stored.nonce = undefined; stored.authTag = undefined; stored.ciphertext = undefined; stored.revokeReason = reason; }
+  private credentialMetadata(stored: StoredCredential): CredentialRecord { return { id: stored.id, organizationId: stored.organizationId, caseId: stored.caseId, state: stored.state, keyVersion: stored.keyVersion, algorithm: stored.algorithm, createdAt: stored.createdAt, expiresAt: stored.expiresAt, revokedAt: stored.revokedAt, expiredAt: stored.expiredAt }; }
+  private assertCredentialActor(record: CaseRecord, actor: Actor, reveal: boolean) {
+    const owner = this.orders.get(record.orderId)?.customerUserId;
+    if (isStaff(actor)) { this.requireStaffMfa(actor); if (reveal && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may reveal credentials.'); if (!reveal && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator or an admin may manage credentials.'); return; }
+    if (reveal || actor.userId !== owner) throw new WorkflowError('forbidden', reveal ? 'Staff access is required.' : 'Credential ownership is required.');
+  }
 }
+
+type StoredCredential = CredentialRecord & { nonce?: string; authTag?: string; ciphertext?: string; revokeReason?: string };
 
 export function isStaff(actor: Actor): boolean { return actor.role === 'staff' || actor.role === 'admin'; }
 function containsSecretLikeText(value: string): boolean { return /(?:password|secret|api[_ -]?key|bearer|private key)\s*[:=]/i.test(value); }
