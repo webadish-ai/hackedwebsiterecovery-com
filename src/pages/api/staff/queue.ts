@@ -1,15 +1,16 @@
 import type { APIRoute } from 'astro';
-import { actorFromHeaders, isDevelopmentWorkflowEnabled } from '../../../lib/auth.ts';
-import { developmentWorkflow, WorkflowError } from '../../../lib/case-workflow.ts';
+import { getRequestActor } from '../../../lib/request-context.ts';
+import { getCaseDataService } from '../../../lib/data-service.ts';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request }) => {
-  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
-  const actor = actorFromHeaders(request);
+export const GET: APIRoute = async (context) => {
+  const actor = await getRequestActor(context);
+  const service = getCaseDataService({ client: context.locals?.supabase });
+  if (!service) return json({ error: 'Staff queue is not configured.' }, 503);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
-  try { return json({ cases: developmentWorkflow.listQueue(actor) }, 200); }
-  catch (error) { return json({ error: error instanceof WorkflowError ? error.message : 'Staff access denied.', code: error instanceof WorkflowError ? error.code : 'forbidden' }, error instanceof WorkflowError && error.code === 'mfa_required' ? 403 : 403); }
+  try { return json({ cases: (await service.listCustomerCases(actor)).filter((item) => ['awaiting_access', 'triage', 'awaiting_approval', 'in_progress', 'verification'].includes(item.status)) }, 200); }
+  catch { return json({ error: 'Staff access denied.', code: 'forbidden' }, 403); }
 };
 
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }); }

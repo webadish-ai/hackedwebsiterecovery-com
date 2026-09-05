@@ -1,13 +1,14 @@
 import type { APIRoute } from 'astro';
-import { actorFromHeaders, isDevelopmentWorkflowEnabled } from '../../../../lib/auth.ts';
-import { developmentWorkflow, WorkflowError } from '../../../../lib/case-workflow.ts';
+import { getRequestActor } from '../../../../lib/request-context.ts';
+import { getCaseDataService } from '../../../../lib/data-service.ts';
 
 export const prerender = false;
-export const GET: APIRoute = async ({ request, params }) => {
-  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
-  const actor = actorFromHeaders(request);
+export const GET: APIRoute = async (context) => {
+  const actor = await getRequestActor(context);
+  const service = getCaseDataService({ client: context.locals?.supabase });
+  if (!service) return json({ error: 'Report delivery is not configured.' }, 503);
   if (!actor) return json({ error: 'Sign in with your magic link first.' }, 401);
-  try { return json(developmentWorkflow.createReportDownload(params.id ?? '', actor), 200); }
-  catch (error) { const e = error instanceof WorkflowError ? error : new WorkflowError('forbidden', 'Report download failed.'); return json({ error: e.message, code: e.code }, e.code === 'not_found' ? 404 : 403); }
+  try { return json(await service.reportDownload(context.params.id ?? '', actor), 200); }
+  catch { return json({ error: 'Report download failed.' }, 403); }
 };
 function json(data: unknown, status: number) { return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' } }); }

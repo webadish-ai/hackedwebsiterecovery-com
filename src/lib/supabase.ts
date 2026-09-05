@@ -1,17 +1,19 @@
-export interface SupabaseConfig {
+export interface PublicSupabaseConfig {
   url: string;
   anonKey: string;
-  serviceRoleKey?: string;
-  reportsBucket: string;
 }
 /**
  * Configuration boundary for the future Supabase server client. The app keeps
  * using the in-memory adapter when these placeholders are absent, so tests and
  * local development never create or mutate a real Supabase project.
  */
-export function getSupabaseConfig(env: Record<string, string | undefined> = {}) : SupabaseConfig | null {
-  const url = env.PUBLIC_SUPABASE_URL ?? env.SUPABASE_URL;
-  const anonKey = env.PUBLIC_SUPABASE_ANON_KEY ?? env.SUPABASE_ANON_KEY;
+export function getPublicSupabaseConfig(env: Record<string, string | undefined> = {}): PublicSupabaseConfig | null {
+  const url = env.PUBLIC_SUPABASE_URL;
+  const anonKey = env.PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !anonKey || url.includes('your-project.supabase.co') || anonKey.includes('development-anon-key')) return null;
-  return { url, anonKey, serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY, reportsBucket: env.SUPABASE_REPORTS_BUCKET ?? 'case-reports' };
+  try { if (!['http:', 'https:'].includes(new URL(url).protocol)) return null; } catch { return null; }
+  return { url, anonKey };
 }
+
+/** Backwards-compatible public-only name. It intentionally never reads a service-role key. */
+export const getSupabaseConfig = getPublicSupabaseConfig;

@@ -91,13 +91,13 @@ test('development fixtures are disabled by default and cannot run in production'
     assert.equal(actorFromHeaders(new Request('http://localhost', { headers: { 'x-development-user-id': 'staff', 'x-development-role': 'staff' } })), null);
     assert.throws(() => requestMagicLink('disabled@example.com'), /disabled/i);
     assert.throws(() => new DevelopmentWorkflowStore().createOrganization('disabled'), /disabled/i);
-    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'disabled@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 404);
+    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'disabled@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 503);
 
     process.env.ENABLE_DEVELOPMENT_WORKFLOW = 'true';
     process.env.NODE_ENV = 'production';
     assert.equal(isDevelopmentWorkflowEnabled(), false);
     assert.equal(actorFromHeaders(new Request('http://localhost', { headers: { cookie: 'dev_session=forged', 'x-development-user-id': 'staff', 'x-development-role': 'staff' } })), null);
-    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'production@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 404);
+    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'production@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 503);
   } finally {
     if (originalFlag === undefined) delete process.env.ENABLE_DEVELOPMENT_WORKFLOW; else process.env.ENABLE_DEVELOPMENT_WORKFLOW = originalFlag;
     if (originalNodeEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = originalNodeEnv;

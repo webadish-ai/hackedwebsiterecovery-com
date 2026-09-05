@@ -1,22 +1,30 @@
 import type { APIRoute } from 'astro';
-import { actorFromHeaders, isDevelopmentWorkflowEnabled } from '../../../../lib/auth.ts';
+import { isDevelopmentWorkflowEnabled } from '../../../../lib/auth.ts';
 import { developmentWorkflow, WorkflowError } from '../../../../lib/case-workflow.ts';
 import { notifications } from '../../../../lib/notifications.ts';
 import type { CaseStatus } from '../../../../lib/workflow-types.ts';
+import { getRequestActor } from '../../../../lib/request-context.ts';
+import { getCaseDataService } from '../../../../lib/data-service.ts';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request, params }) => {
-  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
-  const actor = actorFromHeaders(request);
+export const GET: APIRoute = async (context) => {
+  const { params } = context;
+  const actor = await getRequestActor(context);
+  const service = getCaseDataService({ client: context.locals.supabase });
+  if (!service) return json({ error: 'Staff case views are not configured.' }, 503);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
-  try { return json({ case: developmentWorkflow.getCase(params.id ?? '', actor), timeline: developmentWorkflow.internalTimeline(params.id ?? '', actor), attachments: developmentWorkflow.listAttachments(params.id ?? '', actor) }, 200); }
-  catch (error) { const e = error instanceof WorkflowError ? error : new WorkflowError('forbidden', 'Case access failed.'); return json({ error: e.message, code: e.code }, e.code === 'not_found' ? 404 : 403); }
+  try {
+    const record = (await service.listCustomerCases(actor)).find((item) => item.id === (params.id ?? ''));
+    if (!record) return json({ error: 'Case not found.' }, 404);
+    return json({ case: record, timeline: await service.internalTimeline(record.id, actor), attachments: await service.listAttachments(record.id, actor) }, 200);
+  } catch { return json({ error: 'Case access failed.', code: 'forbidden' }, 403); }
 };
 
-export const POST: APIRoute = async ({ request, params }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, params } = context;
   if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
-  const actor = actorFromHeaders(request);
+  const actor = await getRequestActor(context);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
   const body = await request.json().catch(() => null) as { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null;
   try {
