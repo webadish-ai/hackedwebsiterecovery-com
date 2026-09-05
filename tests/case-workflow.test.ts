@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { calculateResponseDeadline, canTransition, createDevelopmentFixture, WorkflowError } from '../src/lib/case-workflow.ts';
-import { consumeMagicLink, requestMagicLink, requireStaffMfa } from '../src/lib/auth.ts';
+import { calculateResponseDeadline, canTransition, createDevelopmentFixture, DevelopmentWorkflowStore, WorkflowError } from '../src/lib/case-workflow.ts';
+import { actorFromHeaders, consumeMagicLink, isDevelopmentWorkflowEnabled, requestMagicLink, requireStaffMfa } from '../src/lib/auth.ts';
+import { POST as magicLinkPost } from '../src/pages/api/auth/magic-link.ts';
 import { GET as getStaffQueue } from '../src/pages/api/staff/queue.ts';
 import { GET as getCustomerCases } from '../src/pages/api/customer/cases.ts';
+
+process.env.ENABLE_DEVELOPMENT_WORKFLOW = 'true';
+if (process.env.NODE_ENV === 'production') delete process.env.NODE_ENV;
 
 test('response clock waits for both verified payment and usable access', () => {
   assert.equal(calculateResponseDeadline({ paymentVerifiedAt: '2026-09-05T08:00:00Z' }), null);
@@ -75,4 +79,27 @@ test('API route guards deny unauthenticated customer and staff requests', async 
   assert.equal((await getCustomerCases(context)).status, 401);
   const forged = new Request('http://localhost/api/cases', { headers: { 'x-development-user-id': 'staff', 'x-development-role': 'staff' } });
   assert.equal((await getStaffQueue({ request: forged } as Parameters<typeof getStaffQueue>[0])).status, 403);
+});
+
+test('development fixtures are disabled by default and cannot run in production', async () => {
+  const originalFlag = process.env.ENABLE_DEVELOPMENT_WORKFLOW;
+  const originalNodeEnv = process.env.NODE_ENV;
+  try {
+    process.env.ENABLE_DEVELOPMENT_WORKFLOW = 'false';
+    process.env.NODE_ENV = 'test';
+    assert.equal(isDevelopmentWorkflowEnabled(), false);
+    assert.equal(actorFromHeaders(new Request('http://localhost', { headers: { 'x-development-user-id': 'staff', 'x-development-role': 'staff' } })), null);
+    assert.throws(() => requestMagicLink('disabled@example.com'), /disabled/i);
+    assert.throws(() => new DevelopmentWorkflowStore().createOrganization('disabled'), /disabled/i);
+    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'disabled@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 404);
+
+    process.env.ENABLE_DEVELOPMENT_WORKFLOW = 'true';
+    process.env.NODE_ENV = 'production';
+    assert.equal(isDevelopmentWorkflowEnabled(), false);
+    assert.equal(actorFromHeaders(new Request('http://localhost', { headers: { cookie: 'dev_session=forged', 'x-development-user-id': 'staff', 'x-development-role': 'staff' } })), null);
+    assert.equal((await magicLinkPost({ request: new Request('http://localhost/api/auth/magic-link', { method: 'POST', body: JSON.stringify({ email: 'production@example.com' }) }) } as Parameters<typeof magicLinkPost>[0])).status, 404);
+  } finally {
+    if (originalFlag === undefined) delete process.env.ENABLE_DEVELOPMENT_WORKFLOW; else process.env.ENABLE_DEVELOPMENT_WORKFLOW = originalFlag;
+    if (originalNodeEnv === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = originalNodeEnv;
+  }
 });

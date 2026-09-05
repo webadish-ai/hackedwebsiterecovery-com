@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { actorFromHeaders } from '../../../../lib/auth.ts';
+import { actorFromHeaders, isDevelopmentWorkflowEnabled } from '../../../../lib/auth.ts';
 import { developmentWorkflow, WorkflowError } from '../../../../lib/case-workflow.ts';
 import { notifications } from '../../../../lib/notifications.ts';
 import type { CaseStatus } from '../../../../lib/workflow-types.ts';
@@ -7,6 +7,7 @@ import type { CaseStatus } from '../../../../lib/workflow-types.ts';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request, params }) => {
+  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
   const actor = actorFromHeaders(request);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
   try { return json({ case: developmentWorkflow.getCase(params.id ?? '', actor), timeline: developmentWorkflow.internalTimeline(params.id ?? '', actor), attachments: developmentWorkflow.listAttachments(params.id ?? '', actor) }, 200); }
@@ -14,6 +15,7 @@ export const GET: APIRoute = async ({ request, params }) => {
 };
 
 export const POST: APIRoute = async ({ request, params }) => {
+  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
   const actor = actorFromHeaders(request);
   if (!actor) return json({ error: 'Staff authentication is required.' }, 401);
   const body = await request.json().catch(() => null) as { action?: unknown; status?: unknown; text?: unknown; customerVisible?: unknown; staffId?: unknown; accessUsableAt?: unknown; } | null;

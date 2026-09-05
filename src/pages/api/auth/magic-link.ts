@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
-import { consumeMagicLink, createDevelopmentSession, requestMagicLink } from '../../../lib/auth.ts';
+import { consumeMagicLink, createDevelopmentSession, isDevelopmentWorkflowEnabled, requestMagicLink } from '../../../lib/auth.ts';
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
+  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Authentication development adapter is unavailable.' }, 404);
   const body = await request.json().catch(() => null) as { email?: unknown; requestId?: unknown; token?: unknown } | null;
   if (typeof body?.email === 'string') {
     try {

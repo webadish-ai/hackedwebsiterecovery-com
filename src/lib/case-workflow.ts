@@ -2,6 +2,7 @@ import type {
   Actor, AttachmentRecord, CaseEventRecord, CaseRecord, CaseStatus, Organization,
   OrderRecord, SiteRecord,
 } from './workflow-types.ts';
+import { assertDevelopmentWorkflowEnabled } from './auth.ts';
 
 export const RESPONSE_WINDOW_MS = 4 * 60 * 60 * 1000;
 
@@ -64,15 +65,19 @@ export class DevelopmentWorkflowStore {
   readonly memberships = new Map<string, Map<string, 'owner' | 'member' | 'agency_admin'>>();
   private sequence = 0;
 
+  private ensureEnabled() { assertDevelopmentWorkflowEnabled(); }
+
   private id(prefix: string) { this.sequence += 1; return `${prefix}_dev_${this.sequence}`; }
 
   createOrganization(name: string, kind: Organization['kind'] = 'owner'): Organization {
+    this.ensureEnabled();
     const organization = { id: this.id('org'), name, kind };
     this.organizations.set(organization.id, organization);
     return organization;
   }
 
   addMember(organizationId: string, userId: string, role: 'owner' | 'member' | 'agency_admin' = 'member') {
+    this.ensureEnabled();
     if (!this.organizations.has(organizationId)) throw new WorkflowError('not_found', 'Organization not found.');
     const members = this.memberships.get(organizationId) ?? new Map<string, 'owner' | 'member' | 'agency_admin'>();
     members.set(userId, role);
@@ -80,6 +85,7 @@ export class DevelopmentWorkflowStore {
   }
 
   createOrder(input: Omit<OrderRecord, 'id' | 'paymentState' | 'paidAt'> & { paymentState?: OrderRecord['paymentState']; paidAt?: string }): OrderRecord {
+    this.ensureEnabled();
     const order: OrderRecord = { ...input, id: this.id('order'), paymentState: input.paymentState ?? 'pending' };
     this.orders.set(order.id, order);
     return order;
@@ -90,6 +96,7 @@ export class DevelopmentWorkflowStore {
   }
 
   verifyPayment(orderId: string, at = new Date()): OrderRecord {
+    this.ensureEnabled();
     const order = this.orders.get(orderId);
     if (!order) throw new WorkflowError('not_found', 'Order not found.');
     if (order.paymentState === 'refunded') throw new WorkflowError('forbidden', 'A refunded order cannot be verified.');
@@ -107,6 +114,7 @@ export class DevelopmentWorkflowStore {
   }
 
   createSite(input: Omit<SiteRecord, 'id' | 'accessState'> & { accessState?: SiteRecord['accessState'] }): SiteRecord {
+    this.ensureEnabled();
     this.assertOrderTenant(input.orderId, input.organizationId);
     const site: SiteRecord = { ...input, id: this.id('site'), accessState: input.accessState ?? 'not_requested' };
     this.sites.set(site.id, site);
@@ -114,6 +122,7 @@ export class DevelopmentWorkflowStore {
   }
 
   createCase(input: { organizationId: string; orderId: string; siteId: string; now?: Date }): CaseRecord {
+    this.ensureEnabled();
     const order = this.orders.get(input.orderId);
     const site = this.sites.get(input.siteId);
     if (!order || !site || order.organizationId !== input.organizationId || site.organizationId !== input.organizationId) {
@@ -132,6 +141,7 @@ export class DevelopmentWorkflowStore {
   }
 
   getCase(id: string, actor: Actor): CaseRecord {
+    this.ensureEnabled();
     const record = this.cases.get(id);
     if (!record) throw new WorkflowError('not_found', 'Case not found.');
     this.authorize(record, actor);
@@ -139,12 +149,14 @@ export class DevelopmentWorkflowStore {
   }
 
   listQueue(actor: Actor): CaseRecord[] {
+    this.ensureEnabled();
     this.requireStaffMfa(actor);
     return [...this.cases.values()].filter((item) => ['awaiting_access', 'triage', 'awaiting_approval', 'in_progress', 'verification'].includes(item.status))
       .sort((a, b) => (Date.parse(a.responseDeadlineAt ?? '9999-12-31') - Date.parse(b.responseDeadlineAt ?? '9999-12-31')));
   }
 
   assignCase(id: string, staffId: string, actor: Actor): CaseRecord {
+    this.ensureEnabled();
     this.requireStaffMfa(actor);
     const record = this.getCase(id, actor);
     if (actor.role !== 'admin' && actor.userId !== staffId) throw new WorkflowError('forbidden', 'Only an admin can assign another operator.');
@@ -155,6 +167,7 @@ export class DevelopmentWorkflowStore {
   }
 
   setAccessUsable(id: string, at: string | Date, actor: Actor): CaseRecord {
+    this.ensureEnabled();
     const record = this.getCase(id, actor);
     if (!isStaff(actor) && !actor.organizationIds.includes(record.organizationId)) throw new WorkflowError('forbidden', 'Organization access is required.');
     record.accessUsableAt = at instanceof Date ? at.toISOString() : at;
@@ -167,6 +180,7 @@ export class DevelopmentWorkflowStore {
   }
 
   transitionCase(id: string, to: CaseStatus, actor: Actor, body = ''): CaseRecord {
+    this.ensureEnabled();
     this.requireStaffMfa(actor);
     const record = this.getCase(id, actor);
     if (record.assignedStaffId && record.assignedStaffId !== actor.userId && actor.role !== 'admin') throw new WorkflowError('forbidden', 'Only the assigned operator may update this case.');
@@ -183,6 +197,7 @@ export class DevelopmentWorkflowStore {
   }
 
   addUpdate(id: string, body: string, customerVisible: boolean, actor: Actor): CaseEventRecord {
+    this.ensureEnabled();
     const record = this.getCase(id, actor);
     if (!isStaff(actor) && !customerVisible) throw new WorkflowError('forbidden', 'Customers cannot create internal notes.');
     if (!body.trim() || body.length > 5000) throw new WorkflowError('forbidden', 'Update text is empty or too long.');
@@ -194,11 +209,13 @@ export class DevelopmentWorkflowStore {
   }
 
   customerTimeline(id: string, actor: Actor): CaseEventRecord[] {
+    this.ensureEnabled();
     const record = this.getCase(id, actor);
     return this.events.filter((event) => event.caseId === record.id && event.customerVisible);
   }
 
   internalTimeline(id: string, actor: Actor): CaseEventRecord[] {
+    this.ensureEnabled();
     this.requireStaffMfa(actor);
     const record = this.getCase(id, actor);
     return this.events.filter((event) => event.caseId === record.id);
@@ -216,6 +233,7 @@ export class DevelopmentWorkflowStore {
   }
 
   addAttachment(input: Omit<AttachmentRecord, 'id' | 'createdAt'>, actor: Actor): AttachmentRecord {
+    this.ensureEnabled();
     this.requireStaffMfa(actor);
     const record = this.getCase(input.caseId, actor);
     if (record.organizationId !== input.organizationId) throw new WorkflowError('forbidden', 'Organization does not own this case.');
@@ -226,11 +244,13 @@ export class DevelopmentWorkflowStore {
   }
 
   listAttachments(caseId: string, actor: Actor): AttachmentRecord[] {
+    this.ensureEnabled();
     const record = this.getCase(caseId, actor);
     return [...this.attachments.values()].filter((item) => item.caseId === record.id && (isStaff(actor) || item.customerVisible));
   }
 
   createReportDownload(attachmentId: string, actor: Actor, now = new Date()): { attachmentId: string; expiresAt: string; downloadToken: string } {
+    this.ensureEnabled();
     const attachment = this.attachments.get(attachmentId);
     if (!attachment) throw new WorkflowError('not_found', 'Report not found.');
     this.getCase(attachment.caseId, actor);

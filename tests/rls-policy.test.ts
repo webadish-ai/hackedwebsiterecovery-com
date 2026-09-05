@@ -10,4 +10,13 @@ test('Milestone 2 migration enables RLS and protects customer-visible boundaries
   assert.match(sql, /greatest\(new\.payment_verified_at, new\.access_usable_at\) \+ interval '4 hours'/);
   assert.match(sql, /case_reports_read/);
   assert.match(sql, /auth\.jwt\(\)->>'aal'\) = 'aal2'/);
+  assert.match(sql, /foreign key \(order_id, organization_id\) references public\.orders\(id, organization_id\)/g);
+  assert.match(sql, /foreign key \(site_id, organization_id\) references public\.sites\(id, organization_id\)/g);
+  assert.match(sql, /foreign key \(case_id, organization_id\) references public\.cases\(id, organization_id\)/g);
+  const caseEventInsert = sql.split('\n').find((line) => line.includes('create policy case_events_staff_insert')) ?? '';
+  assert.match(caseEventInsert, /with check \(public\.is_staff\(\)\)/);
+  assert.doesNotMatch(caseEventInsert, /customer_visible/);
+  assert.doesNotMatch(sql, /audit_insert_authenticated/);
+  assert.doesNotMatch(sql, /create policy credentials_/);
+  for (const fn of ['set_response_deadline', 'enforce_case_transition', 'prevent_event_update', 'prevent_audit_update']) assert.match(sql, new RegExp(`function public\\.${fn}\\(\\) returns trigger language plpgsql set search_path = public`));
 });

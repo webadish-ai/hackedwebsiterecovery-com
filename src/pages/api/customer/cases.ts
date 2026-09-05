@@ -1,10 +1,11 @@
 import type { APIRoute } from 'astro';
-import { actorFromHeaders } from '../../../lib/auth.ts';
+import { actorFromHeaders, isDevelopmentWorkflowEnabled } from '../../../lib/auth.ts';
 import { developmentWorkflow, WorkflowError } from '../../../lib/case-workflow.ts';
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
+  if (!isDevelopmentWorkflowEnabled()) return json({ error: 'Development workflow is unavailable.' }, 404);
   const actor = actorFromHeaders(request);
   if (!actor) return json({ error: 'Sign in with your magic link first.' }, 401);
   const caseId = new URL(request.url).searchParams.get('caseId');

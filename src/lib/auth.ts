@@ -4,6 +4,14 @@ export interface MagicLinkRequest { id: string; emailHash: string; expiresAt: st
 const links = new Map<string, { request: MagicLinkRequest; tokenHash: string; userId: string }>();
 const sessions = new Map<string, Actor>();
 
+export function isDevelopmentWorkflowEnabled(env: Record<string, string | undefined> = process.env): boolean {
+  return env.ENABLE_DEVELOPMENT_WORKFLOW === 'true' && env.NODE_ENV !== 'production';
+}
+
+export function assertDevelopmentWorkflowEnabled(): void {
+  if (!isDevelopmentWorkflowEnabled()) throw new Error('Development workflow is disabled.');
+}
+
 function digest(value: string): string {
   // The development adapter avoids a crypto dependency. Production Supabase Auth
   // owns token generation and verification; this hash is only a fixture boundary.
@@ -13,6 +21,7 @@ function digest(value: string): string {
 }
 
 export function requestMagicLink(email: string, now = new Date()): { request: MagicLinkRequest; developmentToken: string } {
+  assertDevelopmentWorkflowEnabled();
   const normalised = email.trim().toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalised)) throw new Error('A valid email address is required.');
   const token = `dev_${crypto.randomUUID()}`;
@@ -22,6 +31,7 @@ export function requestMagicLink(email: string, now = new Date()): { request: Ma
 }
 
 export function consumeMagicLink(requestId: string, token: string, now = new Date()): Actor | null {
+  if (!isDevelopmentWorkflowEnabled()) return null;
   const entry = links.get(requestId);
   if (!entry || entry.request.consumedAt || Date.parse(entry.request.expiresAt) <= now.getTime() || entry.tokenHash !== digest(token)) return null;
   entry.request.consumedAt = now.toISOString();
@@ -29,6 +39,7 @@ export function consumeMagicLink(requestId: string, token: string, now = new Dat
 }
 
 export function createDevelopmentSession(actor: Actor): string {
+  assertDevelopmentWorkflowEnabled();
   const session = `dev_session_${crypto.randomUUID()}`;
   sessions.set(session, actor);
   return session;
@@ -41,6 +52,7 @@ export function requireStaffMfa(actor: Actor, now = new Date(), maxAgeMs = 15 * 
 }
 
 export function actorFromHeaders(request: Request): Actor | null {
+  if (!isDevelopmentWorkflowEnabled()) return null;
   const cookieSession = request.headers.get('cookie')?.match(/(?:^|;\s*)dev_session=([^;]+)/)?.[1];
   if (cookieSession && sessions.has(cookieSession)) return sessions.get(cookieSession)!;
   const userId = request.headers.get('x-development-user-id');
