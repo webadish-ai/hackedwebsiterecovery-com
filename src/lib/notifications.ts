@@ -9,4 +9,3 @@ export class DevelopmentNotificationAdapter implements NotificationAdapter {
   async send(request: NotificationRequest): Promise<void> { this.sent.push({ ...request, templateData: { ...request.templateData } }); }
 }
 export const notifications = new DevelopmentNotificationAdapter();
-

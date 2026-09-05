@@ -24,7 +24,6 @@ export interface Actor {
   organizationIds: string[];
   mfaVerifiedAt?: string;
 }
-
 export interface Organization {
   id: string;
   name: string;
@@ -92,4 +91,3 @@ export interface AttachmentRecord {
   customerVisible: boolean;
   createdAt: string;
 }
-
