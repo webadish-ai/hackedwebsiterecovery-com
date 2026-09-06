@@ -1,0 +1,222 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import ScannerCTA from '@/components/ScannerCTA.astro';
+import '@/styles/global.css';
+
+const faqs = [
+  {
+    q: 'What is the WordPress Casino / Gambling Spam Hack?',
+    a: 'The Casino spam hack (often involving terms like "slot gacor", "judi online", "bonanza", "togel", "online casino", or "baccarat") injects thousands of spam pages, cloaked backlinks, or hidden database posts into your WordPress site. Attackers hijack your domain authority to rank gambling schemes on Google, often cloaking the spam so that only search engines or mobile visitors see it.',
+  },
+  {
+    q: 'Why does Google show casino and slot keywords under my domain name?',
+    a: 'Attackers create automated scripts or backdoor plugins that inject spam posts directly into your WordPress database (`wp_posts`), create rogue sitemaps (`sitemap_index.xml`), and inject conditional cloaking into `.htaccess` or `index.php`. When Googlebot crawls your site, it receives casino content and indexes thousands of spam URLs under your domain.',
+  },
+  {
+    q: 'Why do normal visitors see my clean website, but Google shows casino spam?',
+    a: 'This technique is called User-Agent Cloaking and Referrer Spoofing. The malware checks if the visitor is Googlebot, Bingbot, or a search engine referrer. If yes, it displays casino and gambling links; if you visit directly or log in as an administrator, it shows your normal theme so the hack goes unnoticed for months.',
+  },
+  {
+    q: 'I deleted the spam posts from WordPress, but they keep regenerating. Why?',
+    a: 'Deleting spam posts from the WP Admin dashboard only removes the surface symptoms. The malicious generator script, cron jobs, and PHP backdoors hidden in `wp-includes`, `wp-content/uploads`, or rogue database transients remain active and regenerate thousands of spam pages every hour. To fix it permanently, every backdoor and database trigger must be eradicated.',
+  },
+  {
+    q: 'How do you clean the Casino & Slot spam hack and restore Google rankings?',
+    a: 'We perform a deep forensic server audit: we remove all obfuscated PHP backdoors, sanitize the WordPress database to purge thousands of injected spam posts and metadata, strip cloaking rules from `.htaccess` and core files, remove unauthorized Search Console owners, submit 410 Gone headers to de-index spam URLs fast, and harden your entire installation with a 30-day reinfection guarantee.',
+  },
+  {
+    q: 'What does Casino spam hack removal cost?',
+    a: 'Complete cleanup starts at $179 for standard WordPress sites — including backdoor removal, database spam purging, Search Console cleanup, 410 de-indexing configuration, and full security hardening. Diagnosis is 100% free and we provide a fixed quote before any work begins.',
+  },
+];
+
+const symptoms = [
+  { label: 'Casino & Slot titles in Google', desc: 'Searching "site:yourdomain.com" reveals thousands of pages indexed with "Slot Gacor", "Judi Online", "Casino", or "Bonanza" spam keywords.' },
+  { label: 'Mobile & Search Redirects', desc: 'Visitors clicking your site from Google or mobile devices get redirected to malicious gambling or betting platforms.' },
+  { label: 'Hidden Backlinks & Link Farms', desc: 'Malicious footer/header scripts or zero-pixel hidden iframes silently linking out to offshore betting networks.' },
+  { label: 'Rogue Sitemaps & Database Injections', desc: 'Thousands of auto-generated spam URLs in rogue sitemaps or injected directly into the `wp_posts` database table.' },
+];
+---
+
+<Base
+  title="WordPress Casino Spam Hack Removal | Fix Slot Gacor & Gambling SEO Hijack"
+  description="Is your WordPress site hijacked by casino, slot gacor, or gambling spam in Google? We eradicate the generator, backdoors, database injections, and clean Google Search Console. 100% Guaranteed."
+  canonical="https://www.hackedwebsiterecovery.com/wordpress-casino-spam-hack-removal/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "WordPress Casino Spam Hack Removal",
+    "description": "Professional removal of casino, gambling, slot gacor, and judi SEO spam injections from WordPress websites. Cleans core files, database, sitemaps, and Google Search Console.",
+    "provider": {
+      "@type": "ProfessionalService",
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com",
+      "telephone": "+447344540450"
+    },
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
+    "offers": {
+      "@type": "Offer",
+      "price": "179",
+      "priceCurrency": "USD",
+      "description": "Starting price for Casino & Gambling SEO spam hack removal"
+    },
+    "serviceType": "WordPress Casino Spam Hack Removal"
+  })} />
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a }
+    }))
+  })} />
+
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-red-600/15 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-8" data-reveal>
+        <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full">
+          <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
+          Casino & Gambling Spam Hack Removal
+        </div>
+        <div class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          Engineers On-Duty · 7-Min Response
+        </div>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight" data-reveal data-delay="100">
+        Casino & Gambling Spam<br>
+        <span class="text-blue-400">in Your Google Search Results?</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed" data-reveal data-delay="200">
+        Attackers hijacked your WordPress site to inject thousands of "Slot Gacor", "Judi Online", and casino spam pages. We eradicate the generator, database injections, and backdoors — and de-index the spam fast.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12" data-reveal data-delay="300">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30 hover:scale-[1.02] active:scale-[0.98]">
+          Get Free Diagnosis Quote
+        </a>
+        <a href="https://wa.me/919998757045?text=My%20site%20is%20infected%20with%20casino%20and%20gambling%20spam%20keywords.%20I%20need%20emergency%20cleanup." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-green-700/30 hover:scale-[1.02] active:scale-[0.98]">
+          WhatsApp Emergency Team
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400" data-reveal data-delay="400">
+        {['Database spam purged', 'Cloaking scripts eradicated', 'Search Console cleaned', '30-Day Reinfection Guarantee'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Symptoms Section -->
+  <section class="py-20 px-4 bg-slate-900 text-white">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-400 text-sm font-semibold uppercase tracking-wider">How to Identify</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4">Signs of a Casino SEO Spam Injection</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Casino spam hacks are stealthy and designed to hide from website owners while exploiting your SEO rankings.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6" data-reveal data-delay="100">
+        {symptoms.map(s => (
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-7 hover:border-slate-600 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 text-red-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h3 class="font-bold text-lg text-white mb-2">{s.label}</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How We Eradicate It -->
+  <section class="py-20 px-4 bg-white text-slate-900">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-600 text-sm font-semibold uppercase tracking-wider">Our Proven Protocol</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4">How We Clean Casino Spam Permanently</h2>
+        <p class="text-slate-600 max-w-xl mx-auto">We don't just delete surface pages; we eradicate the entire attack infrastructure.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8" data-reveal data-delay="100">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">01</div>
+          <h3 class="font-bold text-lg mb-2">Backdoor & Generator Eradication</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We scan all core files, themes, and uploads to locate and delete obfuscated PHP scripts, rogue cron jobs, and stealth admin accounts that regenerate the spam.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">02</div>
+          <h3 class="font-bold text-lg mb-2">Database Sanitization</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We purge injected rows in `wp_posts`, `wp_postmeta`, and `wp_options` using targeted SQL scripts, removing thousands of gambling URLs without touching legitimate content.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">03</div>
+          <h3 class="font-bold text-lg mb-2">SEO Recovery & De-Indexing</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We set up automated HTTP 410 Gone headers for the purged URLs and clean Google Search Console permissions so Google drops the spam index and restores your real rankings.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Scanner CTA embed -->
+  <ScannerCTA />
+
+  <!-- FAQs Section -->
+  <section class="py-20 px-4 bg-slate-50 border-t border-slate-200">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-600 text-sm font-semibold uppercase tracking-wider">Common Questions</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4 text-slate-900">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="space-y-4" data-reveal data-delay="100">
+        {faqs.map(f => (
+          <details class="bg-white border border-slate-200 rounded-2xl p-6 group transition-all">
+            <summary class="font-bold text-slate-900 text-base sm:text-lg cursor-pointer list-none flex items-center justify-between gap-4">
+              <span>{f.q}</span>
+              <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-4 pt-4 border-t border-slate-100">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>

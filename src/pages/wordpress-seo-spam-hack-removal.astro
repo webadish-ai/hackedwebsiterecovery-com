@@ -1,0 +1,222 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Contact from '@/components/Contact.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCTA from '@/components/StickyCTA.astro';
+import ScannerCTA from '@/components/ScannerCTA.astro';
+import '@/styles/global.css';
+
+const faqs = [
+  {
+    q: 'What is a WordPress SEO Spam Injection hack?',
+    a: 'An SEO spam injection (also called Search Engine Hijacking or Spamdexing) occurs when attackers inject malicious keywords, cloaked doorways, link farms, or auto-generated spam landing pages into your WordPress website to exploit your domain rating on Google and Bing.',
+  },
+  {
+    q: 'Why do spam titles appear in Google search results for my site?',
+    a: 'Attackers exploit vulnerabilities in themes, plugins, or compromised credentials to inject PHP scripts that serve spam content to search engine crawlers (Googlebot, Bingbot). When Google indexes these pages, searchers see spam titles and snippets instead of your legitimate business content.',
+  },
+  {
+    q: 'What is conditional cloaking in WordPress?',
+    a: 'Cloaking is a deceptive technique where malware inspects incoming HTTP request headers. When a human visitor or administrator accesses the site directly, it renders normal pages. But when a search engine crawler or a mobile search visitor visits, it injects spam content or triggers an instant redirect to a scam site.',
+  },
+  {
+    q: 'How do you completely clean an SEO spam hack?',
+    a: 'We perform full-stack remediation: we scan all server files to eradicate backdoors and generator scripts, clean database tables (`wp_posts`, `wp_options`, `wp_postmeta`), remove rogue Google Search Console verifications, configure HTTP 410 headers to drop spam URLs from search indexes, and harden your installation with a 30-day reinfection warranty.',
+  },
+  {
+    q: 'How long does it take for Google to remove the spam results after cleanup?',
+    a: 'Once the cleanup is complete and we submit the 410 Gone status and clean XML sitemaps to Google Search Console, Google typically re-crawls and purges the majority of spam URLs within 3 to 14 days, restoring your rightful rankings.',
+  },
+  {
+    q: 'What does SEO spam hack removal cost?',
+    a: 'Complete SEO spam cleanup starts at $179 for standard WordPress websites. We provide a 100% free initial diagnosis and a fixed quote before any work starts.',
+  },
+];
+
+const signs = [
+  { label: 'Spam titles in Google Search', desc: 'Searching "site:yourdomain.com" displays strange products, counterfeit goods, or scam keywords instead of your pages.' },
+  { label: 'Conditional Cloaked Redirects', desc: 'Visitors coming from search results or mobile devices are redirected to spam landing pages, while desktop visits appear normal.' },
+  { label: 'Hidden Links & Link Farms', desc: 'Injected backlinks in your footer, header, or CSS stylesheets pointing to shady third-party websites.' },
+  { label: 'Rogue Search Console Users', desc: 'Attackers verifying themselves as property owners in Google Search Console to upload malicious sitemaps.' },
+];
+---
+
+<Base
+  title="WordPress SEO Spam Hack Removal | Fix Google Search Hijack"
+  description="Are spam titles, cloaked redirects, or link farms hijacking your WordPress SEO on Google? We eradicate the generator, database spam, and restore your rankings. Free diagnosis."
+  canonical="https://www.hackedwebsiterecovery.com/wordpress-seo-spam-hack-removal/"
+>
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "WordPress SEO Spam Hack Removal",
+    "description": "Comprehensive removal of WordPress SEO spam injections, cloaked redirects, hidden link farms, and Google search hijackings. Full database and file remediation.",
+    "provider": {
+      "@type": "ProfessionalService",
+      "name": "HackedWebsiteRecovery.com",
+      "url": "https://www.hackedwebsiterecovery.com",
+      "telephone": "+447344540450"
+    },
+    "areaServed": { "@type": "Place", "name": "Worldwide" },
+    "offers": {
+      "@type": "Offer",
+      "price": "179",
+      "priceCurrency": "USD",
+      "description": "Starting price for WordPress SEO spam hack removal"
+    },
+    "serviceType": "WordPress SEO Spam Hack Removal"
+  })} />
+
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a }
+    }))
+  })} />
+
+  <Nav />
+
+  <!-- Hero -->
+  <section class="gradient-hero text-white pt-20 pb-24 px-4 relative overflow-hidden" id="top">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 40px 40px;" aria-hidden="true"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-8" data-reveal>
+        <div class="inline-flex items-center gap-2 bg-red-500/15 border border-red-500/30 text-red-400 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full">
+          <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse-slow inline-block"></span>
+          SEO Spam & Search Hijack Removal
+        </div>
+        <div class="inline-flex items-center gap-2 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-semibold px-4 py-2 rounded-full">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          Engineers On-Duty · 7-Min Response
+        </div>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight" data-reveal data-delay="100">
+        WordPress SEO Spam<br>
+        <span class="text-blue-400">Hijacking Your Google Rankings?</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed" data-reveal data-delay="200">
+        Attackers injected spam pages, cloaked doorways, or link farms into your WordPress site. We eradicate the generator scripts, purge injected database rows, and de-index the spam fast.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12" data-reveal data-delay="300">
+        <a href="#contact" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-blue-700/30 hover:scale-[1.02] active:scale-[0.98]">
+          Get Free Diagnosis Quote
+        </a>
+        <a href="https://wa.me/919998757045?text=My%20WordPress%20site%20is%20infected%20with%20SEO%20spam%20injections.%20I%20need%20expert%20help." target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()" class="inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-500 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 shadow-lg shadow-green-700/30 hover:scale-[1.02] active:scale-[0.98]">
+          WhatsApp Emergency Team
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 text-sm text-slate-400" data-reveal data-delay="400">
+        {['Cloaking scripts removed', 'Database spam purged', 'Search Console de-indexing', '30-Day Reinfection Guarantee'].map(item => (
+          <span class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3.5 py-1.5">
+            <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Symptoms Section -->
+  <section class="py-20 px-4 bg-slate-900 text-white">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-400 text-sm font-semibold uppercase tracking-wider">How to Identify</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4">Signs Your WordPress Site Has an SEO Spam Hack</h2>
+        <p class="text-slate-400 max-w-xl mx-auto">Attackers exploit your domain reputation while trying to keep the infection invisible to you.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-6" data-reveal data-delay="100">
+        {signs.map(s => (
+          <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-7 hover:border-slate-600 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 text-red-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h3 class="font-bold text-lg text-white mb-2">{s.label}</h3>
+            <p class="text-slate-300 text-sm leading-relaxed">{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- How We Eradicate It -->
+  <section class="py-20 px-4 bg-white text-slate-900">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-600 text-sm font-semibold uppercase tracking-wider">Our Proven Protocol</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4">How We Restore Your Search Reputation</h2>
+        <p class="text-slate-600 max-w-xl mx-auto">Complete removal of malicious payloads and speed-recovery of Google search rankings.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8" data-reveal data-delay="100">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">01</div>
+          <h3 class="font-bold text-lg mb-2">Backdoor & Generator Cleanup</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We locate and remove hidden PHP web shells, cloaking scripts in `.htaccess` and `index.php`, and malicious cron tasks.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">02</div>
+          <h3 class="font-bold text-lg mb-2">Database & Link Farm Purge</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We sanitize all WordPress database tables, wiping thousands of injected spam posts and hidden outgoing backlinks.
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-7">
+          <div class="text-2xl font-black text-blue-600 mb-3">03</div>
+          <h3 class="font-bold text-lg mb-2">Fast Google De-Indexing</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            We return automated HTTP 410 headers for all spam URLs and clean Google Search Console properties for rapid search index recovery.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Scanner CTA embed -->
+  <ScannerCTA />
+
+  <!-- FAQs Section -->
+  <section class="py-20 px-4 bg-slate-50 border-t border-slate-200">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-14" data-reveal>
+        <span class="text-blue-600 text-sm font-semibold uppercase tracking-wider">Common Questions</span>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2 mb-4 text-slate-900">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="space-y-4" data-reveal data-delay="100">
+        {faqs.map(f => (
+          <details class="bg-white border border-slate-200 rounded-2xl p-6 group transition-all">
+            <summary class="font-bold text-slate-900 text-base sm:text-lg cursor-pointer list-none flex items-center justify-between gap-4">
+              <span>{f.q}</span>
+              <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-4 pt-4 border-t border-slate-100">{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <Contact />
+  <Footer />
+  <StickyCTA />
+
+</Base>

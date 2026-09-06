@@ -88,7 +88,7 @@ const checks = [
 
   <!-- Results -->
   <section id="results" class="hidden px-4 -mt-10 relative z-10 pb-4">
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-3xl mx-auto space-y-5">
 
       <!-- Verdict card -->
       <div id="verdict-card" class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
@@ -111,42 +111,93 @@ const checks = [
         <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-gray-200 border-t border-gray-200"></div>
       </div>
 
-      <!-- Email gate -->
-      <div id="gate-card" class="hidden bg-slate-900 text-white rounded-2xl p-7 mt-5 relative overflow-hidden">
-        <div class="absolute -top-12 -right-12 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <!-- Urgent WhatsApp Dispatch Alert (shown immediately on infected/warning sites) -->
+      <div id="urgent-dispatch-card" class="hidden bg-gradient-to-br from-slate-900 via-slate-800 to-red-950 text-white rounded-2xl p-6 sm:p-7 border border-red-500/40 shadow-xl relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-44 h-44 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+          <div class="space-y-1.5 flex-1">
+            <div class="inline-flex items-center gap-2 bg-red-500/20 border border-red-400/40 text-red-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping inline-block"></span>
+              <span class="w-2 h-2 bg-emerald-400 rounded-full inline-block -ml-4"></span>
+              Specialists On-Duty · Avg 7-Min Reply
+            </div>
+            <h3 class="text-lg sm:text-xl font-extrabold text-white">Need Emergency Malware Cleanup?</h3>
+            <p id="dispatch-msg" class="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-xl">
+              Our cybersecurity engineers can eradicate all malicious payloads, restore blacklisted search rankings, and secure your server today.
+            </p>
+          </div>
+          <div class="flex-shrink-0 w-full sm:w-auto">
+            <a id="dispatch-whatsapp-btn" href="#" target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-6 rounded-xl text-sm sm:text-base shadow-lg shadow-green-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] text-center">
+              <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              <span>WhatsApp Dispatch</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teaser proof finding (shows 1 primary critical issue immediately) -->
+      <div id="teaser-finding-container" class="hidden space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-red-600 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            Confirmed Detection Sample
+          </span>
+          <span class="text-xs text-slate-500 font-medium">1 of <span id="teaser-total-count">1</span> issues shown below</span>
+        </div>
+        <div id="teaser-finding-card"></div>
+      </div>
+
+      <!-- Email gate / Locked findings overlay -->
+      <div id="gate-card" class="hidden relative rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-900 text-white p-6 sm:p-8">
+        <div class="absolute -top-12 -right-12 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
         <div class="relative">
-          <h2 class="text-xl font-bold mb-1">See the full report + fix steps</h2>
-          <p id="gate-sub" class="text-slate-300 text-sm mb-5"></p>
-          <form id="lead-form" class="grid sm:grid-cols-[1fr,1fr,auto] gap-3" novalidate>
-            <input type="email" id="lead-email" name="email" required autocomplete="email" placeholder="you@yourbusiness.com"
-              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-400" />
-            <input type="tel" id="lead-phone" name="phone" autocomplete="tel" placeholder="WhatsApp (optional)"
-              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-blue-400" />
+          <div class="flex items-center gap-2 text-blue-400 font-bold text-xs uppercase tracking-wider mb-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span id="gate-lock-badge">Additional Findings Locked</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold mb-2 text-white">Unlock Full Technical Audit & Fix Guide</h2>
+          <p id="gate-sub" class="text-slate-300 text-sm mb-6 leading-relaxed"></p>
+          <form id="lead-form" class="grid sm:grid-cols-[1.2fr,1fr,auto] gap-3" novalidate>
+            <input type="email" id="lead-email" name="email" required autocomplete="email" placeholder="Enter work email (you@business.com)"
+              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3.5 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-blue-400 shadow-inner" />
+            <input type="tel" id="lead-phone" name="phone" autocomplete="tel" placeholder="WhatsApp / Phone (optional)"
+              class="bg-white/95 text-slate-900 placeholder-slate-400 rounded-xl px-4 py-3.5 text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-blue-400 shadow-inner" />
             <button type="submit" id="lead-btn"
-              class="bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white font-bold rounded-xl px-5 py-3 text-sm whitespace-nowrap transition-colors">
-              <span id="lead-btn-label">Unlock Report</span>
+              class="bg-blue-600 hover:bg-blue-500 active:scale-[0.98] disabled:opacity-60 text-white font-bold rounded-xl px-6 py-3.5 text-sm whitespace-nowrap transition-all shadow-lg shadow-blue-700/40">
+              <span id="lead-btn-label">Unlock All Findings</span>
             </button>
           </form>
-          <p id="lead-error" class="hidden text-red-300 text-sm mt-3"></p>
-          <p class="text-slate-500 text-xs mt-3">We email your report and may follow up to help. No spam.</p>
+          <p id="lead-error" class="hidden text-red-300 text-sm mt-3 font-medium"></p>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 mt-4">
+            <span class="flex items-center gap-1">🛡️ Instant browser unlock</span>
+            <span>·</span>
+            <span>Remediation checklist sent to inbox</span>
+            <span>·</span>
+            <span>100% Privacy guaranteed, no spam</span>
+          </div>
         </div>
       </div>
 
       <!-- Unlocked detailed findings -->
-      <div id="findings" class="hidden mt-5 space-y-3"></div>
+      <div id="findings" class="hidden space-y-3"></div>
 
       <!-- Recovery CTA (shown after unlock when issues found) -->
-      <div id="recover-cta" class="hidden bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-2xl p-7 mt-5 text-center">
-        <h2 class="text-xl font-bold mb-2">Want us to fix this for you?</h2>
-        <p class="text-blue-100 text-sm mb-5 max-w-md mx-auto">Expert malware removal and full recovery with a 30-day reinfection guarantee. Free diagnosis, fixed quote before any work begins.</p>
+      <div id="recover-cta" class="hidden bg-gradient-to-br from-blue-700 to-blue-900 text-white rounded-2xl p-7 text-center shadow-xl">
+        <h2 class="text-xl sm:text-2xl font-bold mb-2">Want our specialists to clean and secure this today?</h2>
+        <p class="text-blue-100 text-sm sm:text-base mb-6 max-w-xl mx-auto leading-relaxed">
+          100% Guaranteed malware removal, backdoor eradication, and Google blacklist reconsideration with our 30-day reinfection warranty. Fixed quote before any work begins.
+        </p>
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a id="cta-whatsapp" href="#" target="_blank" rel="noopener noreferrer" onclick="window.trackWhatsAppClick?.()"
-            class="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition-colors">WhatsApp Our Team</a>
-          <a href="/#contact" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-xl transition-colors">Get a Free Diagnosis</a>
+            class="inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3.5 px-7 rounded-xl transition-all shadow-lg shadow-green-700/30">WhatsApp Our Team</a>
+          <a href="/#contact" class="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold py-3.5 px-7 rounded-xl transition-all">Get a Free Diagnosis Quote</a>
         </div>
       </div>
 
-      <p class="text-center text-xs text-gray-400 mt-5 max-w-xl mx-auto">
+      <p class="text-center text-xs text-gray-400 pt-2 max-w-xl mx-auto">
         This automated scan checks public, homepage-level signals only. A clean result does not guarantee a clean server; a flagged result is a strong indicator worth investigating with a full audit.
       </p>
     </div>
@@ -293,25 +344,88 @@ const checks = [
       </div>`;
     }).join('');
 
-    // Gate vs. clean handling
+    const sevOrder: Record<string, number> = { critical: 3, warning: 2, ok: 1 };
+    const nonOkFindings = r.findings
+      .filter((f) => f.severity !== 'ok')
+      .sort((a, b) => (sevOrder[b.severity] || 0) - (sevOrder[a.severity] || 0));
+
+    const issueCount = nonOkFindings.length;
+    const urgentDispatch = $('urgent-dispatch-card');
+    const teaserContainer = $('teaser-finding-container');
+    const teaserCard = $('teaser-finding-card');
     const gate = $('gate-card');
     const findingsEl = $('findings');
     const cta = $('recover-cta');
+
     findingsEl.classList.add('hidden');
     findingsEl.innerHTML = '';
     cta.classList.add('hidden');
 
-    const issueCount = r.counts.critical + r.counts.warning;
     if (issueCount > 0) {
+      // Show Urgent WhatsApp Dispatch
+      urgentDispatch.classList.remove('hidden');
+      const topFinding = nonOkFindings[0];
+      const topTitle = topFinding ? topFinding.title : 'Malware Threat';
+      const waMsg = `Hi, I just ran a security scan on ${hostOf(r.finalUrl)} (Health Score: ${r.score}/100). The scanner detected "${topTitle}". Can your team help me clean and secure this today?`;
+      const waBtn = $('dispatch-whatsapp-btn') as HTMLAnchorElement;
+      waBtn.href = `https://wa.me/919998757045?text=${encodeURIComponent(waMsg)}`;
+      
+      const ctaWa = $('cta-whatsapp') as HTMLAnchorElement;
+      if (ctaWa) ctaWa.href = `https://wa.me/919998757045?text=${encodeURIComponent(waMsg)}`;
+
+      // Show Teaser Proof Finding (1st finding)
+      teaserContainer.classList.remove('hidden');
+      $('teaser-total-count').textContent = String(issueCount);
+      teaserCard.innerHTML = renderFindingCardHtml(topFinding);
+
+      // Show Gate for remaining findings
       gate.classList.remove('hidden');
-      $('gate-sub').textContent = `We found ${r.counts.critical} critical issue${r.counts.critical === 1 ? '' : 's'} and ${r.counts.warning} warning${r.counts.warning === 1 ? '' : 's'}. Enter your email to see exactly what they are and how to fix each one.`;
+      const remainingCount = issueCount - 1;
+      if (remainingCount > 0) {
+        $('gate-lock-badge').textContent = `🔒 ${remainingCount} More Issue${remainingCount === 1 ? '' : 's'} & File Paths Locked`;
+        $('gate-sub').textContent = `We identified ${r.counts.critical} critical infection${r.counts.critical === 1 ? '' : 's'} and ${r.counts.warning} warning${r.counts.warning === 1 ? '' : 's'} on ${hostOf(r.finalUrl)}. Enter your work email to immediately unlock all ${issueCount} finding details, payload strings, and step-by-step fix guide.`;
+      } else {
+        $('gate-lock-badge').textContent = `🔒 Full Fix Protocol & Hardening Report`;
+        $('gate-sub').textContent = `Enter your email to receive the complete remediation checklist and server hardening guide for ${hostOf(r.finalUrl)}.`;
+      }
     } else {
-      // Clean: no gate, just show the positive checks.
+      // Clean: no gate, render all positive checks
+      urgentDispatch.classList.add('hidden');
+      teaserContainer.classList.add('hidden');
       gate.classList.add('hidden');
       renderFindings(r, true);
     }
 
     results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderFindingCardHtml(f: Finding): string {
+    const isCrit = f.severity === 'critical';
+    const isWarn = f.severity === 'warning';
+    const s = SEV[f.severity];
+    
+    const cardStyle = isCrit
+      ? 'background: #fff8f8; border-color: #fca5a5; box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.12);'
+      : isWarn
+      ? 'background: #fffdf5; border-color: #fde68a;'
+      : `background: #ffffff; border-color: ${s.ring};`;
+    const badgeText = isCrit ? 'CRITICAL INFECTION' : s.label.toUpperCase();
+    const badgeBg = isCrit ? 'background: #dc2626;' : `background: ${s.color};`;
+    const titleColor = isCrit ? 'color: #991b1b;' : 'color: #0f172a;';
+
+    return `<div class="border rounded-2xl p-5 transition-all" style="${cardStyle}">
+      <div class="flex items-start gap-3">
+        <span class="flex-shrink-0 mt-0.5 text-[10px] font-extrabold text-white px-2.5 py-1 rounded-md tracking-wider shadow-sm" style="${badgeBg}">${badgeText}</span>
+        <div class="min-w-0 flex-1">
+          <h3 class="font-bold text-[16px] leading-snug mb-1.5" style="${titleColor}">${esc(f.title)}</h3>
+          <p class="text-slate-700 text-sm leading-relaxed mb-2.5">${esc(f.detail)}</p>
+          <div class="pt-2.5 border-t text-sm leading-relaxed" style="border-color: ${isCrit ? '#fecaca' : isWarn ? '#fef3c7' : '#e2e8f0'}">
+            <span class="font-bold" style="color: ${isCrit ? '#b91c1c' : '#1d4ed8'}">Action Required:</span> 
+            <span class="text-slate-800">${esc(f.recommendation)}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
   }
 
   function renderFindings(r: ScanResult, includeOk: boolean) {
@@ -320,40 +434,13 @@ const checks = [
     const list = (includeOk ? r.findings : r.findings.filter((f) => f.severity !== 'ok'))
       .sort((a, b) => (sevOrder[b.severity] || 0) - (sevOrder[a.severity] || 0));
 
-    findingsEl.innerHTML = list.map((f: Finding) => {
-      const isCrit = f.severity === 'critical';
-      const isWarn = f.severity === 'warning';
-      const s = SEV[f.severity];
-      
-      const cardStyle = isCrit
-        ? 'background: #fff8f8; border-color: #fca5a5; box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.1);'
-        : isWarn
-        ? 'background: #fffdf5; border-color: #fde68a;'
-        : `background: #ffffff; border-color: ${s.ring};`;
-      const badgeText = isCrit ? 'CRITICAL INFECTION' : s.label.toUpperCase();
-      const badgeBg = isCrit ? 'background: #dc2626;' : `background: ${s.color};`;
-      const titleColor = isCrit ? 'color: #991b1b;' : 'color: #0f172a;';
-
-      return `<div class="border rounded-2xl p-5 transition-all" style="${cardStyle}">
-        <div class="flex items-start gap-3">
-          <span class="flex-shrink-0 mt-0.5 text-[10px] font-extrabold text-white px-2.5 py-1 rounded-md tracking-wider shadow-sm" style="${badgeBg}">${badgeText}</span>
-          <div class="min-w-0 flex-1">
-            <h3 class="font-bold text-[16px] leading-snug mb-1.5" style="${titleColor}">${esc(f.title)}</h3>
-            <p class="text-slate-700 text-sm leading-relaxed mb-2.5">${esc(f.detail)}</p>
-            <div class="pt-2.5 border-t text-sm leading-relaxed" style="border-color: ${isCrit ? '#fecaca' : isWarn ? '#fef3c7' : '#e2e8f0'}">
-              <span class="font-bold" style="color: ${isCrit ? '#b91c1c' : '#1d4ed8'}">Action Required:</span> 
-              <span class="text-slate-800">${esc(f.recommendation)}</span>
-            </div>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
+    findingsEl.innerHTML = list.map((f: Finding) => renderFindingCardHtml(f)).join('');
     findingsEl.classList.remove('hidden');
 
     if (r.counts.critical + r.counts.warning > 0) {
       const cta = $('recover-cta');
       const wa = $('cta-whatsapp') as HTMLAnchorElement;
-      wa.href = `https://wa.me/919998757045?text=${encodeURIComponent(`I ran the scanner on ${hostOf(r.finalUrl)} and need help fixing it.`)}`;
+      wa.href = `https://wa.me/919998757045?text=${encodeURIComponent(`I ran the security scanner on ${hostOf(r.finalUrl)} and need urgent malware cleanup.`)}`;
       cta.classList.remove('hidden');
     }
   }
@@ -386,6 +473,7 @@ const checks = [
       gtagEvent('scan_lead', { verdict: current.verdict });
       gtagEvent('generate_lead', { value: current.verdict === 'infected' ? 1 : 0 });
       $('gate-card').classList.add('hidden');
+      $('teaser-finding-container').classList.add('hidden');
       renderFindings(current, false);
       $('findings').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch {
@@ -393,7 +481,7 @@ const checks = [
       leadError.classList.remove('hidden');
     } finally {
       leadBtn.disabled = false;
-      leadBtnLabel.textContent = 'Unlock Report';
+      leadBtnLabel.textContent = 'Unlock All Findings';
     }
   });
 
