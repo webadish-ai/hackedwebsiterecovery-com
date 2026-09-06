@@ -49,7 +49,7 @@ export const POST: APIRoute = async ({ request }) => {
       from: FROM,
       to: [TEAM_INBOX],
       bcc: [OWNER_BCC],
-      replyTo: email,
+      reply_to: email,
       subject: `${hot ? '🔴 HOT LEAD' : 'Scan lead'} – ${result.finalUrl} (${verdictLabel(result)})`,
       html: teamEmail(result, email, phone),
     })
@@ -60,7 +60,7 @@ export const POST: APIRoute = async ({ request }) => {
     .send({
       from: FROM,
       to: [email],
-      replyTo: TEAM_INBOX,
+      reply_to: TEAM_INBOX,
       subject: `Your WordPress security scan report – ${hostOf(result.finalUrl)}`,
       html: reportEmail(result),
     })
