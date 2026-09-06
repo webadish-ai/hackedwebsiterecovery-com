@@ -1,48 +1,53 @@
 ---
-import { PLANS, formatINR } from '@/lib/plans';
+const pricing = [
+  { label: 'Diagnosis', price: 'Free', sub: 'or $23 for deep manual review', desc: 'Initial assessment of infection type and scope', featured: false },
+  { label: 'Malware Cleanup', price: '$179+', sub: 'Starting price', desc: 'Malware removal, cleanup, and basic hardening', featured: false },
+  { label: 'Full Recovery', price: '$349+', sub: 'Starting price', desc: 'Full hacked site recovery for business-critical websites', featured: true },
+  { label: 'Emergency Same-Day', price: '$579+', sub: 'Starting price', desc: 'Priority same-day recovery with dedicated attention', featured: false },
+  { label: 'WooCommerce / Critical', price: '$899+', sub: 'Starting price', desc: 'For stores, lead-heavy sites, and complex hacked environments', featured: false },
+  { label: 'Monthly Protection', price: '$115/mo+', sub: 'Per month', desc: 'Monitoring, backups, updates, and security', featured: false, blue: true },
+];
 ---
 <section class="py-20 px-4 bg-white" id="pricing">
   <div class="max-w-6xl mx-auto">
 
-    <div class="text-center mb-12" data-reveal>
-      <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Choose your recovery path</p>
-      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Clear plans. GST shown before payment.</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">Start with the plan that fits your site or agency. We assess scope after payment and contact you when usable access is received. Complex cases are quoted separately before work begins.</p>
+    <div class="text-center mb-14" data-reveal>
+      <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Transparent Pricing</h2>
+      <p class="text-gray-600 max-w-xl mx-auto">Emergency WordPress recovery pricing for businesses worldwide. You receive a clear scope and fixed quote before we begin. No hidden charges. Prices shown are starting points — complex cases quoted individually.</p>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-3">
-      {PLANS.map((plan) => (
-        <article class={`relative flex flex-col rounded-2xl p-6 transition-shadow duration-200 hover:shadow-lg ${plan.featured ? 'border-2 border-blue-600 shadow-xl shadow-blue-100' : 'border border-gray-200'}`} data-reveal>
-          {plan.featured && <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-blue-600 px-4 py-1 text-xs font-bold text-white">MOST REQUESTED</div>}
-          <div class="mb-2 text-sm font-semibold text-blue-600">{plan.eyebrow}</div>
-          <h3 class="mb-2 text-2xl font-extrabold text-slate-900">{plan.name}</h3>
-          <p class="mb-5 min-h-12 text-sm leading-relaxed text-gray-600">{plan.description}</p>
-          <div class="mb-1 text-3xl font-extrabold text-slate-900">{formatINR(plan.pricePaise)}</div>
-          <div class="mb-5 text-xs font-medium text-gray-500">{plan.billingLabel} · before 18% GST</div>
-          <div class="mb-5 rounded-xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800">{plan.siteAllowance}</div>
-          <ul class="mb-6 space-y-2 text-sm text-gray-600">
-            {plan.inclusions.map((item) => <li class="flex gap-2"><span class="text-green-600" aria-hidden="true">✓</span><span>{item}</span></li>)}
-          </ul>
-          <a href={`/cart/?plan=${plan.id}`} data-plan-id={plan.id} class={`mt-auto inline-flex items-center justify-center rounded-xl px-5 py-3 text-center text-sm font-bold transition-colors duration-200 ${plan.featured ? 'bg-blue-600 text-white hover:bg-blue-500' : 'border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100'}`}>
-            {plan.actionLabel}
-          </a>
-          <a href={`/compare/#${plan.id}`} class="mt-3 text-center text-xs font-semibold text-gray-500 hover:text-blue-600">See full inclusions and exclusions</a>
-        </article>
-      ))}
+    <div class="mb-12" data-reveal>
+      <div class="flex items-center gap-3 mb-6">
+        <span class="bg-orange-100 text-orange-700 font-bold text-sm px-3 py-1 rounded-lg flex-shrink-0">Pricing (USD)</span>
+        <div class="h-px bg-gray-200 flex-1"></div>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
+        {pricing.map((tier) => (
+          <div class={`rounded-2xl p-6 text-center transition-all duration-200 relative ${
+            tier.featured
+              ? 'border-2 border-blue-600 shadow-xl shadow-blue-100'
+              : tier.blue
+              ? 'border border-blue-200 bg-blue-50'
+              : 'border border-gray-200 hover:border-blue-200 hover:shadow-sm'
+          }`}>
+            {tier.featured && (
+              <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap">
+                MOST REQUESTED
+              </div>
+            )}
+            <div class={`text-sm font-semibold mb-2 ${tier.featured ? 'text-blue-600' : tier.blue ? 'text-blue-700' : 'text-gray-500'}`}>{tier.label}</div>
+            <div class="text-2xl font-extrabold text-slate-900 mb-1">{tier.price}</div>
+            {tier.sub && <div class="text-xs text-gray-400 mb-3">{tier.sub}</div>}
+            <p class="text-xs text-gray-500 leading-relaxed">{tier.desc}</p>
+          </div>
+        ))}
+      </div>
     </div>
 
-    <div class="mt-10 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-center text-sm leading-relaxed text-amber-900">
-      Multisite, hosting-account compromise, cross-site infection, missing-data restoration, custom applications, and complex WooCommerce cases require a separate quote. If unsupported paid work has not started, we offer an approved quote or a full refund.
-    </div>
+    <p class="text-center text-xs text-gray-400 mt-8">
+      All prices are starting points. Exact quote provided after diagnosis.<br>
+      Payment: Card and bank transfer accepted.
+    </p>
+
   </div>
 </section>
-
-<script>
-  document.querySelectorAll<HTMLElement>('[data-plan-id]').forEach((card) => {
-    card.addEventListener('click', () => {
-      const eventName = 'select_plan';
-      window.dispatchEvent(new CustomEvent('storefront_event', { detail: { event: eventName } }));
-      if (typeof window.gtag === 'function') window.gtag('event', eventName);
-    });
-  });
-</script>
