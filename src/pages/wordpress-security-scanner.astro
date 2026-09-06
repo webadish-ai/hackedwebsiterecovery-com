@@ -270,8 +270,11 @@ const checks = [
       ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>'
       : '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
 
+    const hasSpamHack = r.findings.some(
+      (f) => f.severity === 'critical' && /casino|gambling|slot|hidden link|japanese|pharma|redirect/i.test(f.title)
+    );
     $('verdict-title').textContent = isInfected
-      ? 'Critical issues found'
+      ? (hasSpamHack ? 'Critical: Site Infected with Malware / Spam' : 'Critical issues found')
       : isClean ? 'No critical issues found' : 'Some warnings found';
     $('verdict-sub').textContent = `${hostOf(r.finalUrl)} · ${r.counts.critical} critical, ${r.counts.warning} warnings`;
     const score = $('verdict-score');
@@ -313,16 +316,34 @@ const checks = [
 
   function renderFindings(r: ScanResult, includeOk: boolean) {
     const findingsEl = $('findings');
-    const list = includeOk ? r.findings : r.findings.filter((f) => f.severity !== 'ok');
+    const sevOrder: Record<string, number> = { critical: 3, warning: 2, ok: 1 };
+    const list = (includeOk ? r.findings : r.findings.filter((f) => f.severity !== 'ok'))
+      .sort((a, b) => (sevOrder[b.severity] || 0) - (sevOrder[a.severity] || 0));
+
     findingsEl.innerHTML = list.map((f: Finding) => {
+      const isCrit = f.severity === 'critical';
+      const isWarn = f.severity === 'warning';
       const s = SEV[f.severity];
-      return `<div class="bg-white border rounded-2xl p-5" style="border-color:${s.ring}">
+      
+      const cardStyle = isCrit
+        ? 'background: #fff8f8; border-color: #fca5a5; box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.1);'
+        : isWarn
+        ? 'background: #fffdf5; border-color: #fde68a;'
+        : `background: #ffffff; border-color: ${s.ring};`;
+      const badgeText = isCrit ? 'CRITICAL INFECTION' : s.label.toUpperCase();
+      const badgeBg = isCrit ? 'background: #dc2626;' : `background: ${s.color};`;
+      const titleColor = isCrit ? 'color: #991b1b;' : 'color: #0f172a;';
+
+      return `<div class="border rounded-2xl p-5 transition-all" style="${cardStyle}">
         <div class="flex items-start gap-3">
-          <span class="flex-shrink-0 mt-0.5 text-[10px] font-bold text-white px-2 py-1 rounded" style="background:${s.color}">${s.label.toUpperCase()}</span>
-          <div class="min-w-0">
-            <h3 class="font-bold text-slate-900 text-[15px] leading-snug mb-1">${esc(f.title)}</h3>
-            <p class="text-gray-600 text-sm leading-relaxed mb-2">${esc(f.detail)}</p>
-            <p class="text-sm leading-relaxed" style="color:#1d4ed8"><span class="font-semibold">Fix:</span> ${esc(f.recommendation)}</p>
+          <span class="flex-shrink-0 mt-0.5 text-[10px] font-extrabold text-white px-2.5 py-1 rounded-md tracking-wider shadow-sm" style="${badgeBg}">${badgeText}</span>
+          <div class="min-w-0 flex-1">
+            <h3 class="font-bold text-[16px] leading-snug mb-1.5" style="${titleColor}">${esc(f.title)}</h3>
+            <p class="text-slate-700 text-sm leading-relaxed mb-2.5">${esc(f.detail)}</p>
+            <div class="pt-2.5 border-t text-sm leading-relaxed" style="border-color: ${isCrit ? '#fecaca' : isWarn ? '#fef3c7' : '#e2e8f0'}">
+              <span class="font-bold" style="color: ${isCrit ? '#b91c1c' : '#1d4ed8'}">Action Required:</span> 
+              <span class="text-slate-800">${esc(f.recommendation)}</span>
+            </div>
           </div>
         </div>
       </div>`;

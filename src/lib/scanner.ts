@@ -664,6 +664,10 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
     });
   }
 
+  // --- Sort findings: Critical ALWAYS at top, then Warning, then OK ---
+  const sevWeight: Record<Severity, number> = { critical: 3, warning: 2, ok: 1 };
+  findings.sort((a, b) => sevWeight[b.severity] - sevWeight[a.severity]);
+
   // --- Roll up ---
   const counts = {
     critical: findings.filter((f) => f.severity === 'critical').length,
@@ -695,10 +699,38 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       : 'ok';
     const crit = inCat.filter((f) => f.severity === 'critical').length;
     const warn = inCat.filter((f) => f.severity === 'warning').length;
-    const summary =
-      worst === 'critical' ? `${crit} critical issue${crit > 1 ? 's' : ''} found`
-      : worst === 'warning' ? `${warn} warning${warn > 1 ? 's' : ''} found`
-      : 'No issues detected';
+
+    let summary = 'No issues detected';
+    if (worst === 'critical') {
+      if (key === 'malware') {
+        const hasCasino = inCat.some((f) => /casino|gambling|slot/i.test(f.title));
+        const hasHidden = inCat.some((f) => /hidden link/i.test(f.title));
+        const hasJapanese = inCat.some((f) => /japanese/i.test(f.title));
+        const hasPharma = inCat.some((f) => /pharma/i.test(f.title));
+        const hasRedirect = inCat.some((f) => /redirect/i.test(f.title));
+
+        if (hasCasino && hasHidden) {
+          summary = 'Casino spam & hidden links detected';
+        } else if (hasCasino) {
+          summary = 'Casino / Gambling spam detected';
+        } else if (hasHidden) {
+          summary = 'Hidden link farm injection detected';
+        } else if (hasJapanese) {
+          summary = 'Japanese keyword SEO hack detected';
+        } else if (hasPharma) {
+          summary = 'Injected pharma spam detected';
+        } else if (hasRedirect) {
+          summary = 'Malicious redirect detected';
+        } else {
+          summary = `${crit} critical malware issue${crit > 1 ? 's' : ''} found`;
+        }
+      } else {
+        summary = `${crit} critical issue${crit > 1 ? 's' : ''} found`;
+      }
+    } else if (worst === 'warning') {
+      summary = `${warn} warning${warn > 1 ? 's' : ''} found`;
+    }
+
     return { key, label, status: worst, summary };
   });
 
