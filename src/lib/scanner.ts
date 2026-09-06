@@ -213,6 +213,37 @@ const KNOWN_BAD_SNIPPETS: { re: RegExp; label: string }[] = [
   { re: /document\.referrer\s*\.match\s*\(\s*['"][^'"]*(?:google|bing|yahoo|yandex|facebook)/i, label: 'search-engine referrer sniffing redirect' },
 ];
 
+const TRUSTED_IFRAME_DOMAINS = [
+  'googletagmanager.com',
+  'google.com',
+  'youtube.com',
+  'youtube-nocookie.com',
+  'doubleclick.net',
+  'facebook.com',
+  'instagram.com',
+  'twitter.com',
+  'x.com',
+  'linkedin.com',
+  'vimeo.com',
+  'spotify.com',
+  'soundcloud.com',
+  'stripe.com',
+  'paypal.com',
+  'razorpay.com',
+  'payu.in',
+  'cloudflare.com',
+  'challenges.cloudflare.com',
+  'recaptcha.net',
+  'hcaptcha.com',
+  'tawk.to',
+  'crisp.chat',
+  'intercom.io',
+  'drift.com',
+  'hubspot.com',
+  'zendesk.com',
+  'tidio.co',
+];
+
 // Identify when a 403/503 is a firewall / bot-protection block rather than a
 // genuine outage or suspension. Returns the provider name, or null.
 function detectFirewall(headers: Headers | null, body: string, status: number): string | null {
@@ -622,16 +653,55 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       });
     }
 
-    // 9. Hidden iframes
-    const hiddenIframeRegex = /<iframe[^>]+(?:width=["']0["']|height=["']0["']|style=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px)[^"']*)[^>]*>/i;
-    if (hiddenIframeRegex.test(html)) {
-      findings.push({
-        category: 'malware',
-        severity: 'critical',
-        title: 'Hidden iframe injection detected',
-        detail: 'The page contains a hidden iframe (zero width/height or styled invisible). Attackers use hidden iframes to silently load exploit kits or conduct drive-by downloads.',
-        recommendation: 'Inspect theme templates and injected widgets for unauthorized iframe tags.',
-      });
+    // 9. Malicious / Hidden Iframes Check (ignores GTM, standard tracking, YouTube, Stripe, etc.)
+    const cleanIframeHtml = html.replace(/<noscript[\s\S]*?<\/noscript>/gi, '');
+    const iframeTags = cleanIframeHtml.match(/<iframe\s+[^>]*>[\s\S]*?<\/iframe>|<iframe\s+[^>]*\/?>/gi) || [];
+
+    for (const tag of iframeTags) {
+      const srcMatch = tag.match(/src=["']([^"']+)["']/i);
+      const src = srcMatch ? srcMatch[1] : '';
+      const isHidden = /(?:width=["']0(?:px)?["']|height=["']0(?:px)?["']|style=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px)[^"']*)/i.test(tag);
+
+      let isTrusted = false;
+      let isSameHost = false;
+      let isHighRisk = false;
+
+      if (src) {
+        try {
+          if (/^https?:\/\//i.test(src)) {
+            const u = new URL(src);
+            const iframeHost = u.hostname.toLowerCase();
+            const targetHost = target.hostname.toLowerCase();
+            isSameHost = iframeHost === targetHost || iframeHost.endsWith('.' + targetHost);
+            isTrusted = TRUSTED_IFRAME_DOMAINS.some((d) => iframeHost === d || iframeHost.endsWith('.' + d));
+            isHighRisk = /\.(?:top|icu|click|buzz|monster|cf|ga|gq|ml|tk|pw|cc)$/i.test(iframeHost) || /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(iframeHost);
+          } else if (src.startsWith('javascript:') || src.startsWith('data:text/html')) {
+            isHighRisk = true;
+          } else {
+            isSameHost = true;
+          }
+        } catch {}
+      }
+
+      if (isHighRisk) {
+        findings.push({
+          category: 'malware',
+          severity: 'critical',
+          title: 'Malicious external iframe detected',
+          detail: `The page loads an iframe from a high-risk or suspicious domain (${src.slice(0, 80)}). Attackers inject rogue iframes for drive-by downloads or credential theft.`,
+          recommendation: 'Locate and remove the injected iframe code from your template or active plugins.',
+        });
+        break;
+      } else if (isHidden && !isTrusted && !isSameHost && src) {
+        findings.push({
+          category: 'malware',
+          severity: 'critical',
+          title: 'Hidden unknown external iframe detected',
+          detail: `The page contains a hidden iframe pointing to an unknown external URL (${src.slice(0, 80)}). Attackers conceal iframes to execute unauthorized background actions.`,
+          recommendation: 'Inspect theme templates and injected widgets for unauthorized iframe tags.',
+        });
+        break;
+      }
     }
   } // end malware heuristics
 
