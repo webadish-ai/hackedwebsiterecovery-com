@@ -1,0 +1,85 @@
+---
+import Base from '@/layouts/Base.astro';
+import Nav from '@/components/Nav.astro';
+import Footer from '@/components/Footer.astro';
+import '@/styles/global.css';
+const caseId = Astro.params.id ?? '';
+const user = Astro.locals.user;
+---
+<Base title="Recovery case | HackedWebsiteRecovery.com" description="Customer recovery case status and updates." noindex={true}>
+  <Nav />
+  <main class="bg-slate-50 px-4 py-16 sm:py-24">
+    <div class="mx-auto max-w-3xl">
+      <a href="/portal/" class="text-sm font-semibold text-blue-700">← All cases</a>
+      <section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-6">
+          <div><p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">Recovery portal</p><h1 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-900">Case updates</h1>{user ? <p class="mt-2 text-sm text-slate-500">Signed in as {user.email}</p> : null}</div>
+          {user ? <form method="post" action="/api/auth/sign-out"><button class="rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700" type="submit">Sign out</button></form> : null}
+        </div>
+        <div id="customer-case" class="mt-7"><p class="text-sm text-slate-500">Loading case…</p></div>
+      </section>
+    </div>
+  </main>
+  <Footer />
+</Base>
+<script define:vars={{ caseId }}>
+  const target = document.querySelector('#customer-case');
+  const nextActions = {
+    awaiting_payment: 'Payment confirmation is still required.',
+    awaiting_access: 'Please complete the secure access checklist when requested.',
+    triage: 'Our team is reviewing the incident scope.',
+    awaiting_approval: 'Review the next step approval request when it arrives.',
+    in_progress: 'Our team is working through the recovery plan.',
+    verification: 'We are verifying the recovery result.',
+    monitoring: 'Your follow-up monitoring is in progress.',
+    completed: 'Download the final report and review the follow-up checklist.',
+    quoted_separately: 'A separate quote is waiting for your approval.',
+    refunded: 'This case has been refunded.',
+    cancelled: 'This case has been cancelled.',
+  };
+
+  function appendText(parent, tag, className, text) {
+    const element = document.createElement(tag);
+    element.className = className;
+    element.textContent = text;
+    parent.append(element);
+    return element;
+  }
+
+  function render(result) {
+    if (!target) return;
+    target.textContent = '';
+    const title = appendText(target, 'h2', 'text-2xl font-bold text-slate-900', `Case ${result.case.id}`);
+    title.setAttribute('data-case-title', 'true');
+    appendText(target, 'p', 'mt-2 font-semibold capitalize text-blue-700', result.case.status.replaceAll('_', ' '));
+    appendText(target, 'p', 'mt-2 text-sm text-slate-600', result.case.responseDeadlineAt ? `First response deadline: ${new Date(result.case.responseDeadlineAt).toLocaleString()}` : 'Response clock starts after verified payment and usable access.');
+    appendText(target, 'p', 'mt-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-900', nextActions[result.case.status] ?? 'We will share the next required action here.');
+
+    const timelineHeading = appendText(target, 'h3', 'mt-8 text-lg font-bold text-slate-900', 'Your update timeline');
+    timelineHeading.setAttribute('data-timeline-heading', 'true');
+    const events = result.timeline ?? [];
+    if (!events.length) appendText(target, 'p', 'mt-3 text-sm text-slate-500', 'No customer updates have been recorded yet.');
+    else {
+      const list = document.createElement('div'); list.className = 'mt-4 space-y-3';
+      for (const event of events) appendText(list, 'p', 'rounded-lg bg-slate-50 p-3 text-sm text-slate-700', `${new Date(event.createdAt).toLocaleString()} · ${event.body}`);
+      target.append(list);
+    }
+
+    const reportsHeading = appendText(target, 'h3', 'mt-8 text-lg font-bold text-slate-900', 'Reports');
+    reportsHeading.setAttribute('data-reports-heading', 'true');
+    const reports = result.attachments ?? [];
+    if (!reports.length) appendText(target, 'p', 'mt-3 text-sm text-slate-500', 'No reports are available yet.');
+    else {
+      const list = document.createElement('div'); list.className = 'mt-4 space-y-2';
+      for (const attachment of reports) { const link = document.createElement('a'); link.className = 'block rounded-lg border border-blue-200 px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50'; link.href = `/api/customer/reports/${encodeURIComponent(attachment.id)}`; link.textContent = `Download ${attachment.kind.replaceAll('_', ' ')}`; list.append(link); }
+      target.append(list);
+    }
+  }
+
+  fetch(`/api/customer/cases?caseId=${encodeURIComponent(caseId)}`, { headers: { Accept: 'application/json' } }).then(async (response) => {
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'This case could not be loaded.');
+    if (!result.case) throw new Error('This case could not be found.');
+    render(result);
+  }).catch((error) => { if (target) { target.textContent = ''; appendText(target, 'p', 'text-sm text-red-800', error instanceof Error ? error.message : 'This case could not be loaded.'); } });
+</script>

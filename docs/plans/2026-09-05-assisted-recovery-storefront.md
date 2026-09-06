@@ -129,3 +129,4 @@ Measure conversion, onboarding completion, time to usable access, first response
 - Do not deploy, change DNS, process live payments, provision production data resources, or collect real credentials without a separate release step.
 - Do not add automated malware deletion/database repair or imply universal/same-day completion.
 - Preserve unrelated working-tree changes and existing marketing/SEO routes. Implement Milestone 1 as the first bounded pull request.
+- Pre-production dependency gate: the current Astro `6.4.8` and `@astrojs/vercel` `10.0.8` line retains production audit advisories whose fixes require an Astro 7 and Vercel 11 compatibility migration. Complete that migration, including resolving the current `@astrojs/tailwind` 6 peer declaration (`^3 || ^4 || ^5`) against Astro 7, and rerun the full audit/build/browser gate before launch. Do not treat the current branch as production-ready solely because non-major audit fixes pass.
