@@ -244,6 +244,13 @@ const TRUSTED_IFRAME_DOMAINS = [
   'tidio.co',
 ];
 
+const TRUSTED_OUTBOUND_DOMAINS = [
+  'facebook.com', 'instagram.com', 'twitter.com', 'x.com', 'linkedin.com', 'youtube.com',
+  'tiktok.com', 'pinterest.com', 'google.com', 'maps.google.com', 'apple.com', 'webadish.co.uk',
+  'tripadvisor.com', 'tripadvisor.co.uk', 'opentable.co.uk', 'opentable.com', 'deliveroo.co.uk', 'just-eat.co.uk', 'ubereats.com',
+  'wordpress.org', 'schema.org', 'w3.org'
+];
+
 // Identify when a 403/503 is a firewall / bot-protection block rather than a
 // genuine outage or suspension. Returns the provider name, or null.
 function detectFirewall(headers: Headers | null, body: string, status: number): string | null {
@@ -499,40 +506,60 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
     }
 
     // 3. Hidden Links & Parasite Link Farm Detection (CSS trickery)
-    const hiddenLinkRegex = /<a\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px|opacity\s*:\s*0\b)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi;
-    const directHiddenLinks = [...html.matchAll(hiddenLinkRegex)];
+    // Note: Excludes animation opacity:0 states; only matches display:none, visibility:hidden, offscreen left/top, font-size:0, text-indent
+    const hiddenLinkRegex = /<a\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi;
+    const hiddenContainerRegex = /<(?:div|span|p|ul|li|section)\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|span|p|ul|li|section)>/gi;
 
-    const hiddenContainerRegex = /<(?:div|span|p|ul|li|section)\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px|opacity\s*:\s*0\b)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|span|p|ul|li|section)>/gi;
-    let containerHiddenLinksCount = 0;
-    const sampleHiddenLinks: string[] = [];
+    const rawHiddenLinks: { href: string; anchor: string }[] = [];
 
-    for (const match of html.matchAll(hiddenContainerRegex)) {
-      const linkMatches = [...match[1].matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
-      containerHiddenLinksCount += linkMatches.length;
+    for (const dm of html.matchAll(hiddenLinkRegex)) {
+      const href = dm[0].match(/href=["']([^"']+)["']/i)?.[1] || '';
+      const anchor = dm[1].replace(/<[^>]+>/g, '').trim();
+      if (href) rawHiddenLinks.push({ href, anchor });
+    }
+
+    for (const cm of html.matchAll(hiddenContainerRegex)) {
+      const linkMatches = [...cm[1].matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
       for (const lm of linkMatches) {
-        if (sampleHiddenLinks.length < 3) {
-          const anchor = lm[2].replace(/<[^>]+>/g, '').trim();
-          sampleHiddenLinks.push(anchor ? `${anchor} (${lm[1]})` : lm[1]);
+        const href = lm[1];
+        const anchor = lm[2].replace(/<[^>]+>/g, '').trim();
+        if (href) rawHiddenLinks.push({ href, anchor });
+      }
+    }
+
+    const lowerTargetHost = target.hostname.toLowerCase().replace(/^www\./, '');
+    const suspiciousHiddenLinks: { href: string; anchor: string; host: string }[] = [];
+
+    for (const item of rawHiddenLinks) {
+      const { href, anchor } = item;
+      if (!href || href.startsWith('#') || href.startsWith('tel:') || href.startsWith('mailto:') || href.startsWith('javascript:')) continue;
+      if (!/^https?:\/\//i.test(href)) {
+        // Relative path (/menu, /about) is an internal link, not a spam link farm
+        continue;
+      }
+
+      try {
+        const u = new URL(href);
+        const host = u.hostname.toLowerCase().replace(/^www\./, '');
+        if (host === lowerTargetHost || host.endsWith('.' + lowerTargetHost)) {
+          // Internal absolute link -> safe
+          continue;
         }
-      }
+        if (TRUSTED_OUTBOUND_DOMAINS.some((d) => host === d || host.endsWith('.' + d))) {
+          // Trusted social or business profile -> safe
+          continue;
+        }
+        suspiciousHiddenLinks.push({ href, anchor, host });
+      } catch {}
     }
 
-    // Add samples from direct hidden links
-    for (const dm of directHiddenLinks) {
-      if (sampleHiddenLinks.length < 3) {
-        const href = dm[0].match(/href=["']([^"']+)["']/i)?.[1] || '';
-        const anchor = dm[1].replace(/<[^>]+>/g, '').trim();
-        sampleHiddenLinks.push(anchor ? `${anchor} (${href})` : href);
-      }
-    }
-
-    const totalHiddenLinks = Math.max(directHiddenLinks.length, containerHiddenLinksCount);
-    if (totalHiddenLinks >= 2) {
+    if (suspiciousHiddenLinks.length >= 2) {
+      const sampleHiddenLinks = suspiciousHiddenLinks.slice(0, 3).map((l) => `${l.href}${l.anchor ? ` ("${l.anchor}")` : ''}`);
       findings.push({
         category: 'malware',
         severity: 'critical',
-        title: `Hidden link farm / Parasite SEO injection detected (${totalHiddenLinks} hidden links)`,
-        detail: `Found ${totalHiddenLinks} hidden outbound link(s) concealed using CSS (display:none / off-screen positioning). Sample injected links: ${sampleHiddenLinks.slice(0, 3).join(', ')}. Attackers inject hidden links to turn infected WordPress sites into link farms for illegal gambling, phishing, or adult networks without the owner seeing them.`,
+        title: `Hidden link farm / Parasite SEO injection detected (${suspiciousHiddenLinks.length} hidden external links)`,
+        detail: `Found ${suspiciousHiddenLinks.length} hidden external link(s) concealed using CSS (display:none / off-screen positioning). Sample injected links: ${sampleHiddenLinks.join(', ')}. Attackers inject hidden links to turn infected WordPress sites into link farms for illegal gambling, phishing, or adult networks without the owner seeing them.`,
         recommendation: 'Remove the injected links from your active theme, header/footer hooks, and database, and eliminate the backdoor entry point.',
       });
     }
