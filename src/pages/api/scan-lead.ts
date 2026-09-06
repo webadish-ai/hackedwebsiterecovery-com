@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
   const resend = new Resend(apiKey);
   const hot = result.verdict === 'infected';
 
-  // 1) Hot-lead alert to the team.
+  // 1) Hot-lead alert to the team via Resend email.
   await resend.emails
     .send({
       from: FROM,
@@ -55,7 +55,10 @@ export const POST: APIRoute = async ({ request }) => {
     })
     .catch((e) => console.error('Team lead email failed:', e));
 
-  // 2) The visitor's own report.
+  // 2) Instant Telegram / Webhook push alert (for immediate 2-min mobile response)
+  await dispatchPushAlert(result, email, phone, 'hackedwebsiterecovery.com');
+
+  // 3) The visitor's own report.
   await resend.emails
     .send({
       from: FROM,
@@ -68,6 +71,61 @@ export const POST: APIRoute = async ({ request }) => {
 
   return json({ ok: true, emailed: true, result }, 200);
 };
+
+async function dispatchPushAlert(result: ScanResult, email: string, phone: string, siteSource: string) {
+  const token = (import.meta.env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN || '').trim();
+  const chatId = (import.meta.env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID || '').trim();
+  const webhookUrl = (import.meta.env.LEAD_WEBHOOK_URL || process.env.LEAD_WEBHOOK_URL || '').trim();
+
+  const host = hostOf(result.finalUrl);
+  const isHot = result.verdict === 'infected';
+  const topFinding = result.findings.find((f) => f.severity === 'critical') || result.findings.find((f) => f.severity === 'warning');
+  const topIssue = topFinding ? topFinding.title : 'No critical flags';
+
+  if (token && chatId) {
+    const text = `${isHot ? '🚨 *HOT MALWARE LEAD*' : '⚡ *NEW SCAN LEAD*'}\n\n` +
+      `🌐 *Site:* \`${host}\`\n` +
+      `📊 *Health Score:* ${result.score}/100 (${result.counts.critical} crit, ${result.counts.warning} warn)\n` +
+      `⚠️ *Top Threat:* ${topIssue}\n` +
+      `📧 *Email:* \`${email}\`\n` +
+      `📱 *WhatsApp:* ${phone ? `\`${phone}\`` : '_not provided_'}\n` +
+      `🏷️ *Source:* ${siteSource}\n\n` +
+      (phone ? `💬 [Open WhatsApp Chat](https://wa.me/${phone.replace(/\D/g, '')})` : '');
+
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      }),
+    }).catch((e) => console.error('Telegram push alert failed:', e));
+  }
+
+  if (webhookUrl) {
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'scan_lead',
+        source: siteSource,
+        isHot,
+        url: result.finalUrl,
+        host,
+        score: result.score,
+        verdict: result.verdict,
+        criticalCount: result.counts.critical,
+        warningCount: result.counts.warning,
+        topIssue,
+        email,
+        phone,
+        scannedAt: result.scannedAt,
+      }),
+    }).catch((e) => console.error('Webhook push alert failed:', e));
+  }
+}
 
 // ---- helpers ----------------------------------------------------------------
 
