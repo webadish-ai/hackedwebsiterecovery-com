@@ -399,4 +399,12 @@ const checks = [
 
   function hostOf(u: string) { try { return new URL(u).host; } catch { return u; } }
   function esc(s: string) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string)); }
+
+  // Auto-run scan if URL query parameter is passed (e.g. from Homepage Hero input)
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialUrl = urlParams.get('url');
+  if (initialUrl) {
+    urlInput.value = initialUrl;
+    form.dispatchEvent(new Event('submit', { cancelable: true }));
+  }
 </script>
