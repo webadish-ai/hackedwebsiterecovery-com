@@ -156,30 +156,38 @@ async function safeFetch(
 // ---- Detection Pattern Dictionaries -----------------------------------------
 
 const OBFUSCATION_PATTERNS: { re: RegExp; label: string }[] = [
-  { re: /eval\s*\(\s*(?:atob|unescape|String\.fromCharCode|function)/i, label: 'eval() of decoded/obfuscated code' },
-  { re: /document\.write\s*\(\s*unescape\s*\(/i, label: 'document.write(unescape(...))' },
+  { re: /eval\s*\(\s*(?:atob|unescape|String\.fromCharCode|function|window\s*\[)/i, label: 'eval() of decoded/obfuscated code' },
+  { re: /new\s+Function\s*\(\s*(?:atob|unescape|String\.fromCharCode)/i, label: 'new Function() constructor of decoded payload' },
+  { re: /document\.write\s*\(\s*(?:unescape|atob)\s*\(/i, label: 'document.write() of decoded/obfuscated code' },
   { re: /String\.fromCharCode\((?:\s*\d+\s*,){15,}/i, label: 'long String.fromCharCode payload' },
-  { re: /\\x[0-9a-f]{2}(?:\\x[0-9a-f]{2}){20,}/i, label: 'long hex-encoded string' },
-  { re: /(?:var|let|const)\s+_0x[a-f0-9]{4,}/i, label: 'obfuscated _0x variable (packed JS)' },
-  { re: /atob\s*\(\s*['"][A-Za-z0-9+/=]{120,}/i, label: 'large base64 blob passed to atob()' },
+  { re: /\\x[0-9a-f]{2}(?:\\x[0-9a-f]{2}){25,}/i, label: 'long hex-encoded string payload' },
+  { re: /(?:eval|Function)\s*\(\s*['"][A-Za-z0-9+/=]{120,}['"]\s*\)/i, label: 'eval/Function execution of raw base64 string' },
 ];
 
-// High-confidence Casino, Gambling, and Slot keywords (English, Indonesian, Asian hacks)
-const CASINO_SLOT_PHRASES = [
-  // Indonesian / Asian slot spam (extremely common in WordPress hacks)
+// High-confidence Asian & International Slot / Gambling Spam (Always high-risk on compromised sites)
+const ASIAN_SLOT_PHRASES = [
+  // Indonesian / Malay slot & toto spam
   'slot gacor', 'judi online', 'situs slot', 'slot online', 'bandar togel', 'toto macau', 'agen judi',
   'daftar slot', 'link gacor', 'bocoran slot', 'slot88', 'slot deposit', 'pragmatic play', 'pg soft',
   'maxwin', 'rtp live', 'rtp slot', 'judi slot', 'taruhan bola', 'agen slot', 'situs judi',
   'bonus new member', 'deposit pulsa', 'menang jackpot', 'slot pulsa', 'togel online', 'agen togel',
-  'bonanza138', 'pakar69', 'bigo234', 'pangkalantoto', 'sbobettop',
-  // English casino & betting
-  'online casino', 'slot machine', 'casino bonus', 'free spins', 'no deposit bonus', 'baccarat online',
-  'roulette online', 'poker online', 'sportsbook', 'sports betting', 'betting odds', 'live casino',
-  'bet online', 'sbobet', 'jackpot games', 'crypto casino', 'gambling site',
-  // Thai & Vietnamese gambling keywords
-  'สล็อต', 'คาสิโน', 'แทงบอล', 'เว็บบอล', 'บาคาร่า', 'nhà cái', 'cá cược', 'game bài', 'nổ hũ',
+  'slot dana', 'slot qris', 'gacor hari ini', 'slot maxwin', 'link slot', 'situs judi online',
+  'bonanza138', 'pakar69', 'bigo234', 'pangkalantoto', 'sbobettop', 'maha168', 'mpo777', 'sensa138',
+  // Thai gambling keywords
+  'สล็อต', 'คาสิโน', 'แทงบอล', 'เว็บบอล', 'บาคาร่า', 'ทางเข้า', 'เว็บตรง', 'สล็อตวอเลท',
+  // Vietnamese gambling keywords
+  'nhà cái', 'cá cược', 'game bài', 'nổ hũ', 'đánh bài online', 'soi cầu',
+  // Chinese gambling keywords
+  '博彩', '开奖', '澳门新葡京', '真人视讯', '六合彩', '皇冠体育', '网络赌博', '在线赌场', '电子游戏',
   // Adult / Escort / MMS spam injections
   'desi mms', 'aagmaal', 'escort service', 'call girls', 'adult webcam', 'sex chat', 'xxx video', 'porn video'
+];
+
+// Generic English Casino / Betting keywords (Require >= 3 distinct terms or hidden/cloaked contexts)
+const ENGLISH_CASINO_TERMS = [
+  'online casino', 'slot machine', 'casino bonus', 'free spins', 'no deposit bonus', 'baccarat online',
+  'roulette online', 'poker online', 'sportsbook', 'sports betting', 'betting odds', 'live casino',
+  'bet online', 'sbobet', 'jackpot games', 'crypto casino', 'gambling site', 'online slots'
 ];
 
 // Pharma spam phrases and high-risk terms
@@ -187,30 +195,38 @@ const PHARMA_PHRASES = [
   'buy viagra', 'generic viagra', 'cheap viagra', 'buy cialis', 'generic cialis', 'cheap cialis',
   'buy levitra', 'kamagra online', 'tramadol without prescription', 'buy phentermine',
   'canadian pharmacy online', 'no prescription pharmacy', 'buy modafinil', 'cialis without doctor prescription',
-  'buy ambien online', 'cheap xanax online', 'buy ivermectin online'
+  'buy ambien online', 'cheap xanax online', 'buy ivermectin online', 'buy soma online', 'buy valium online',
+  'order viagra', 'order cialis', 'discount viagra', 'discount cialis'
 ];
 
 const SINGLE_PHARMA_KEYWORDS = [
-  'viagra', 'cialis', 'levitra', 'kamagra', 'tramadol', 'phentermine', 'ambien', 'xanax', 'modafinil'
+  'viagra', 'cialis', 'levitra', 'kamagra', 'tramadol', 'phentermine', 'ambien', 'xanax', 'modafinil', 'ivermectin'
 ];
 
 // Japanese keyword hack terms (counterfeit luxury / shopping spam)
-const JAPANESE_SPAM_TERMS = [
-  '激安', '通販', '人気', '送料無料', '割引', '財布', '時計', 'ルイヴィトン', 'グッチ', 'シャネル',
-  'スニーカー', '新作', '通販専門店', 'スーパーコピー', '偽物'
-];
-
-// Chinese doorway spam keywords
-const CHINESE_GAMBLING_TERMS = [
-  '博彩', '开奖', '澳门新葡京', '真人视讯', '六合彩', '皇冠体育', '网络赌博', '在线赌场'
+const JAPANESE_LUXURY_SPAM_TERMS = [
+  '激安', 'スーパーコピー', '送料無料', '通販専門店', '新作通販', 'ルイヴィトン', 'グッチ', 'シャネル',
+  'ロレックス', '財布', '時計', 'スニーカー', '偽物', 'レプリカ', 'ブランドコピー', '通販'
 ];
 
 const KNOWN_BAD_SNIPPETS: { re: RegExp; label: string }[] = [
-  { re: /coinhive|coin-hive|cryptonight|cryptoloot|webminepool/i, label: 'cryptominer script' },
-  { re: /megalayer|wp-vcd|class\.wp\.php|wp-tmp\.php|wso-shell|alfa-rex/i, label: 'known WordPress malware marker (wp-vcd/webshell family)' },
-  { re: /<script[^>]+src=["']https?:\/\/[^"']+\.(?:top|icu|click|buzz|monster|cf|ga|gq|ml|tk|pw|cc)\/[^"']*["']/i, label: 'script from a high-risk / spam TLD' },
-  { re: /(?:pushwelcome|webpushservice|smart-display-system|adsterra|onclickads|adskeeper)/i, label: 'injected adware / push-notification spam script' },
-  { re: /document\.referrer\s*\.match\s*\(\s*['"][^'"]*(?:google|bing|yahoo|yandex|facebook)/i, label: 'search-engine referrer sniffing redirect' },
+  // Cryptominers
+  { re: /coinhive|coin-hive|cryptonight|cryptoloot|webminepool|deepminer|coinimp|jsecoin/i, label: 'cryptominer script' },
+  // Webshells & backdoors
+  { re: /wso-shell|b374k|c99shell|r57shell|alfa-team|alfa-rex|filesman|bypass403|indoxploit|pouya_shell|angel_shell|c99\.php|wso\.php|b374k\.php/i, label: 'webshell / backdoor signature' },
+  { re: /eval\s*\(\s*\$_POST|assert\s*\(\s*\$_POST|file_get_contents\s*\(\s*['"]php:\/\/input['"]\)|gzuncompress\s*\(\s*\$_POST/i, label: 'leaked PHP execution backdoor payload' },
+  // Balada Injector / Fast-flux dynamic loaders
+  { re: /specialeventscdn|traffic-media|dynamic-traffic|online-metrics|web-statistics|analytic-platform|cloud-delivery|statistic-analytics|track-statistic|stat-counter-analytics/i, label: 'Balada Injector / malicious fast-flux traffic script' },
+  { re: /<script[^>]+src=["']https?:\/\/[^"']+\.(?:top|icu|click|buzz|monster|cf|ga|gq|ml|tk|pw|cc)\/[^"']*["']/i, label: 'script loaded from a high-risk / spam TLD' },
+  // SocGholish / Fake browser update malware
+  { re: /fakeupdates|socgholish|chromeupdate|edgeupdate|browser-update\.js|update-browser\.js/i, label: 'fake browser update malware (SocGholish / FakeUpdates)' },
+  // Adware & spam push networks
+  { re: /(?:pushwelcome|webpushservice|smart-display-system|adsterra|onclickads|adskeeper|propellerads|clickadu|monetag|hilltopads|richpush|notix|inpagepush)/i, label: 'injected adware / push-notification spam script' },
+  // Referrer-sniffing & mobile traffic hijacking redirects
+  { re: /document\.referrer\s*\.match\s*\(\s*['"][^'"]*(?:google|bing|yahoo|yandex|facebook|instagram|twitter)/i, label: 'search-engine referrer sniffing redirect' },
+  { re: /navigator\.userAgent\s*\.match\s*\(\s*['"][^'"]*(?:android|iphone|ipad|mobile)/i, label: 'mobile user-agent sniffing redirect' },
+  // Web skimmers / Magecart card sniffers
+  { re: /addEventListener\s*\(\s*['"]submit['"][\s\S]{1,300}(?:cc_number|cvv|card_number|exp_date)[\s\S]{1,300}(?:fetch|sendBeacon|Image)/i, label: 'credit card skimmer (Magecart) exfiltration script' },
 ];
 
 const TRUSTED_IFRAME_DOMAINS = [
@@ -343,13 +359,16 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
   const base = `${target.protocol}//${target.host}`;
   const scannedAt = new Date().toISOString();
 
-  // Run primary browser fetch, Googlebot cloaking probe, and WordPress probe paths concurrently.
-  const [home, botHome, readme, uploads, configBak, sb] = await Promise.all([
+  // Run primary browser fetch, Googlebot cloaking probe, and security probe paths concurrently.
+  const [home, botHome, readme, uploads, configBak, envProbe, gitProbe, debugLog, sb] = await Promise.all([
     safeFetch(target.href, 'GET', BROWSER_HEADERS),
     safeFetch(target.href, 'GET', BOT_HEADERS),
     safeFetch(`${base}/readme.html`, 'GET'),
     safeFetch(`${base}/wp-content/uploads/`, 'GET'),
     safeFetch(`${base}/wp-config.php.bak`, 'GET'),
+    safeFetch(`${base}/.env`, 'GET'),
+    safeFetch(`${base}/.git/HEAD`, 'GET'),
+    safeFetch(`${base}/wp-content/debug.log`, 'GET'),
     checkSafeBrowsing(target.href, opts.safeBrowsingKey),
   ]);
 
@@ -379,7 +398,12 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
   // A 403/503 to our scanner is usually firewall/bot protection, not a real outage
   const blocked = home.status === 403 || home.status === 503;
   const firewall = blocked ? detectFirewall(headers, html, home.status) : null;
-  const isWordPress = !blocked && (detectWordPress(html, headers) || detectWordPress(botHtml, botHome.headers));
+  const isWordPress =
+    !blocked &&
+    (detectWordPress(html, headers) ||
+      detectWordPress(botHtml, botHome.headers) ||
+      (readme.ok && /<title>WordPress\s*(?:&#8250;|—|-)?\s*ReadMe<\/title>/i.test(readme.body)) ||
+      (debugLog.ok && /PHP\s+(?:Fatal|Notice|Warning|Stack trace)|WordPress database error|\[\d{2}-[A-Za-z]{3}-\d{4}/i.test(debugLog.body)));
 
   const findings: Finding[] = [];
   let blacklistKnown = true;
@@ -439,18 +463,26 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
     }
   }
 
-  // --- WordPress exposure ---
+  // --- WordPress Exposure & Sensitive File Probes ---
   if (isWordPress) {
     const genMatch = html.match(/<meta[^>]+name=["']generator["'][^>]+content=["']WordPress\s+([\d.]+)/i);
-    const readmeVer = readme.ok ? (readme.body.match(/Version\s+([\d.]+)/i)?.[1] || null) : null;
-    const exposedVersion = genMatch?.[1] || readmeVer;
-    if (exposedVersion) {
+    if (genMatch?.[1]) {
       findings.push({
         category: 'wordpress',
         severity: 'warning',
-        title: `WordPress version exposed (${exposedVersion})`,
-        detail: `Your WordPress version (${exposedVersion}) is publicly visible${readmeVer ? ' via /readme.html' : ' via the generator meta tag'}. Attackers use this to target version-specific exploits.`,
-        recommendation: 'Remove the generator meta tag and delete or block /readme.html, and keep WordPress core updated.',
+        title: `WordPress version exposed (${genMatch[1]})`,
+        detail: `Your WordPress version (${genMatch[1]}) is publicly visible via the generator meta tag. Attackers use this to target version-specific vulnerabilities.`,
+        recommendation: 'Remove the generator meta tag via your theme functions or a security plugin, and keep WordPress updated.',
+      });
+    }
+
+    if (readme.ok && /<title>WordPress\s*(?:&#8250;|—|-)?\s*ReadMe<\/title>/i.test(readme.body)) {
+      findings.push({
+        category: 'wordpress',
+        severity: 'warning',
+        title: 'Exposed WordPress readme.html file',
+        detail: 'Your /readme.html file is publicly accessible. This confirms your site is powered by WordPress and helps attackers map out standard installation structures.',
+        recommendation: 'Delete or block public access to /readme.html from your web server.',
       });
     }
 
@@ -464,6 +496,16 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       });
     }
 
+    if (debugLog.ok && /PHP\s+(?:Fatal|Notice|Warning|Stack trace)|WordPress database error|\[\d{2}-[A-Za-z]{3}-\d{4}/i.test(debugLog.body)) {
+      findings.push({
+        category: 'wordpress',
+        severity: 'warning',
+        title: 'Exposed WordPress debug.log file',
+        detail: 'The file /wp-content/debug.log is publicly accessible. It leaks PHP error traces, internal file paths, and database query notices.',
+        recommendation: 'Turn off WP_DEBUG_LOG in wp-config.php and restrict public access to debug.log in .htaccess or server settings.',
+      });
+    }
+
     if (configBak.ok && /DB_PASSWORD|DB_NAME|table_prefix/i.test(configBak.body)) {
       findings.push({
         category: 'wordpress',
@@ -473,6 +515,27 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
         recommendation: 'Delete the exposed backup immediately and rotate your database password and WordPress salts.',
       });
     }
+  }
+
+  // --- Exposed Git or .env files (Severe Server Leaks) ---
+  if (gitProbe.ok && /ref:\s*refs\/|commit\s+[0-9a-f]{40}/i.test(gitProbe.body)) {
+    findings.push({
+      category: 'wordpress',
+      severity: 'critical',
+      title: 'Exposed .git source repository',
+      detail: 'The /.git/ repository directory is publicly accessible. Attackers can dump your complete application source code, commit history, and embedded credentials.',
+      recommendation: 'Block public access to /.git and all hidden dot directories in your web server configuration immediately.',
+    });
+  }
+
+  if (envProbe.ok && /(?:DB_PASSWORD|DB_NAME|APP_KEY|AWS_SECRET|JWT_SECRET|SECRET_KEY)\s*=/i.test(envProbe.body)) {
+    findings.push({
+      category: 'wordpress',
+      severity: 'critical',
+      title: 'Exposed .env configuration file',
+      detail: 'The /.env environment configuration file is publicly accessible and contains sensitive environment variables, database passwords, or secret API keys.',
+      recommendation: 'Block public access to .env and rotate all leaked passwords and API keys immediately.',
+    });
   }
 
   // --- Malware / SEO Hijack / Injections (only on a genuine page load) ---
@@ -506,7 +569,7 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
     }
 
     // 3. Hidden Links & Parasite Link Farm Detection (CSS trickery)
-    // Note: Excludes animation opacity:0 states; only matches display:none, visibility:hidden, offscreen left/top, font-size:0, text-indent
+    // Excludes animation opacity:0 states; only matches display:none, visibility:hidden, offscreen left/top, font-size:0, text-indent
     const hiddenLinkRegex = /<a\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px)[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi;
     const hiddenContainerRegex = /<(?:div|span|p|ul|li|section)\s+[^>]*style\s*=\s*["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden|position\s*:\s*absolute\s*;\s*(?:left|top)\s*:\s*-\d{3,5}px|font-size\s*:\s*0(?:px|pt|em|rem)?|text-indent\s*:\s*-\d{3,5}px)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|span|p|ul|li|section)>/gi;
 
@@ -564,19 +627,42 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       });
     }
 
-    // 4. Casino / Gambling / Slot Keywords (Multi-Language)
+    // 4. Casino / Gambling / Slot Keywords (Multi-Language & Context-Aware)
     const lowerHtml = html.toLowerCase();
     const lowerBotHtml = botHtml.toLowerCase();
-    const foundCasino = CASINO_SLOT_PHRASES.filter(
+
+    // Asian & high-confidence spam markers (e.g. slot gacor, judi online, bandar togel, toto macau)
+    const foundAsianCasino = ASIAN_SLOT_PHRASES.filter(
       (k) => lowerHtml.includes(k.toLowerCase()) || lowerBotHtml.includes(k.toLowerCase())
     );
 
-    if (foundCasino.length > 0) {
+    // Generic English casino words (e.g. sportsbook, sports betting, online casino)
+    const foundEnglishCasino = ENGLISH_CASINO_TERMS.filter(
+      (k) => lowerHtml.includes(k.toLowerCase()) || lowerBotHtml.includes(k.toLowerCase())
+    );
+
+    // Check if casino terms appear in concealed CSS hidden links or cloaked bot title
+    const browserTitle = extractTagContent(html, 'title');
+    const botTitle = extractTagContent(botHtml, 'title');
+    const hasCloakedCasinoTitle = botTitle !== browserTitle && foundEnglishCasino.some((k) => botTitle.toLowerCase().includes(k));
+    const hasHiddenCasinoLinks = suspiciousHiddenLinks.some((l) => foundEnglishCasino.some((k) => l.anchor.toLowerCase().includes(k) || l.href.toLowerCase().includes(k)));
+
+    // Spam condition:
+    // 1) Any Asian slot syndicate phrase (100% malicious on standard WP sites), OR
+    // 2) 4+ distinct English casino terms, OR
+    // 3) English casino terms inside hidden link farms or cloaked Googlebot title
+    const isSpamCasino =
+      foundAsianCasino.length > 0 ||
+      foundEnglishCasino.length >= 4 ||
+      (foundEnglishCasino.length >= 1 && (hasCloakedCasinoTitle || hasHiddenCasinoLinks));
+
+    if (isSpamCasino) {
+      const allFoundCasino = [...new Set([...foundAsianCasino, ...foundEnglishCasino])];
       findings.push({
         category: 'malware',
         severity: 'critical',
         title: 'Casino / Gambling / Slot SEO spam keywords detected',
-        detail: `Injected casino/gambling keywords detected: ${foundCasino.slice(0, 6).join(', ')}. Attackers inject high-volume gambling spam (such as slot gacor, judi online, casino backlinks) to hijack your domain authority for search rankings.`,
+        detail: `Injected casino/gambling keywords detected: ${allFoundCasino.slice(0, 6).join(', ')}. Attackers inject high-volume gambling spam (such as slot gacor, judi online, casino backlinks) to hijack your domain authority for search rankings.`,
         recommendation: 'Scan database posts, options table, and template files for injected spam content, clean all spam URLs, and secure the site.',
       });
     }
@@ -589,7 +675,11 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       (k) => new RegExp(`\\b${k}\\b`, 'i').test(lowerHtml) || new RegExp(`\\b${k}\\b`, 'i').test(lowerBotHtml)
     );
 
-    if (foundPharmaPhrases.length > 0 || foundSinglePharma.length >= 2) {
+    const hasCloakedPharma =
+      foundPharmaPhrases.some((k) => lowerBotHtml.includes(k) && !lowerHtml.includes(k)) ||
+      foundSinglePharma.some((k) => lowerBotHtml.includes(k) && !lowerHtml.includes(k));
+
+    if (foundPharmaPhrases.length > 0 || foundSinglePharma.length >= 3 || hasCloakedPharma) {
       const combinedPharma = [...new Set([...foundPharmaPhrases, ...foundSinglePharma])];
       findings.push({
         category: 'malware',
@@ -601,45 +691,33 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
     }
 
     // 6. Japanese & Foreign Character SEO Spam (Doorway Pages)
-    const browserTitle = extractTagContent(html, 'title');
-    const botTitle = extractTagContent(botHtml, 'title');
     const browserMetaDesc = extractMetaContent(html, 'description');
     const botMetaDesc = extractMetaContent(botHtml, 'description');
     const browserOgTitle = extractMetaContent(html, 'og:title');
     const botOgTitle = extractMetaContent(botHtml, 'og:title');
 
     const isJpDomain = target.hostname.endsWith('.jp');
-    const isCnDomain = target.hostname.endsWith('.cn') || target.hostname.endsWith('.hk') || target.hostname.endsWith('.tw');
 
     const hasJapaneseChars =
-      /[぀-ヿ一-龯]/.test(browserTitle) ||
-      /[぀-ヿ一-龯]/.test(botTitle) ||
-      /[぀-ヿ一-龯]/.test(browserMetaDesc) ||
-      /[぀-ヿ一-龯]/.test(botMetaDesc) ||
-      /[぀-ヿ一-龯]/.test(browserOgTitle) ||
-      /[぀-ヿ一-龯]/.test(botOgTitle);
+      /[぀-ヿ]/.test(browserTitle) ||
+      /[぀-ヿ]/.test(botTitle) ||
+      /[぀-ヿ]/.test(browserMetaDesc) ||
+      /[぀-ヿ]/.test(botMetaDesc) ||
+      /[぀-ヿ]/.test(browserOgTitle) ||
+      /[぀-ヿ]/.test(botOgTitle);
 
-    const foundJpSpam = JAPANESE_SPAM_TERMS.filter((term) => html.includes(term) || botHtml.includes(term));
+    const foundJpSpam = JAPANESE_LUXURY_SPAM_TERMS.filter((term) => html.includes(term) || botHtml.includes(term));
 
-    if (!isJpDomain && (hasJapaneseChars || foundJpSpam.length >= 2)) {
+    // Cloaked Japanese title (Googlebot gets Japanese while browser gets English)
+    const isCloakedJapanese = !isJpDomain && /[぀-ヿ]/.test(botTitle) && !/[぀-ヿ]/.test(browserTitle);
+
+    if (!isJpDomain && (isCloakedJapanese || foundJpSpam.length >= 2 || (hasJapaneseChars && foundJpSpam.length >= 1))) {
       findings.push({
         category: 'malware',
         severity: 'critical',
         title: 'Japanese keyword hack (SEO Spam) detected',
-        detail: `Japanese characters or commercial spam terms were detected on a non-Japanese website (Title: "${botTitle || browserTitle || 'Injected metadata'}"). The Japanese keyword hack creates thousands of fake indexed spam pages for counterfeit goods.`,
+        detail: `Japanese commercial spam terms were detected on a non-Japanese website (Matched: ${foundJpSpam.slice(0, 4).join(', ') || 'Cloaked Japanese metadata'}). The Japanese keyword hack creates fake indexed spam pages for counterfeit goods.`,
         recommendation: 'Remove the spam-page generator scripts, clean rogue .htaccess rewrites, and request indexing removal in Google Search Console.',
-      });
-    }
-
-    // Chinese doorway spam check
-    const foundCnSpam = CHINESE_GAMBLING_TERMS.filter((term) => html.includes(term) || botHtml.includes(term));
-    if (!isCnDomain && foundCnSpam.length > 0) {
-      findings.push({
-        category: 'malware',
-        severity: 'critical',
-        title: 'Chinese gambling doorway hack detected',
-        detail: `Injected Chinese gambling keywords detected: ${foundCnSpam.join(', ')}. Attackers use compromised sites to host illegal gambling doorway portals.`,
-        recommendation: 'Clean compromised files and database entries, remove malicious redirects, and harden WordPress credentials.',
       });
     }
 
@@ -657,7 +735,7 @@ export async function runScan(rawUrl: string, opts: { safeBrowsingKey?: string }
       }
 
       // Differential Title (Googlebot sees spam title that site owners don't see)
-      if (botTitle && browserTitle && botTitle !== browserTitle && (hasJapaneseChars || foundCasino.length > 0 || foundPharmaPhrases.length > 0)) {
+      if (botTitle && browserTitle && botTitle !== browserTitle && (hasJapaneseChars || isSpamCasino || foundPharmaPhrases.length > 0)) {
         findings.push({
           category: 'malware',
           severity: 'critical',
