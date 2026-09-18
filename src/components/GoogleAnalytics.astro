@@ -12,6 +12,7 @@ const { id } = Astro.props;
   gtag('js', new Date());
 
   gtag('config', id);
+  gtag('config', 'AW-17995549251');
 </script>
 
 <script is:inline>
@@ -20,6 +21,9 @@ const { id } = Astro.props;
       gtag('event', 'whatsapp_click', {
         'event_category': 'Engagement',
         'event_label': 'WhatsApp Link'
+      });
+      gtag('event', 'conversion', {
+        'send_to': 'AW-17995549251/tE5MCMmO4LEcEMOU-YRD'
       });
     }
   };
